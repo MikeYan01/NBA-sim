@@ -1,0 +1,5 @@
+.DS_Store
+.vscode/
+*.class
+tempRoster.csv
+tempFolder/
