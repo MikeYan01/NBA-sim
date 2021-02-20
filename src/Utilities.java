@@ -18,7 +18,7 @@ public class Utilities {
     }
 
     /**
-    * Round a double number to 2 scale.
+     * Round a double number to 2 scale.
      * 
      * @param num The double number to be rounded
      * @return A rounded number
