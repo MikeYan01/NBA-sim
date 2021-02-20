@@ -6,23 +6,23 @@ import java.math.RoundingMode;
 
 public class Utilities {
     /**
-	 * Generate a random number from range [min, max].
+     * Generate a random number from range [min, max].
      * 
      * @param random The Random object to generate random number
      * @param min The lower bound of the range
      * @param max The upper bound of the range
      * @return A random number
-	 */
+     */
     public static int generateRandomNum(Random random, int min, int max) {
         return random.nextInt(max) % (max - min + 1) + min;
     }
 
     /**
-	 * Round a double number to 2 scale.
+    * Round a double number to 2 scale.
      * 
      * @param num The double number to be rounded
      * @return A rounded number
-	 */
+     */
     public static double roundDouble(double num) {
         BigDecimal b = new BigDecimal(num);
         double result = b.setScale(2, RoundingMode.HALF_UP).doubleValue();
@@ -30,10 +30,10 @@ public class Utilities {
     }
 
     /**
-	 * Generate current play's time from range [1, 24] in seconds.
+     * Generate current play's time from range [1, 24] in seconds.
      * 
      * @return Play time
-	 */
+     */
     public static int generateRandomPlayTime(Random random) {
         int currentPlayTime = generateRandomNum(random, 4, 24);
         if (currentPlayTime <= 9 && generateRandomNum(random, 1, 10) <= 8) currentPlayTime += 8;
@@ -42,12 +42,12 @@ public class Utilities {
     }
 
     /**
-	 * Select a player based on rating.
+     * Select a player based on rating.
      * 
      * @param TeamOnCourt Current players on the court
      * @param attr The rating criteria, including 'rating', 'orb', 'drb' and 'ast'
      * @return Selected player
-	 */
+     */
     public static Player choosePlayerBasedOnRating(Random random, Map<String, Player> TeamOnCourt, String attr) {
         int totalRating = 0;
         for (String pos : TeamOnCourt.keySet()) {
@@ -102,12 +102,12 @@ public class Utilities {
     }
 
     /**
-	 * Select a player to defense the offense player.
+     * Select a player to defense the offense player.
      * 
      * @param offensePlayer Offense player
      * @param defenseTeamOnCourt Current defense players on the court
      * @return Selected player
-	 */
+     */
     public static Player chooseDefensePlayer(Random random, Player offensePlayer, Map<String, Player> defenseTeamOnCourt) {
         int poss = generateRandomNum(random, 1, 100);
 
@@ -124,14 +124,14 @@ public class Utilities {
     }
 
     /**
-	 * Generate actions after losing ball.
+     * Generate actions after losing ball.
      * 
      * @param defenseTeam Defense team
      * @param offensePlayer Offense player
      * @param defensePlayer Defense player
      * @param defenseTeamOnCourt Current defense players on the court
      * @return 0 - no lose ball, 1 - lose ball but no score, 2 - loss ball and score
-	 */
+     */
     public static int judgeLoseBall(Random random, Team defenseTeam, Map<String, Player> defenseTeamOnCourt, Player offensePlayer, Player defensePlayer) {
         int poss = generateRandomNum(random, 1, 100);
 
@@ -189,7 +189,7 @@ public class Utilities {
     }
 
     /**
-	 * Generate actions after a block.
+     * Generate actions after a block.
      * 
      * @param distance Shot distance
      * @param offensePlayer Offense player
@@ -197,7 +197,7 @@ public class Utilities {
      * @param offenseTeamOnCourt Current offense players on the court
      * @param defenseTeamOnCourt Current defense players on the court
      * @return 0 - no block  1 - block and offensive rebound  2 - block and defensive rebound
-	 */
+     */
     public static int judgeBlock(Random random, int distance, Map<String, Player> offenseTeamOnCourt, Map<String, Player> defenseTeamOnCourt,
                                  Player offensePlayer, Player defensePlayer) {
         int poss = generateRandomNum(random, 1, 100);
@@ -228,12 +228,12 @@ public class Utilities {
     }
 
     /**
-	 * Generate actions when two teams fight for a rebound.
+     * Generate actions when two teams fight for a rebound.
      * 
      * @param offenseTeamOnCourt Current offense players on the court
      * @param defenseTeamOnCourt Current defense players on the court
      * @return true - offensive rebound, false - defensive rebound
-	 */
+     */
     public static boolean judgeRebound(Random random, Map<String, Player> offenseTeamOnCourt, Map<String, Player> defenseTeamOnCourt) {
         int offenseTeamReb = 0, defenseTeamReb = 0;
         for (String pos : offenseTeamOnCourt.keySet()) 
@@ -262,13 +262,13 @@ public class Utilities {
     }
 
     /**
-	 * Generate actions when a player gets fouled out.
+     * Generate actions when a player gets fouled out.
      * 
      * @param team Team having this player
      * @param previousPlayer The player getting fouled out
      * @param teamOnCourt Players on the court
      * @return 0 - no lose ball, 1 - lose ball but no score, 2 - loss ball and score
-	 */
+     */
     public static void judgeFoulOut(Player previousPlayer, Team team, Map<String, Player> teamOnCourt) {
         if (previousPlayer.foul == 6 || previousPlayer.flagFoul == 2) {
             Comments.getFoulOutComment(previousPlayer.name, previousPlayer.foul == 6 ? true : false);
@@ -281,7 +281,7 @@ public class Utilities {
     }
 
     /**
-	 * Generate actions after a normal foul.
+     * Generate actions after a normal foul.
      * 
      * @param distance Shot distance
      * @param offensePlayer Offense player
@@ -293,7 +293,7 @@ public class Utilities {
      * @param currentQuarter Current quarter number
      * @param quarterTime Times left in current quarter
      * @return 0 - no foul, 1 - offensive foul, 2 - defensive foul
-	 */
+     */
     public static int judgeNormalFoul(Random random, Map<String, Player> offenseTeamOnCourt, Map<String, Player> defenseTeamOnCourt,
                                       Player offensePlayer, Player defensePlayer, Team offenseTeam, Team defenseTeam, int currentQuarter,
                                       int quarterTime, Team team1, Team team2) {
@@ -363,8 +363,8 @@ public class Utilities {
     }
 
     /**
-	 * Generates actions when jumping ball.
-	 */
+     * Generates actions when jumping ball.
+     */
     public static void jumpBall(Random random, Team team1, Team team2) {
         Team winTeam = Utilities.generateRandomNum(random, 1, 100) <= 50 ? team1 : team2;
         winTeam.hasBall = true;
@@ -372,12 +372,12 @@ public class Utilities {
     }
 
     /**
-	 * Find a player to substitute another teammate on the court.
+     * Find a player to substitute another teammate on the court.
      * 
      * @param previousPlayer The player to be substituted
      * @param team The team making substitution
      * @return The incoming Player 
-	 */
+     */
     public static Player findSubPlayer(Player previousPlayer, Team team) {
         Player currentPlayer = null;
 
@@ -413,13 +413,13 @@ public class Utilities {
     }
 
     /**
-	 * Generate actions during a timeout.
+     * Generate actions during a timeout.
      * 
      * @param subBench Whether substitution is starter -> bench or bench -> starter
      * @param teamOneOnCourt Team 1's players on the court
      * @param teamTwoOnCourt Team 2's players on the court
      * @param garbageFlag Whether rareBenches have been substituted
-	 */
+     */
     public static void timeOutSub(Random random, Team team1, Team team2, boolean subBench, Map<String, Player> teamOneOnCourt,
                                   Map<String, Player> teamTwoOnCourt, boolean garbageFlag) {
         String currentPossess = team1.hasBall ? team1.name : team2.name;
@@ -484,11 +484,11 @@ public class Utilities {
     }
 
     /**
-	 * Generate shooting distance by player type.
+     * Generate shooting distance by player type.
      * 
      * @param offensePlayer Offense player
      * @return Shot distance
-	 */
+     */
     public static int getShotDistance(Random random, Player offensePlayer) {
         int distance = 0;
         switch (offensePlayer.playerType) {
@@ -520,7 +520,7 @@ public class Utilities {
     }
 
     /**
-	 * Calculate shot goal percentage in double.
+     * Calculate shot goal percentage in double.
      * 
      * @param distance Shot distance
      * @param offensePlayer Offense player
@@ -530,7 +530,7 @@ public class Utilities {
      * @param quarterTime Times left in current quarter
      * @param movement Shot choice string
      * @return Shot goal percentage
-	 */
+     */
     public static double calculatePercentage(Random random, int distance, Player offensePlayer, Player defensePlayer,
                                              Map<String, Player> offenseTeamOnCourt, String movement, int quarterTime,
                                              int currentQuarter, Team team1, Team team2) {
@@ -596,7 +596,7 @@ public class Utilities {
     }
 
     /**
-	 * Generate actions after a player makes a shot.
+     * Generate actions after a player makes a shot.
      * 
      * @param distance Shot distance
      * @param offensePlayer Offense player
@@ -610,7 +610,7 @@ public class Utilities {
      * @param movement Shot choice string
      * @param percentage Shot goal percentage
      * @return 1 - make the shot or make the last free throw  2 - offensive rebound  3 - defensive rebound
-	 */
+     */
     public static int judgeMakeShot(Random random, int distance, Player offensePlayer, Player defensePlayer, Team offenseTeam, Team defenseTeam,
                                     Map<String, Player> offenseTeamOnCourt, Map<String, Player> defenseTeamOnCourt, double percentage, int quarterTime,
                                     int currentQuarter, Team team1, Team team2, String movement) {
@@ -750,7 +750,7 @@ public class Utilities {
     }
 
     /**
-	 * Generate actions after a player makes a free throw.
+     * Generate actions after a player makes a free throw.
      * 
      * @param player The player who makes the free throw
      * @param offenseTeam Offense team
@@ -761,7 +761,7 @@ public class Utilities {
      * @param times Total free throw times
      * @param isFlagFoul Whether current foul is flagrant foul or not
      * @return 1 - make the last free throw  2 - offensive rebound  3 - defensive rebound
-	 */
+     */
     public static int makeFreeThrow(Random random, Player player, Map<String, Player> offenseTeamOnCourt, Map<String, Player> defenseTeamOnCourt,
                                     Team offenseTeam, int times, int quarterTime, int currentQuarter, Team team1, Team team2, boolean isFlagFoul) {
         
@@ -798,14 +798,14 @@ public class Utilities {
     }
 
     /**
-	 * Judge whether there is an injury.
+     * Judge whether there is an injury.
      * 
      * @param offenseTeam Offense team
      * @param defenseTeam Defense team
      * @param offenseTeamOnCourt Current offense players on the court
      * @param defenseTeamOnCourt Current defense players on the court
      * @return true - A player gets injured, false - No player gets injured
-	 */
+     */
     public static boolean judgeInjury(Random random, Map<String, Player> offenseTeamOnCourt, Map<String, Player> defenseTeamOnCourt,
                                       Team offenseTeam, Team defenseTeam) {
         for (String pos : offenseTeamOnCourt.keySet()) {
@@ -836,13 +836,13 @@ public class Utilities {
     }
 
     /**
-	 * Accumulate two teams' quarter scores.
+     * Accumulate two teams' quarter scores.
      * 
      * @param team1Scores Team1's all quarter scores
      * @param team2Scores Team2's all quarter scores
      * @param totalScore1 Team1's total scores
      * @param totalScore2 Team2's total scores
-	 */
+     */
     public static void updateQuarterScores(List<Integer> team1Scores, List<Integer> team2Scores, int totalScore1, int totalScore2) {
         team1Scores.add(totalScore1);
         team2Scores.add(totalScore2);
