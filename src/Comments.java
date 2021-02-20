@@ -332,7 +332,7 @@ public class Comments {
     }
 
     /**
-    * Generate player turnover comments.
+     * Generate player turnover comments.
      * 
      * @param name Player's name
      */

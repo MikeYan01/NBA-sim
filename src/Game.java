@@ -22,8 +22,8 @@ public class Game {
     PrintStream ps;
 
     /**
-	 * Construct new Game instance to host a game or a season
-	 */
+     * Construct new Game instance to host a game or a season
+     */
     public Game() {
         this.schedulePath = "database/schedule/schedule-82games.txt";
 
@@ -47,12 +47,12 @@ public class Game {
     }
 
     /**
-	 * Host a game between two teams.
+     * Host a game between two teams.
      * @param date The date when the game is hosted
      * @param isPlayoff Whether the game is regular season game or playoff game
      * @param stat SeasonStats object, store regular season's player stats
      * @return Winner of the game
-	 */
+     */
     public String hostGame(String team1Name, String team2Name, String date, boolean isPlayoff, SeasonStats stat) throws Exception {
         Random random = new Random();
 
@@ -240,17 +240,17 @@ public class Game {
     }
 
     /**
-	 * Function overloading, temporarily generate a fake SeasonStats() object to pass playoff games.
+     * Function overloading, temporarily generate a fake SeasonStats() object to pass playoff games.
      * 
      * @return Winner or the game
-	 */
+     */
     public String hostGame(String team1Name, String team2Name, String date) throws Exception {
         return hostGame(team1Name, team2Name, date, true, new SeasonStats());
     }
 
     /**
-	 * Simulate a season (regular season + playoffs).
-	 */
+     * Simulate a season (regular season + playoffs).
+     */
     public void hostSeason() {
         SeasonStats stat = new SeasonStats();
 
@@ -382,11 +382,11 @@ public class Game {
     }
 
     /**
-	 * Reorder all division seeds (1st vs 8th, 2nd vs 7th, 3rd vs 6th, 4th vs 5th).
+     * Reorder all division seeds (1st vs 8th, 2nd vs 7th, 3rd vs 6th, 4th vs 5th).
      * 
      * @param temp A temporary array which contains all division seeds
      * @return Ordered division seeds
-	 */
+     */
     public List<String> reorderSeeds(String[] temp) {
         List<String> result = new LinkedList<>();
         result.add(temp[0]);
@@ -402,11 +402,11 @@ public class Game {
     }
 
     /**
-	 * Print out all teams' division standing.
+     * Print out all teams' division standing.
      * 
      * @param standing The hashmap which contains all team's win and lose num
      * @param list The list container for standing rank
-	 */
+     */
     public void printStanding(Map<String, List<Integer>> standing, List<Map.Entry<String, Integer>> list) {
         int rank = 1;
         for (Map.Entry<String, Integer> team : list) {
@@ -418,11 +418,11 @@ public class Game {
     }
 
     /**
-	 * Host a best-of-seven series between two teams.
+     * Host a best-of-seven series between two teams.
      * 
      * @param seriesName The prefix of current series. e.g. 'First Round G1', 'Semi final G7'
      * @return The winner of the series
-	 */
+     */
     public String hostSeries(String team1, String team2, String seriesName) {
         int gameCount = 1;
         int team1Win = 0, team2Win = 0;
@@ -445,12 +445,12 @@ public class Game {
     }
 
     /**
-	 * Host playoff series to generate conference champion.
+     * Host playoff series to generate conference champion.
      * 
      * @param seeds All 8 seeds of the division
      * @param isWest Whether current division is West conference. By default True means West and False for East
      * @return The conference champion
-	 */
+     */
     public String getConferenceChamp(List<String> seeds, boolean isWest) {
         String DIVISION = isWest ? "西部" : "东部";
         String FIRST_PREFIX = "首轮";
@@ -503,11 +503,11 @@ public class Game {
     }
 
     /**
-	 * Host playoff series to generate two conference champions, then host the NBA finals.
+     * Host playoff series to generate two conference champions, then host the NBA finals.
      * 
      * @param westSeeds All 8 seeds of West division
      * @param eastSeeds All 8 seeds of East division
-	 */
+     */
     public void hostPlayoffs(List<String> westSeeds, List<String> eastSeeds) {
         String FINAL_PREFIX = "总决赛";
         String westChamp = getConferenceChamp(westSeeds, true);
