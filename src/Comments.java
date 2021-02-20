@@ -10,11 +10,11 @@ public class Comments {
     public static StringBuilder sb = new StringBuilder(128);
 
     /**
-	 * Get player's last name from full name.
+     * Get player's last name from full name.
      * 
      * @param name Player's full name
      * @return Player's last name
-	 */
+     */
     public static String getLastName(String name) {
         if (!name.contains("·")) return name;
 
@@ -23,11 +23,11 @@ public class Comments {
     }
 
     /**
-	 * Generates comments when jumping ball.
+     * Generates comments when jumping ball.
      * 
      * @param winTeam Team that wins jump ball
      * @return Player's last name
-	 */
+     */
     public static void getJumpBallComments(Team team1, Team team2, Team winTeam) {
         sb.delete( 0, sb.length() );
         sb.append("欢迎收看NBA比赛!\n今天为您带来的是").append(team1.name).append("对阵").append(team2.name).append("的实况转播!\n");
@@ -37,11 +37,11 @@ public class Comments {
     }
     
     /**
-	 * Generate shot position comments.
+     * Generate shot position comments.
      * 
      * @param get Team that wins jump ball
      * @return Player's shot position string
-	 */
+     */
     public static String getShotPos(Random random, int distance) {
         int degree = Utilities.generateRandomNum(random, 1, 180);
 
@@ -59,10 +59,10 @@ public class Comments {
     }
 
     /**
-	 * Generate layup comments.
+     * Generate layup comments.
      * 
      * @return Player's layup comments string
-	 */
+     */
     public static String pickLayup(Random random) {
         List<String> resources = Arrays.asList(
             "上篮",
@@ -96,11 +96,11 @@ public class Comments {
     }
 
     /**
-	 * Generate dunk comments.
+     * Generate dunk comments.
      * 
      * @param dunkerType Player's dunkerType
      * @return Player's dunk comments string
-	 */
+     */
     public static String pickDunk(Random random, int dunkerType) {
         List<String> resources1 = Arrays.asList(
             "扣篮",
@@ -139,11 +139,11 @@ public class Comments {
     }
 
     /**
-	 * Generate shot comments.
+     * Generate shot comments.
      * 
      * @param distance Player's shot distance
      * @return Player's shot comments string
-	 */
+     */
     public static String pickShot(Random random, int distance) {
         List<String> resources1 = Arrays.asList(
             "投篮",
@@ -191,11 +191,11 @@ public class Comments {
     }
 
     /**
-	 * Generate shot choice comments.
+     * Generate shot choice comments.
      * 
      * @param distance Player's shot distance
      * @return Player's shot comments string
-	 */
+     */
     public static String getShotChoice(Random random, Player player, int distance, String shotPos) {
         int temp = Utilities.generateRandomNum(random, 1, 100);
         int dunkerType = player.dunkerType;
@@ -228,10 +228,10 @@ public class Comments {
     }
 
     /**
-	 * Generate player celebration comments.
+     * Generate player celebration comments.
      * 
      * @param name Player's name
-	 */
+     */
     public static void getCelebrateComment(String name) {
         String lastName = getLastName(name);
         List<String> resources = Arrays.asList(
@@ -250,10 +250,10 @@ public class Comments {
     }
 
     /**
-	 * Generate player upset comments.
+     * Generate player upset comments.
      * 
      * @param name Player's name
-	 */
+     */
     public static void getUpsetComment(String name) {
         String lastName = getLastName(name);
         List<String> resources = Arrays.asList(
@@ -275,12 +275,12 @@ public class Comments {
     }
 
     /**
-	 * Generate comments when player gets ball.
+     * Generate comments when player gets ball.
      * 
      * @param teamName Offense team
      * @param name Player name
      * @param defensePlayer Defense player name
-	 */
+     */
     public static void getBallComment(String teamName, String name, String defensePlayer) {
         List<String> resources1 = Arrays.asList(
             teamName + "进攻!",
@@ -332,10 +332,10 @@ public class Comments {
     }
 
     /**
-	 * Generate player turnover comments.
+     * Generate player turnover comments.
      * 
      * @param name Player's name
-	 */
+     */
     public static void getTurnoverComment(String name) {
         String lastName = getLastName(name);
         List<String> resources = Arrays.asList(
@@ -359,10 +359,10 @@ public class Comments {
     }
 
     /**
-	 * Generate comments after a non fast-break turnover.
+     * Generate comments after a non fast-break turnover.
      * 
      * @param team Team name
-	 */
+     */
     public static void getNonFastBreak(String team) {
         List<String> resources = Arrays.asList(
             team + "稳住球权!",
@@ -374,11 +374,11 @@ public class Comments {
     }
 
     /**
-	 * Generate comments after a non fast-break turnover.
+     * Generate comments after a non fast-break turnover.
      * 
      * @param offensePlayer Offense player name
      * @param defensePlayer Defense player name
-	 */
+     */
     public static void getStealComment(String offensePlayer, String defensePlayer) {
         String offenseLastName = getLastName(offensePlayer);
         String defenseLastName = getLastName(defensePlayer);
@@ -396,10 +396,10 @@ public class Comments {
     }
 
     /**
-	 * Generate comments after a block.
+     * Generate comments after a block.
      * 
      * @param defensePlayer Defense player name
-	 */
+     */
     public static void getBlockComment(String defensePlayer) {
         String defenseLastName = getLastName(defensePlayer);
         List<String> resources = Arrays.asList(
@@ -419,11 +419,11 @@ public class Comments {
     }
 
     /**
-	 * Generate comments when player makes a free throw.
+     * Generate comments when player makes a free throw.
      * 
      * @param count The number of ongoing free throw
      * @param onlyOneShot Whether only one free throw in total
-	 */
+     */
     public static void getMakeFreeThrowComment(int count, boolean onlyOneShot) {
         String countPrefix = onlyOneShot ? "罚球" : count + "罚";
         List<String> resources = Arrays.asList(
@@ -439,11 +439,11 @@ public class Comments {
     }
 
     /**
-	 * Generate comments when player misses a free throw.
+     * Generate comments when player misses a free throw.
      * 
      * @param count The number of ongoing free throw
      * @param onlyOneShot Whether only one free throw in total
-	 */
+     */
     public static void getMissFreeThrowComment(int count, boolean onlyOneShot) {
         String countPrefix = onlyOneShot ? "罚球" : count + "罚";
         List<String> resources = Arrays.asList(
@@ -462,10 +462,10 @@ public class Comments {
     }
 
     /**
-	 * Generate comments when player makes And-one shot.
+     * Generate comments when player makes And-one shot.
      * 
      * @param name Player name
-	 */
+     */
     public static void getAndOneComment(String name) {
         List<String> resources = Arrays.asList(
             "球进同时哨响!\n还要加罚!",
@@ -483,11 +483,11 @@ public class Comments {
     }
 
     /**
-	 * Generate comments when one team reaches quarter foul times bonus.
+     * Generate comments when one team reaches quarter foul times bonus.
      * 
      * @param offenseTeam Offense team name
      * @param defenseTeam Defense team name
-	 */
+     */
     public static void getReachFoulTimes(String offenseTeam, String defenseTeam) {
         List<String> resources = Arrays.asList(
             defenseTeam + "犯规次数到了!\n" + offenseTeam + "需要进行两次罚球!",
@@ -498,11 +498,11 @@ public class Comments {
     }
 
     /**
-	 * Generate comments when the player draws a foul.
+     * Generate comments when the player draws a foul.
      * 
      * @param offensePlayer Offense player name
      * @param defensePlayer Defense player name
-	 */
+     */
     public static void getFoulComment(String offensePlayer, String defensePlayer) {
         String offenseLastName = getLastName(offensePlayer);
         String defenseLastName = getLastName(defensePlayer);
@@ -527,11 +527,11 @@ public class Comments {
     }
 
     /**
-	 * Generate comments when the player draws a flagrant foul.
+     * Generate comments when the player draws a flagrant foul.
      * 
      * @param offensePlayer Offense player name
      * @param defensePlayer Defense player name
-	 */
+     */
     public static void getFlagFoulComment(String offensePlayer, String defensePlayer) {
         String offenseLastName = getLastName(offensePlayer);
         String defenseLastName = getLastName(defensePlayer);
@@ -552,12 +552,12 @@ public class Comments {
     }
 
     /**
-	 * Generate comments when the player makes a shot.
+     * Generate comments when the player makes a shot.
      * 
      * @param name Player name
      * @param distance Player's shot distance
      * @param movement Player's shot choice
-	 */
+     */
     public static void getMakeShotsComment(String name, int distance, String movement) {
         // dunk or normal 2-point shot
         List<String> resources1 = movement.contains("扣")
@@ -656,10 +656,10 @@ public class Comments {
     }
 
     /**
-	 * Generate comments when the player misses a shot.
+     * Generate comments when the player misses a shot.
      * 
      * @param movement Player's shot choice
-	 */
+     */
     public static void getMissShotsComment(String movement) {
         List<String> resources = movement.contains("扣")
             ? Arrays.asList(
@@ -694,11 +694,11 @@ public class Comments {
     }
 
     /**
-	 * Generate comments when the player plays well / plays bad.
+     * Generate comments when the player plays well / plays bad.
      * 
      * @param player Player object
      * @param isGoodstatus Whether the player is in good status or bad status
-	 */
+     */
     public static void getStatusComment(Player player, boolean isGoodstatus) {
         String lastName = getLastName(player.name);
 
@@ -733,11 +733,11 @@ public class Comments {
     }
 
     /**
-	 * Generate comments when the player grabs a rebound.
+     * Generate comments when the player grabs a rebound.
      * 
      * @param name Player name
      * @param isOrb Whether the current rebound is offensive rebound or defensive rebound
-	 */
+     */
     public static void getReboundComment(String name, boolean isOrb) {
         String lastName = getLastName(name);
         String rebType = isOrb ? "前场篮板" : "后场篮板";
@@ -758,10 +758,10 @@ public class Comments {
     }
 
     /**
-	 * Generate comments when the defense player blocks the ball out-of-bound.
+     * Generate comments when the defense player blocks the ball out-of-bound.
      * 
      * @param defensePlayer Defense player name
-	 */
+     */
     public static void getOutOfBound(String defensePlayer) {
         List<String> resources = Arrays.asList(
             "皮球直接滚出界外!",
@@ -778,10 +778,10 @@ public class Comments {
     }
 
     /**
-	 * Generate comments when the player get injured.
+     * Generate comments when the player get injured.
      * 
      * @param name Player name
-	 */
+     */
     public static void getInjuryComment(String name) {
         String lastName = getLastName(name);
         List<String> resources = Arrays.asList(
@@ -797,11 +797,11 @@ public class Comments {
     }
 
     /**
-	 * Generate comments when the player makes fast-break after a turnover.
+     * Generate comments when the player makes fast-break after a turnover.
      * 
      * @param teamName Team name
      * @param offensePlayer Offense player name
-	 */
+     */
     public static void getFastBreak(String teamName, String offensePlayer) {
         String offenseLastName = getLastName(offensePlayer);
         List<String> resources = Arrays.asList(
@@ -821,11 +821,11 @@ public class Comments {
     }
 
     /**
-	 * Generate comments when the player makes fast-break after a turnover.
+     * Generate comments when the player makes fast-break after a turnover.
      * 
      * @param offensePlayer Offense player name
      * @param type Offensive foul type (1 - Charging foul, 2 - Illegal screen foul)
-	 */
+     */
     public static void getOffensiveFoul(String offensePlayer, int type) {
         String offenseLastName = getLastName(offensePlayer);
         List<String> resources1 = Arrays.asList(
@@ -857,11 +857,11 @@ public class Comments {
     }
 
     /**
-	 * Generate comments when the player makes fast-break after a turnover.
+     * Generate comments when the player makes fast-break after a turnover.
      * 
      * @param defensePlayer Defense player name
      * @param type Defensive foul type (1 - Blocking foul, 2 - Reach in foul)
-	 */
+     */
     public static void getDefensiveFoul(String defensePlayer, int type) {
         String defenseLastName = getLastName(defensePlayer);
         List<String> resources1 = Arrays.asList(
@@ -890,10 +890,10 @@ public class Comments {
     }
 
     /**
-	 * Generate comments when a team calls timeout.
+     * Generate comments when a team calls timeout.
      * 
      * @param teamName Team name
-	 */
+     */
     public static void getTimeOutComment(String teamName) {
         sb.delete( 0, sb.length() );
         sb.append("\n").append(teamName).append("请求暂停!\n双方都有人员调整!");
@@ -901,11 +901,11 @@ public class Comments {
     }
 
     /**
-	 * Generate comments when a player gets fouled out.
+     * Generate comments when a player gets fouled out.
      * 
      * @param name Player name
      * @param isNormalFoul Player gets fouled by normal foul or flagrant foul
-	 */
+     */
     public static void getFoulOutComment(String name, boolean isNormalFoul) {
         String lastName = getLastName(name);
         List<String> resources = isNormalFoul ? Arrays.asList(
@@ -926,11 +926,11 @@ public class Comments {
     }
 
     /**
-	 * Generate comments when a player gets substituted.
+     * Generate comments when a player gets substituted.
      * 
      * @param currentPlayer In player name
      * @param previousPlayer Out player name
-	 */
+     */
     public static void getSubstituteComment(String currentPlayer, String previousPlayer) {
         if (!currentPlayer.equals(previousPlayer)) {
             sb.delete( 0, sb.length() );
@@ -940,11 +940,11 @@ public class Comments {
     }
 
     /**
-	 * Print current time and score.
+     * Print current time and score.
      * 
      * @param time Current quarter time left
      * @param currentQuarter Current quarter number
-	 */
+     */
     public static void getTimeAndScore(int time, int currentQuarter, Team team1, Team team2) {
         String minute = String.valueOf(time / 60);
         String second = String.valueOf(time % 60);
@@ -960,10 +960,10 @@ public class Comments {
     }
 
     /**
-	 * Generate comments when a quarter ends.
+     * Generate comments when a quarter ends.
      * 
      * @param currentQuarter Current quarter number
-	 */
+     */
     public static void quarterEnd(int currentQuarter, Team team1, Team team2) {
         sb.delete( 0, sb.length() );
         sb.append("\n第").append(currentQuarter).append("节结束!\n目前的比分是: ")
@@ -977,8 +977,8 @@ public class Comments {
     }
 
     /**
-	 * Generate comments when regular time ends.
-	 */
+     * Generate comments when regular time ends.
+     */
     public static void regularEnd(Team team1, Team team2) {
         sb.delete( 0, sb.length() );
         sb.append("\n常规时间走完!\n目前双方战成").append(team1.totalScore).append("平!\n");
@@ -989,11 +989,11 @@ public class Comments {
     }
 
     /**
-	 * Generate comments when the game ends.
+     * Generate comments when the game ends.
      * 
      * @param team1Scores team1's scores of all quarters
      * @param team2Scores team2's scores of all quarters
-	 */
+     */
     public static void gameEnd(Team team1, Team team2, List<Integer> team1Scores, List<Integer> team2Scores) {
         sb.delete( 0, sb.length() );
 
@@ -1022,10 +1022,10 @@ public class Comments {
     }
 
     /**
-	 * Print a player's stat.
+     * Print a player's stat.
      * 
      * @param player Player object
-	 */
+     */
     public static void getPlayerData(Player player) {
         sb.delete( 0, sb.length() );
 
@@ -1044,10 +1044,10 @@ public class Comments {
     }
 
     /**
-	 * Print a team's stat.
+     * Print a team's stat.
      * 
      * @param team Team name
-	 */
+     */
     public static void getTeamData(Team team) {
         sb.delete( 0, sb.length() );
 

@@ -37,10 +37,10 @@ public class Team {
     public final Map<String, List<Player>> rareBenches = new HashMap<>(); // bench that rarely show up
 
     /**
-	 * Construct a Team object, which can be conceived as an NBA team.
+     * Construct a Team object, which can be conceived as an NBA team.
      * 
      * @param name The team's name
-	 */
+     */
     public Team(String name) {
         this.name = name;
 
@@ -67,13 +67,13 @@ public class Team {
     }
 
     /**
-	 * Load team rosters files and generate all Players objects of the team.
+     * Load team rosters files and generate all Players objects of the team.
      * 
      * @param name The team's name
      * @param players Starting lineup list
      * @param benches Normal benches map
      * @param rareBenches Rarely-appeared benches map
-	 */
+     */
     public static void loadPlayers(String name, List<Player> players, Map<String, Player> starters, Map<String, List<Player>> benches,
                                    Map<String, List<Player>> rareBenches) {
         String filePath = "database/roster/" + name + ".csv";

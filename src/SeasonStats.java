@@ -32,8 +32,8 @@ public class SeasonStats {
     public final Map<String, Double> teamPerScoresAllowed;
 
     /**
-	 * Construct a SeasonStats object to store all player stats.
-	 */
+     * Construct a SeasonStats object to store all player stats.
+     */
     public SeasonStats() {
         playerTotalGames = new HashMap<>();
         playerTotalScores = new HashMap<>();
@@ -61,10 +61,10 @@ public class SeasonStats {
     }
 
     /**
-	 * Update a player's season stats after a game.
+     * Update a player's season stats after a game.
      * 
      * @param p A player object
-	 */
+     */
     public void updatePlayerStats(Player p) {
         String name = p.name;
         int score = p.score;
@@ -96,10 +96,10 @@ public class SeasonStats {
     }
 
     /**
-	 * Update a team's season stats after a game.
+     * Update a team's season stats after a game.
      * 
      * @param t A team object
-	 */
+     */
     public void updateTeamStats(Team t) {
         String name = t.name;
         int score = t.totalScore;
@@ -116,11 +116,11 @@ public class SeasonStats {
     }
 
     /**
-	 * Sort a given table and reorder in a list.
+     * Sort a given table and reorder in a list.
      * 
      * @param table A stat table
      * @return A sorted stat list 
-	 */
+     */
     public List<Map.Entry<String, Double>> sortStats(Map<String, Double> table) {
         Comparator<Map.Entry<String, Double>> vComparator = (o1, o2) -> {
             if (table.equals(teamPerScoresAllowed)) return o1.getValue().compareTo(o2.getValue());
@@ -133,10 +133,10 @@ public class SeasonStats {
     }
 
     /**
-	 * Print the rank of a player stat table
+     * Print the rank of a player stat table
      * 
      * @param table A stat table
-	 */
+     */
     public void printPlayerRank(Map<String, Double> table) {
         // current rank and total rank numbers
         int MAX_RANK = 30;
@@ -171,10 +171,10 @@ public class SeasonStats {
     }
 
     /**
-	 * Print the rank of a player stat table
+     * Print the rank of a player stat table
      * 
      * @param table A stat table
-	 */
+     */
     public void printTeamRank(Map<String, Double> table) {
         // current rank and total rank numbers
         int MAX_RANK = 30;
