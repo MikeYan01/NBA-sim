@@ -57,7 +57,7 @@ public class Player {
     public boolean hasBeenOnCourt;
 
     /**
-	 * Construct a Player object, which can be conceived as an NBA player.
+     * Construct a Player object, which can be conceived as an NBA player.
      * 
      * @param name Player's name
      * @param position Player's position on the court (C / PF / SF / SG / PG)
@@ -84,7 +84,7 @@ public class Player {
      * @param defConst Player's defensive consistency
      * @param drawFoul Player's ability to draw foul
      * @param isMrClutch Whether player is a clutch player
-	 */
+     */
     public Player(String name, String position, String playerType, String rotationType, String rating, String insideRating, String midRating, 
                   String threeRating, String freeThrowPercent, String interiorDefense, String perimeterDefense, String orbRating,
                   String drbRating, String astRating, String stlRating, String blkRating, String layupRating, String standDunk,
