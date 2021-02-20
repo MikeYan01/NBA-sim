@@ -10,11 +10,11 @@ public class Comments {
     public static StringBuilder sb = new StringBuilder(128);
 
     /**
-	 * Get player's last name from full name.
+     * Get player's last name from full name.
      * 
      * @param name Player's full name
      * @return Player's last name
-	 */
+     */
     public static String getLastName(String name) {
         if (!name.contains("·")) return name;
 
