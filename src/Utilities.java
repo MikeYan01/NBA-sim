@@ -36,7 +36,7 @@ public class Utilities {
      */
     public static int generateRandomPlayTime(Random random) {
         int currentPlayTime = generateRandomNum(random, 4, 24);
-        if (currentPlayTime <= 9 && generateRandomNum(random, 1, 10) <= 8) currentPlayTime += 8;
+        if (currentPlayTime <= 10 && generateRandomNum(random, 1, 10) <= 8) currentPlayTime += 8;
         if (currentPlayTime >= 17 && generateRandomNum(random, 1, 10) <= 8) currentPlayTime -= 6;
         return currentPlayTime;
     }
@@ -499,7 +499,7 @@ public class Utilities {
                 distance = generateRandomNum(random, 1, 12);
                 break;
             case 3:
-                distance = generateRandomNum(random, 1, 25);
+                distance = generateRandomNum(random, 1, 26);
                 break;
             case 4:
                 int temp1 = generateRandomNum(random, 1, 100);
@@ -537,9 +537,9 @@ public class Utilities {
         double percentage = 0.0;
 
         // initial value
-        if (distance <= 20) percentage = -0.5 * distance + 38;
-        else if (distance <= 23) percentage = distance + 8;
-        else percentage = -23/35 * (distance - 24) * (distance - 24) + 1353/35;
+        if (distance <= 20) percentage = -0.5 * distance + 36;
+        else if (distance <= 23) percentage = distance + 6;
+        else percentage = -23/35 * (distance - 24) * (distance - 24) + 1283/35;
 
         // based on shot choice, adjust percentage
         if (movement.contains("扣")) percentage *= 2.5;
@@ -563,7 +563,7 @@ public class Utilities {
 
         // based on defender, adjust percentage
         if (distance <= 10) percentage -= 0.3 * (defensePlayer.interiorDefense - 40);
-        else percentage -= 0.3 * (defensePlayer.perimeterDefense - 40);
+        else percentage -= 0.3 * (defensePlayer.perimeterDefense - 50);
 
         // check defense density
         int temp = generateRandomNum(random, 1, 100);
@@ -575,7 +575,13 @@ public class Utilities {
             if (temp <= 20) percentage += 10;
             else if (temp > 60) percentage -= 10;
         }
-        percentage += 0.25 * (99 - defensePlayer.defConst); // defense player's defensive consistency
+
+        // offensive consistency & defense player's defensive consistency
+        percentage -= 0.3 * (99 - offensePlayer.offConst);
+        percentage += 0.3 * (99 - defensePlayer.defConst);
+
+        // athleticism
+        percentage += (offensePlayer.athleticism - defensePlayer.athleticism) / 7;
 
         // star player bonus
         if (offensePlayer.rating >= 83 && offensePlayer.rating <= 86) percentage *= 1.03;
@@ -584,13 +590,8 @@ public class Utilities {
         else if (offensePlayer.rating >= 94) percentage *= 1.12;
 
         // clutch time
-        if (!offensePlayer.isMrClutch && currentQuarter >= 4 && Math.abs(team1.totalScore - team2.totalScore) <= 5) percentage *= 0.8;
-
-        // offensive consistency
-        percentage -= 0.25 * (99 - offensePlayer.offConst);
-
-        // athleticism
-        percentage += (offensePlayer.athleticism - defensePlayer.athleticism) / 7;
+        if (!offensePlayer.isMrClutch && currentQuarter >= 4
+            && Math.abs(team1.totalScore - team2.totalScore) <= 8 && quarterTime <= 360) percentage *= 0.75;
         
         return percentage;
     }
