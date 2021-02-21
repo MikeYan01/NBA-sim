@@ -7,7 +7,7 @@ jeremy-lamb
 tj-mcconnell
 doug-mcdermott
 goga-bitadze
-jakarr-sampson
-edmond-sumner
 justin-holiday
+edmond-sumner
+jakarr-sampson
 aaron-holiday

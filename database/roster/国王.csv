@@ -1,6 +1,6 @@
 name,position,playerType,rotationType,rating,insideRating,midRating,threeRating,freeThrowPercent,interiorDefense,perimeterDefense,orbRating,drbRating,astRating,stlRating,blkRating,layupRating,standDunk,drivingDunk,athleticism,durability,offConst,defConst,drawFoul,isMrClutch,enName
 达龙·福克斯,PG,1,1,86,95,73,78,70,34,79,36,46,86,70,58,85,25,80,84,80,90,70,79,0,deaaron-fox
-马文·巴格利,PF,2,1,79,80,66,80,80,70,49,67,86,53,33,62,70,85,85,82,87,90,55,65,0,marvin-bagley-iii
+马文·巴格利,PF,4,1,79,80,66,80,80,70,49,67,86,53,33,62,70,85,85,82,87,90,55,65,0,marvin-bagley-iii
 巴迪·希尔德,SG,5,1,77,52,70,84,86,48,69,34,58,69,37,47,85,25,65,72,82,80,50,70,0,buddy-hield
 哈里森·巴恩斯,SF,4,1,79,87,73,82,86,67,75,39,69,70,37,37,80,55,81,80,82,85,60,65,0,harrison-barnes
 里乔恩·霍姆斯,C,3,1,81,93,84,60,80,75,40,75,82,46,43,80,78,85,75,74,82,90,50,75,0,richaun-holmes
