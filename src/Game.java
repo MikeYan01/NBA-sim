@@ -37,13 +37,10 @@ public class Game {
         this.standingFilePath = regularStatsPath + "/standing.txt";
         this.statFilePath = regularStatsPath + "/stat.txt";
 
-        // generate result directories if necessary
-        File dir = new File(this.regularResultsPath);  
-        if (!dir.exists()) dir.mkdirs();
-        dir = new File(this.regularStatsPath);  
-        if (!dir.exists()) dir.mkdirs();
-        dir = new File(this.playoffResultsPath);  
-        if (!dir.exists()) dir.mkdirs();
+        // initialize file paths
+        Utilities.initializePath(this.regularResultsPath);
+        Utilities.initializePath(this.regularStatsPath);
+        Utilities.initializePath(this.playoffResultsPath);
     }
 
     /**

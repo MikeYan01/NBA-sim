@@ -926,6 +926,22 @@ public class Comments {
     }
 
     /**
+     * Generate comments when a player gets substituted to prevent too much fouls.
+     * 
+     * @param name Player's name
+     */
+    public static void getFoulProtectComment(String name) {
+        String lastName = getLastName(name);
+        List<String> resources = Arrays.asList(
+            lastName + "犯规次数有点多!教练决定提前换他下场休息!",
+            lastName + "运气不佳!又一次犯规了!受到犯规困扰不得不提前先下场休息一下!",
+            lastName + "饱受犯规困扰!教练无奈将他换下场休息!"
+        );
+        int rdm = Utilities.generateRandomNum(random, 1, resources.size()) - 1;
+        System.out.println(resources.get(rdm));
+    }
+
+    /**
      * Generate comments when a player gets substituted.
      * 
      * @param currentPlayer In player name
