@@ -1,5 +1,6 @@
 package src;
 
+import java.io.*;
 import java.util.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -27,6 +28,24 @@ public class Utilities {
         BigDecimal b = new BigDecimal(num);
         double result = b.setScale(2, RoundingMode.HALF_UP).doubleValue();
         return result;
+    }
+
+    /**
+     * Initialize the file paths. 
+     * If the path exists, delete all files in the specified directory; otherwise create a new one.
+     * 
+     * @param directory The directory to be operated
+     */
+    public static void initializePath(String directory) {
+        File dir = new File(directory);
+        
+        if (!dir.exists()) dir.mkdirs();
+        else {
+            File[] listFiles = dir.listFiles();
+            for (File file : listFiles) {
+                file.delete();
+            }
+        }
     }
 
     /**
@@ -281,6 +300,26 @@ public class Utilities {
     }
 
     /**
+     * Prevent the starter players from getting fouled out quickly.
+     * 
+     * @param team Team having this player
+     * @param previousPlayer The player getting fouled out
+     * @param teamOnCourt Players on the court
+     * @param currentQuarter Current quarter number
+     */
+    public static void foulProtect(Player previousPlayer, Team team, Map<String, Player> teamOnCourt, int currentQuarter) {
+        if (previousPlayer.playerType == 1 && 
+            ((currentQuarter == 1 && previousPlayer.foul == 2) || (currentQuarter == 2 && previousPlayer.foul == 4) ||
+            (currentQuarter == 3 && previousPlayer.foul == 5))) {
+            Comments.getFoulProtectComment(previousPlayer.name);
+
+            Player currentPlayer = findSubPlayer(previousPlayer, team);
+            teamOnCourt.put(previousPlayer.position, currentPlayer);
+            Comments.getSubstituteComment(currentPlayer.name, previousPlayer.name);
+        }
+    }
+
+    /**
      * Generate actions after a normal foul.
      * 
      * @param distance Shot distance
@@ -323,6 +362,7 @@ public class Utilities {
             fouler.turnover++;
             fouler.foul++;
             judgeFoulOut(fouler, offenseTeam, offenseTeamOnCourt);
+            foulProtect(fouler, offenseTeam, offenseTeamOnCourt, currentQuarter);
             return 1;
         }
 
@@ -349,6 +389,7 @@ public class Utilities {
 
             fouler.foul++;
             judgeFoulOut(fouler, defenseTeam, defenseTeamOnCourt);
+            foulProtect(fouler, defenseTeam, defenseTeamOnCourt, currentQuarter);
 
             defenseTeam.quarterFoul++;
             if (defenseTeam.quarterFoul >= 5) {
@@ -696,6 +737,7 @@ public class Utilities {
                 defensePlayer.foul++;
                 Comments.getAndOneComment(offensePlayer.name);
                 judgeFoulOut(defensePlayer, defenseTeam, defenseTeamOnCourt);
+                foulProtect(defensePlayer, defenseTeam, defenseTeamOnCourt, currentQuarter);
                 int andOneResult = makeFreeThrow(random, offensePlayer, offenseTeamOnCourt, defenseTeamOnCourt, offenseTeam, 1,
                                                  quarterTime, currentQuarter, team1, team2, false);
                 return andOneResult;
@@ -730,6 +772,7 @@ public class Utilities {
                 
                 Comments.getFoulComment(offensePlayer.name, defensePlayer.name);
                 judgeFoulOut(defensePlayer, defenseTeam, defenseTeamOnCourt);
+                foulProtect(defensePlayer, defenseTeam, defenseTeamOnCourt, currentQuarter);
 
                 int freeThrowResult = 0;
                 if (distance <= 23) 
