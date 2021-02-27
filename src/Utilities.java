@@ -728,7 +728,7 @@ public class Utilities {
 
             int basePercent = distance <= 10 ? 3 : distance <= 23 ? 2 : 1;
 
-            int drawFoulAttr = basePercent * (100 + offensePlayer.drawFoul > 90 ? 9 * offensePlayer.drawFoul / 2
+            int drawFoulAttr = basePercent * (100 + offensePlayer.drawFoul > 90 ? 5 * offensePlayer.drawFoul
                                                                                 : 2 * offensePlayer.drawFoul);
             
             if (offensePlayer.isStar) drawFoulAttr *= 2;
