@@ -1,8 +1,8 @@
 name,position,playerType,rotationType,rating,insideRating,midRating,threeRating,freeThrowPercent,interiorDefense,perimeterDefense,orbRating,drbRating,astRating,stlRating,blkRating,layupRating,standDunk,drivingDunk,athleticism,durability,offConst,defConst,drawFoul,isMrClutch,enName
 卢卡·东契奇,PG,1,1,93,87,95,80,80,48,73,55,88,91,43,60,96,55,70,84,85,98,65,96,0,luka-doncic
 克里斯塔普斯·波尔津吉斯,C,1,1,86,75,84,81,78,83,56,72,79,48,38,88,78,90,75,77,77,90,65,88,0,kristaps-porzingis
-约什·理查德森,SG,4,1,78,69,92,73,79,69,87,43,39,66,41,42,75,50,78,79,83,75,85,50,0,josh-richardson
-马克西·克勒贝尔,PF,5,1,75,88,79,85,86,74,72,41,76,56,33,73,73,75,75,67,80,55,70,57,0,maxi-kleber
+约什·理查德森,SG,4,1,78,69,92,73,79,69,87,43,39,66,41,42,75,50,78,79,83,65,85,50,0,josh-richardson
+马克西·克勒贝尔,PF,5,1,75,77,75,85,86,74,72,41,70,56,33,70,70,75,75,67,80,55,70,57,0,maxi-kleber
 多里安·芬尼·史密斯,SF,4,1,74,76,71,80,72,72,79,50,58,52,70,60,67,40,84,72,81,75,70,48,0,dorian-finney-smith
 小蒂姆·哈达威,SF,4,2,79,85,76,83,80,45,70,32,60,69,37,45,70,35,78,74,83,80,40,82,0,tim-hardaway-jr
 杰伦·布伦森,SG,1,2,79,93,82,81,81,55,70,33,58,83,41,32,77,40,50,74,81,80,35,65,0,jalen-brunson
