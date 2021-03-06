@@ -55,7 +55,7 @@ public class Utilities {
      */
     public static int generateRandomPlayTime(Random random) {
         int currentPlayTime = generateRandomNum(random, 4, 24);
-        if (currentPlayTime <= 10 && generateRandomNum(random, 1, 10) <= 8) currentPlayTime += 8;
+        if (currentPlayTime <= 10 && generateRandomNum(random, 1, 10) <= 9) currentPlayTime += 8;
         if (currentPlayTime >= 17 && generateRandomNum(random, 1, 10) <= 8) currentPlayTime -= 6;
         return currentPlayTime;
     }
@@ -603,8 +603,8 @@ public class Utilities {
         }
 
         // based on defender, adjust percentage
-        if (distance <= 10) percentage -= 0.3 * (defensePlayer.interiorDefense - 40);
-        else percentage -= 0.3 * (defensePlayer.perimeterDefense - 50);
+        if (distance <= 10) percentage -= 0.3 * (defensePlayer.interiorDefense - 50);
+        else percentage -= 0.3 * (defensePlayer.perimeterDefense - 45);
 
         // check defense density
         int temp = generateRandomNum(random, 1, 100);
@@ -622,7 +622,7 @@ public class Utilities {
         percentage += 0.3 * (99 - defensePlayer.defConst);
 
         // athleticism
-        percentage += (offensePlayer.athleticism - defensePlayer.athleticism) / 7;
+        percentage += (offensePlayer.athleticism - defensePlayer.athleticism) / 8;
 
         // star player bonus
         if (offensePlayer.rating >= 83 && offensePlayer.rating <= 86) percentage *= 1.03;
