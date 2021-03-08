@@ -55,7 +55,7 @@ public class Utilities {
      */
     public static int generateRandomPlayTime(Random random) {
         int currentPlayTime = generateRandomNum(random, 4, 24);
-        if (currentPlayTime <= 10 && generateRandomNum(random, 1, 10) <= 9) currentPlayTime += 8;
+        if (currentPlayTime <= 10 && generateRandomNum(random, 1, 10) <= 8) currentPlayTime += 8;
         if (currentPlayTime >= 17 && generateRandomNum(random, 1, 10) <= 8) currentPlayTime -= 6;
         return currentPlayTime;
     }
@@ -578,8 +578,8 @@ public class Utilities {
         double percentage = 0.0;
 
         // initial value
-        if (distance <= 20) percentage = -0.5 * distance + 36;
-        else if (distance <= 23) percentage = distance + 6;
+        if (distance <= 20) percentage = -0.5 * distance + 35;
+        else if (distance <= 23) percentage = distance + 5;
         else percentage = -23/35 * (distance - 24) * (distance - 24) + 1283/35;
 
         // based on shot choice, adjust percentage
