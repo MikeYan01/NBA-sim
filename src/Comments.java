@@ -35,6 +35,35 @@ public class Comments {
         sb.append(winTeam.name).append("跳球获胜，率先进攻!");
         System.out.println(sb.toString());
     }
+
+    /**
+     * Generates two players jumping ball.
+     * 
+     * @param offensePlayer Offense player
+     * @param defensePlayer Defense player
+     * @param winPlayer The player that wins the jumpball
+     */
+    public static void getJumpBallComments(String offensePlayer, String defensePlayer, String winPlayer) {
+        sb.delete( 0, sb.length() );
+        offensePlayer = getLastName(offensePlayer);
+        defensePlayer = getLastName(defensePlayer);
+        winPlayer = getLastName(winPlayer);
+
+        List<String> resources1 = Arrays.asList(
+            offensePlayer + "杀入禁区!" + defensePlayer + "上来阻挠!\n双方纠缠不清!各自紧紧抓着一边篮球不放!\n裁判吹哨示意争球!",
+            offensePlayer + "遭遇重重防守围堵!\n混乱之中和" + defensePlayer + "拼抢在一起!\n裁判上来制止并且给了争球!",
+            defensePlayer + "防守极其卖力!\n顶上来直接伸手死死抱住皮球!\n" + offensePlayer + "也不甘放手!双方僵持不下!\n哨响!裁判给了争球!"
+        );
+        int rdm1 = Utilities.generateRandomNum(random, 1, resources1.size()) - 1;
+        System.out.println(resources1.get(rdm1));
+
+        List<String> resources2 = Arrays.asList(
+            "双方来到中线跳球!\n" + winPlayer + "手疾眼快跳到皮球!",
+            "双方来到罚球线跳球!\n" + winPlayer + "跳球获胜!"
+        );
+        int rdm2 = Utilities.generateRandomNum(random, 1, resources2.size()) - 1;
+        System.out.println(resources2.get(rdm2));
+    }
     
     /**
      * Generate shot position comments.

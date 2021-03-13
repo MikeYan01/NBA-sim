@@ -161,17 +161,19 @@ public class Game {
             Player defensePlayer = Utilities.chooseDefensePlayer(random, offensePlayer, defenseTeamOnCourt);
             Comments.getBallComment(offenseTeam.name, offensePlayer.name, defensePlayer.name);
 
-            // judge ball possession lost: turnover, steal
+            // judge ball possession lost: turnover, steal, jumpball lose
             int loseBallValue = Utilities.judgeLoseBall(random, defenseTeam, defenseTeamOnCourt, offensePlayer, defensePlayer);
             if (loseBallValue == 1) {
                 offenseTeam.hasBall = false;
                 defenseTeam.hasBall = true;
                 quarterTime -= currentPlayTime;
                 continue;
-            }
-            else if (loseBallValue == 2) {
+            } else if (loseBallValue == 2) {
                 quarterTime -= currentPlayTime;
                 Comments.getTimeAndScore(quarterTime, currentQuarter, team1, team2);
+                continue;
+            } else if (loseBallValue == 3) {
+                quarterTime -= currentPlayTime;
                 continue;
             }
 

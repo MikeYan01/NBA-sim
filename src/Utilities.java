@@ -149,17 +149,25 @@ public class Utilities {
      * @param offensePlayer Offense player
      * @param defensePlayer Defense player
      * @param defenseTeamOnCourt Current defense players on the court
-     * @return 0 - no lose ball, 1 - lose ball but no score, 2 - loss ball and score
+     * @return 0 - no lose ball, 1 - lose ball but no score, 2 - loss ball and score, 3 - jump ball win
      */
     public static int judgeLoseBall(Random random, Team defenseTeam, Map<String, Player> defenseTeamOnCourt, Player offensePlayer, Player defensePlayer) {
         int poss = generateRandomNum(random, 1, 100);
 
-        double range = 6 * 70 + 5 * defensePlayer.stlRating + defensePlayer.athleticism;
+        double range = 6 * 80 + 5 * defensePlayer.stlRating + defensePlayer.athleticism;
         if (defensePlayer.stlRating >= 80 && defensePlayer.stlRating < 90) range *= 1.15;
         else if (defensePlayer.stlRating >= 90) range *= 1.3;
 
-        // turnover
-        if (poss <= 5) {
+        // 0.6% chance to jump ball
+        if (poss <= 1) {
+            if (generateRandomNum(random, 1, 100) <= 60) {
+                String winPlayer = jumpBall(random, offensePlayer.name, defensePlayer.name);
+                return winPlayer.equals(offensePlayer.name) ? 3 : 1;
+            }
+        }
+
+        // 5% chance to turnover
+        else if (poss <= 6) {
             offensePlayer.turnover++;
             Comments.getTurnoverComment(offensePlayer.name);
             return 1;
@@ -404,7 +412,7 @@ public class Utilities {
     }
 
     /**
-     * Generates actions when jumping ball.
+     * Generates actions when two teams jumping ball.
      */
     public static void jumpBall(Random random, Team team1, Team team2) {
         Team winTeam = Utilities.generateRandomNum(random, 1, 100) <= 50 ? team1 : team2;
@@ -413,11 +421,23 @@ public class Utilities {
     }
 
     /**
+     * Generates actions when two players jumping ball.
+     * @param offensePlayer Offense player
+     * @param defensePlayer Defense player
+     * @return The player that wins the jumpball 
+     */
+    public static String jumpBall(Random random, String offensePlayer, String defensePlayer) {
+        String winPlayer = Utilities.generateRandomNum(random, 1, 100) <= 50 ? offensePlayer : defensePlayer;
+        Comments.getJumpBallComments(offensePlayer, defensePlayer, winPlayer);
+        return winPlayer;
+    }
+
+    /**
      * Find a player to substitute another teammate on the court.
      * 
      * @param previousPlayer The player to be substituted
      * @param team The team making substitution
-     * @return The incoming Player 
+     * @return The incoming player 
      */
     public static Player findSubPlayer(Player previousPlayer, Team team) {
         Player currentPlayer = null;
