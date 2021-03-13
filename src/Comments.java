@@ -778,6 +778,25 @@ public class Comments {
     }
 
     /**
+     * Generate comments when the offense player misses the shot and the ball is out-of-bound.
+     * 
+     * @param offensePlayer Offense player name
+     */
+    public static void shotOutOfBound(String offensePlayer) {
+        List<String> resources = Arrays.asList(
+            "皮球直接滚出界外!球权转换!",
+            "皮球直接弹出界外!这球有点离谱!",
+            "球飞出界!球权转换!"
+        );
+        int rdm = Utilities.generateRandomNum(random, 1, resources.size()) - 1;
+        System.out.println(resources.get(rdm));
+
+        // 20% of chance to get upset comment
+        rdm = Utilities.generateRandomNum(random, 1, 10);
+        if (rdm <= 2) getUpsetComment(offensePlayer);
+    }
+
+    /**
      * Generate comments when the player get injured.
      * 
      * @param name Player name

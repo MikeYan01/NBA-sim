@@ -651,7 +651,7 @@ public class Utilities {
      * @param quarterTime Times left in current quarter
      * @param movement Shot choice string
      * @param percentage Shot goal percentage
-     * @return 1 - make the shot or make the last free throw  2 - offensive rebound  3 - defensive rebound
+     * @return 1 - make the shot or make the last free throw  2 - offensive rebound  3 - defensive rebound  4 - out of bound
      */
     public static int judgeMakeShot(Random random, int distance, Player offensePlayer, Player defensePlayer, Team offenseTeam, Team defenseTeam,
                                     Map<String, Player> offenseTeamOnCourt, Map<String, Player> defenseTeamOnCourt, double percentage, int quarterTime,
@@ -788,6 +788,12 @@ public class Utilities {
             if (distance >= 24) offensePlayer.threeAttempted++;
             Comments.getMissShotsComment(movement);
             if (generateRandomNum(random, 1, 10) <= 4) Comments.getStatusComment(offensePlayer, false);
+
+            // 3% chance that the ball will be out of bound
+            if (generateRandomNum(random, 1, 100) <= 3) {
+                Comments.shotOutOfBound(offensePlayer.name);
+                return 4;
+            }
 
             return judgeRebound(random, offenseTeamOnCourt, defenseTeamOnCourt) ? 2 : 3;
         }
