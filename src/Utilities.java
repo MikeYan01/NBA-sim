@@ -619,9 +619,9 @@ public class Utilities {
         // players with high astRating will increase percentage
         for (String pos : offenseTeamOnCourt.keySet()) {
             if (pos != offensePlayer.position && offenseTeamOnCourt.get(pos).astRating >= 83) {
-                if (offenseTeamOnCourt.get(pos).astRating <= 87) percentage += 1;
+                if (offenseTeamOnCourt.get(pos).astRating <= 87) percentage += 1.5;
                 else if (offenseTeamOnCourt.get(pos).astRating <= 93) percentage += 2;
-                else percentage += 3;
+                else percentage += 2.5;
                 
                 break;
             }
@@ -699,9 +699,19 @@ public class Utilities {
                 offenseTeam.totalScore += 2;
             }
 
-            Comments.getMakeShotsComment(offensePlayer.name, distance, movement);
+            Comments.getMakeShotsComment(offensePlayer.name, defensePlayer.name, distance, movement);
             if (generateRandomNum(random, 1, 10) <= 5) Comments.getStatusComment(offensePlayer, true);
             Comments.getTimeAndScore(quarterTime, currentQuarter, team1, team2);
+
+            // 30% chance to give starters extra live comments in garbage time
+            if (currentQuarter >= 4 && quarterTime <= 360 && Math.abs(team1.totalScore - team2.totalScore) >= 18) {
+                int temp = generateRandomNum(random, 1, 100);
+                if (temp <= 15) {
+                    Comments.getStartersComment(team1);
+                } else if (temp <= 30) {
+                    Comments.getStartersComment(team2);
+                }
+            }
 
             // get assist directly from 10-cent player
             int firstAst = 0, secondAst = 0;
@@ -721,7 +731,7 @@ public class Utilities {
                 for (String pos : offenseTeamOnCourt.keySet()) {
                     if (pos != offensePlayer.position) {
                         if (offenseTeamOnCourt.get(pos).astRating >= 87 ||
-                            (offenseTeamOnCourt.get(pos).astRating == firstAst && assistAssign <= 18)) {
+                            (offenseTeamOnCourt.get(pos).astRating == firstAst && assistAssign <= 20)) {
                             offenseTeamOnCourt.get(pos).assist += 1;
                             break;
                         }
@@ -738,7 +748,7 @@ public class Utilities {
                 }
             } else {
                 int astTemp = generateRandomNum(random, 1, 100);
-                if ((offensePlayer.isStar && astTemp <= 60) || (!offensePlayer.isStar && astTemp <= 90)) {
+                if ((offensePlayer.isStar && astTemp <= 60) || (!offensePlayer.isStar && astTemp <= 95)) {
                     Player assister;
                     while (true) {
                         assister = choosePlayerBasedOnRating(random, offenseTeamOnCourt, "ast");

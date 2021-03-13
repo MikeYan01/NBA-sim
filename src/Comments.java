@@ -185,7 +185,8 @@ public class Comments {
             "潇洒滞空跳投",
             "Fade-away Shot",
             "骑马射箭",
-            "横移跳投"
+            "横移跳投",
+            "试探步跳投"
         );
 
         List<String> resources2 = Arrays.asList(
@@ -200,6 +201,7 @@ public class Comments {
             "Fade-away Shot",
             "骑马射箭",
             "横移跳投",
+            "试探步跳投",
 
             "抛投",
             "单脚丫性感小抛投",
@@ -377,7 +379,8 @@ public class Comments {
             lastName + "脚下一滑直接摔倒!\n皮球飞出界外!",
             lastName + "小碎步有点多!\n裁判抓住吹罚走步!",
             lastName + "脑子一热!停球后又继续运了!\n裁判火眼金睛及时吹哨!",
-            lastName + "运球过半场惨遭堵截!不慎运球回场!"
+            lastName + "运球过半场惨遭堵截!不慎运球回场!",
+            lastName + "脚下拌蒜!运球运到一半直接滑倒了!"
         );
         int rdm = Utilities.generateRandomNum(random, 1, resources.size()) - 1;
         System.out.println(resources.get(rdm));
@@ -396,7 +399,8 @@ public class Comments {
         List<String> resources = Arrays.asList(
             team + "稳住球权!",
             team + "组织进攻慢慢过半场!",
-            team + "带球推进前场!"
+            team + "带球推进前场!",
+            team + "不着急进攻!缓慢带球过半场并观察对方跑位!"
         );
         int rdm = Utilities.generateRandomNum(random, 1, resources.size()) - 1;
         System.out.println(resources.get(rdm));
@@ -484,10 +488,33 @@ public class Comments {
             "丢了!",
             "颠了几下滚了出来!",
             "涮框不中!",
-            "砸前框不中!"
+            "砸前框不中!",
+            "刷框而出"
         );
         int rdm = Utilities.generateRandomNum(random, 1, resources.size()) - 1;
         System.out.println(countPrefix + resources.get(rdm));
+    }
+
+    /**
+     * Generate comments for starters in garbage time.
+     * 
+     * @param team The team to be commented
+     */
+    public static void getStartersComment(Team team) {
+        int randomIndex = Utilities.generateRandomNum(random, 0, team.starters.size() - 1);
+        Player randomPlayer = (Player)team.starters.values().toArray()[randomIndex];
+        String playerName = getLastName(randomPlayer.name);
+
+        List<String> resources = Arrays.asList(
+            "镜头给到场边休息的" + playerName + "!\n尽管已经垃圾时间了但他仍然专心致志地在观看比赛!",
+            "镜头给到场边休息的" + playerName + "!\n他正和身旁的队友大声交流着什么!",
+            "镜头给到场边休息的" + playerName + "!\n此时已经换上训练外套坐在场边冰敷缓解疲劳!",
+            "镜头给到场边休息的" + playerName + "!\n正瘫坐在椅子上!看来今天是累坏了!",
+            "镜头给到场边休息的" + playerName + "!\n他正在面无表情一边看球一边啃手指!",
+            "镜头给到场边休息的" + playerName + "!\n正裹着厚厚的毛巾止汗!"
+        );
+        int rdm = Utilities.generateRandomNum(random, 1, resources.size()) - 1;
+        System.out.println(resources.get(rdm));
     }
 
     /**
@@ -583,11 +610,12 @@ public class Comments {
     /**
      * Generate comments when the player makes a shot.
      * 
-     * @param name Player name
+     * @param offenseName Offense player name
+     * @param defenseName Defense player name
      * @param distance Player's shot distance
      * @param movement Player's shot choice
      */
-    public static void getMakeShotsComment(String name, int distance, String movement) {
+    public static void getMakeShotsComment(String offenseName, String defenseName, int distance, String movement) {
         // dunk or normal 2-point shot
         List<String> resources1 = movement.contains("扣")
             ? Arrays.asList(
@@ -600,7 +628,8 @@ public class Comments {
                 "篮筐在颤抖!",
                 "力劈华山!",
                 "好一个开天辟地!",
-                "DUNK!!!"
+                "DUNK!!!",
+                "没中!然而裁判响哨!\n慢镜头回放显示" + getLastName(defenseName) + "干扰球了!这球有效!"
             )
             : Arrays.asList(
                 "进了!",
@@ -622,7 +651,8 @@ public class Comments {
                 "打板命中!",
                 "高打板命中!",
                 "斜擦板命中!",
-                "Nothing but the net!"
+                "Nothing but the net!",
+                "没中!然而裁判响哨!\n慢镜头回放显示" + getLastName(defenseName) + "干扰球了!这球有效!"
             );
         
         // 3 points
@@ -668,7 +698,8 @@ public class Comments {
             "一发入魂!洞穿篮网!",
             "手起刀落!一剑封喉!",
             "百步穿杨!",
-            "三分来得太快就像龙卷风!"
+            "三分来得太快就像龙卷风!",
+            "Bang! Bang! Bang!"
         );
 
         if (distance <= 23) {
@@ -681,7 +712,7 @@ public class Comments {
         
         // 30% of chance to get celebrate comment
         int rdm = Utilities.generateRandomNum(random, 1, 10);
-        if (rdm <= 3) getCelebrateComment(name);
+        if (rdm <= 3) getCelebrateComment(offenseName);
     }
 
     /**
@@ -715,7 +746,9 @@ public class Comments {
                 "歪了!",
                 "球在篮筐上颠了几下滚了出来!",
                 "空气球!",
-                "力道太大!球差点直接弹出界!"
+                "力道太大!球差点直接弹出界!",
+                "刷框而出!In-AND-OUT!",
+                "磕框而出!"
             );
 
         int rdm = Utilities.generateRandomNum(random, 1, resources.size()) - 1;
@@ -838,7 +871,8 @@ public class Comments {
             lastName + "面部在刚才的回合中被撞出血了!下场接受治疗!",
             lastName + "突破进入人堆!突然重重倒地!\n回放慢镜头显示似乎是崴脚了!",
             lastName + "被撞翻在地!痛苦地捂着膝盖!",
-            lastName + "在刚才的回合中倒地了!一直握着自己的大腿!\n队友上来把他搀扶下场!"
+            lastName + "在刚才的回合中倒地了!一直握着自己的大腿!\n队友上来把他搀扶下场!",
+            lastName + "在刚才的回合中重重摔在地上!半天倒地不起!\n估计是脑震荡了!\n队医上来把他抬下场!"
         );
         int rdm = Utilities.generateRandomNum(random, 1, resources.size()) - 1;
         System.out.println(resources.get(rdm));
@@ -854,11 +888,12 @@ public class Comments {
         String offenseLastName = getLastName(offensePlayer);
         List<String> resources = Arrays.asList(
             teamName + "发动闪电反击!\n" + offenseLastName + "持球直捣黄龙轻取两分!",
-            teamName + "趁机发动防守反击!\n" + offenseLastName + "直接接球一条龙突破暴扣收下两分!",
+            teamName + "趁机发动防守反击!\n" + offenseLastName + "接球一条龙突破暴扣收下两分!",
             teamName + "防守反击的机会!\n" + offenseLastName + "早已冲到篮下轻取两分!",
             teamName + "闪电推进前场!\n" + offenseLastName + "轻松笑纳两分!",
             teamName + "推动反击!\n" + offenseLastName + "下快攻轻松上篮得手!",
-            offenseLastName + "骑着哈雷冲前场!1打0!\n轻松上篮命中!"
+            offenseLastName + "骑着哈雷冲前场!1打0!\n轻松上篮命中!",
+            offenseLastName + "千里奔袭至对方篮下!轻取两分!"
         );
         int rdm = Utilities.generateRandomNum(random, 1, resources.size()) - 1;
         System.out.println(resources.get(rdm));
