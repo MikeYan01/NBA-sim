@@ -12,6 +12,7 @@ public class Game {
     public String nextYear;
 
     // result directories
+    public String singleResultsPath;
     public String regularResultsPath;
     public String regularStatsPath;
     public String playoffResultsPath;
@@ -31,6 +32,7 @@ public class Game {
         this.currentYear = "2020-";
         this.nextYear = "2021-";
 
+        this.singleResultsPath = "output/";
         this.regularResultsPath = "output/regular-results";
         this.regularStatsPath = "output/regular-stats";
         this.playoffResultsPath = "output/playoffs-results";
@@ -45,21 +47,24 @@ public class Game {
 
     /**
      * Host a game between two teams.
-     * @param date The date when the game is hosted
-     * @param isPlayoff Whether the game is regular season game or playoff game
+     * @param info By default, info is the date when the game is hosted; for playoff games, info is the round and game number.
+     * @param gameMode Whether the game is a single game (default), regular season game or playoffs game
      * @param stat SeasonStats object, store regular season's player stats
      * @return Winner of the game
      */
-    public String hostGame(String team1Name, String team2Name, String date, boolean isPlayoff, SeasonStats stat) throws Exception {
+    public String hostGame(String team1Name, String team2Name, String info, String gameMode, SeasonStats stat) throws Exception {
         Random random = new Random();
 
         // each game's result file
         String filePath;
-        if (isPlayoff) filePath = playoffResultsPath + "/" + team1Name + team2Name + "-" + date + ".txt";
-        else {
+        if (gameMode.equals("playoffs")) filePath = playoffResultsPath + "/" + team1Name + team2Name + "-" + info + ".txt";
+        else if (gameMode.equals("regular")) {
             // games in Oct, Nov, Dec are hosted in current year
-            if (date.charAt(0) == '1') filePath = regularResultsPath + "/" + currentYear + date + "-" + team1Name + team2Name + ".txt";
-            else filePath = regularResultsPath + "/" + nextYear + date + "-" + team1Name + team2Name + ".txt";
+            if (info.charAt(0) == '1') filePath = regularResultsPath + "/" + currentYear + info + "-" + team1Name + team2Name + ".txt";
+            else filePath = regularResultsPath + "/" + nextYear + info + "-" + team1Name + team2Name + ".txt";
+        }
+        else {
+            filePath = singleResultsPath + team1Name + team2Name + ".txt";
         }
                                     
         ps = new PrintStream(filePath);
@@ -81,6 +86,9 @@ public class Game {
         boolean hasGarbageSubstituted = false;
         boolean startersBack = false;
 
+        // decide whether current play is second chance play
+        boolean isSecondChance = false;
+
         List<Integer> team1Scores = new LinkedList<>();
         List<Integer> team2Scores = new LinkedList<>();
 
@@ -91,7 +99,14 @@ public class Game {
         while (quarterTime >= 0) {
 
             // decide play time consumption and substitution
-            int currentPlayTime = quarterTime > 24 ? Utilities.generateRandomPlayTime(random) : quarterTime;
+            int currentPlayTime;
+            if (!isSecondChance) {
+                currentPlayTime = quarterTime > 24 ? Utilities.generateRandomPlayTime(random, 24) : quarterTime;
+            } else {
+                currentPlayTime = quarterTime > 24 ? Utilities.generateRandomPlayTime(random, 14) : quarterTime;
+                isSecondChance = false;
+            }
+            
             
             // after each quarter, update two teams' quarter scores
             if (quarterTime == 0) Utilities.updateQuarterScores(team1Scores, team2Scores, team1.totalScore, team2.totalScore);
@@ -156,17 +171,19 @@ public class Game {
             Player defensePlayer = Utilities.chooseDefensePlayer(random, offensePlayer, defenseTeamOnCourt);
             Comments.getBallComment(offenseTeam.name, offensePlayer.name, defensePlayer.name);
 
-            // judge ball possession lost: turnover, steal
+            // judge ball possession lost: turnover, steal, jumpball lose
             int loseBallValue = Utilities.judgeLoseBall(random, defenseTeam, defenseTeamOnCourt, offensePlayer, defensePlayer);
             if (loseBallValue == 1) {
                 offenseTeam.hasBall = false;
                 defenseTeam.hasBall = true;
                 quarterTime -= currentPlayTime;
                 continue;
-            }
-            else if (loseBallValue == 2) {
+            } else if (loseBallValue == 2) {
                 quarterTime -= currentPlayTime;
                 Comments.getTimeAndScore(quarterTime, currentQuarter, team1, team2);
+                continue;
+            } else if (loseBallValue == 3) {
+                quarterTime -= currentPlayTime;
                 continue;
             }
 
@@ -213,7 +230,7 @@ public class Game {
             int shotValue = Utilities.judgeMakeShot(random, distance, offensePlayer, defensePlayer, offenseTeam, defenseTeam, offenseTeamOnCourt,
                                                     defenseTeamOnCourt, percentage, quarterTime - currentPlayTime, currentQuarter, team1, team2,
                                                     shotMovement);
-            if (shotValue == 1 || shotValue == 3) {
+            if (shotValue == 1 || shotValue == 3 || shotValue == 4) {
                 offenseTeam.hasBall = false;
                 defenseTeam.hasBall = true;
                 quarterTime -= currentPlayTime;
@@ -221,12 +238,13 @@ public class Game {
             }
             else if (shotValue == 2) {
                 quarterTime -= currentPlayTime;
+                isSecondChance = true;
                 continue;
             }
         }
         
         // for regular season games, update season stat
-        if (!isPlayoff) {
+        if (gameMode.equals("regular")) {
             for (Player p : team1.players) stat.updatePlayerStats(p);
             for (Player p : team2.players) stat.updatePlayerStats(p);
             stat.updateTeamStats(team1);
@@ -237,12 +255,21 @@ public class Game {
     }
 
     /**
-     * Function overloading, temporarily generate a fake SeasonStats() object to pass playoff games.
+     * Function overloading, temporarily generate a fake SeasonStats() object for playoff games.
      * 
      * @return Winner or the game
      */
-    public String hostGame(String team1Name, String team2Name, String date) throws Exception {
-        return hostGame(team1Name, team2Name, date, true, new SeasonStats());
+    public String hostGame(String team1Name, String team2Name, String info, String gameMode) throws Exception {
+        return hostGame(team1Name, team2Name, info, gameMode, new SeasonStats());
+    }
+
+    /**
+     * Function overloading, temporarily generate a fake SeasonStats() object for single games.
+     * 
+     * @return Winner or the game
+     */
+    public String hostGame(String team1Name, String team2Name) throws Exception {
+        return hostGame(team1Name, team2Name, "01-01", "single", new SeasonStats());
     }
 
     /**
@@ -278,7 +305,7 @@ public class Game {
                 // teams line, host game between two teams
                 else {
                     String[] teams = line.split(" ");
-                    String gameWinner = hostGame(teams[0], teams[1], currentDate, false, stat);
+                    String gameWinner = hostGame(teams[0], teams[1], currentDate, "regular", stat);
                     String gameLoser = gameWinner.equals(teams[0]) ? teams[1] : teams[0];
 
                     int winnerWin = standing.get(gameWinner).get(0);
@@ -426,7 +453,7 @@ public class Game {
 
         try {
             while (gameCount <= 7) {
-                String gameWinner = hostGame(team1, team2, seriesName + "G" + gameCount);
+                String gameWinner = hostGame(team1, team2, seriesName + "G" + gameCount, "playoffs");
                 gameCount++;
 
                 if (gameWinner.equals(team1)) team1Win += 1;

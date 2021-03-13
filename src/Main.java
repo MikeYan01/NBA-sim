@@ -12,7 +12,7 @@ public class Main {
 
         // host single game or host a season based on arguments length
         if (args.length > 0) {
-            game.hostGame(args[0], args[1], "01-01");
+            game.hostGame(args[0], args[1]);
         } else {
             game.hostSeason();
         } 
