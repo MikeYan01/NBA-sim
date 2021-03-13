@@ -619,9 +619,9 @@ public class Utilities {
         // players with high astRating will increase percentage
         for (String pos : offenseTeamOnCourt.keySet()) {
             if (pos != offensePlayer.position && offenseTeamOnCourt.get(pos).astRating >= 83) {
-                if (offenseTeamOnCourt.get(pos).astRating <= 87) percentage += 1.5;
+                if (offenseTeamOnCourt.get(pos).astRating <= 87) percentage += 1;
                 else if (offenseTeamOnCourt.get(pos).astRating <= 93) percentage += 2;
-                else percentage += 2.5;
+                else percentage += 3;
                 
                 break;
             }
