@@ -49,14 +49,19 @@ public class Utilities {
     }
 
     /**
-     * Generate current play's time from range [1, 24] in seconds.
+     * Generate current play's time from range [1, time] in seconds.
      * 
-     * @return Play time
+     * @param time Maximum time of current play
+     * @return current play's time
      */
-    public static int generateRandomPlayTime(Random random) {
-        int currentPlayTime = generateRandomNum(random, 4, 24);
-        if (currentPlayTime <= 10 && generateRandomNum(random, 1, 10) <= 8) currentPlayTime += 8;
-        if (currentPlayTime >= 17 && generateRandomNum(random, 1, 10) <= 8) currentPlayTime -= 6;
+    public static int generateRandomPlayTime(Random random, int time) {
+        int currentPlayTime = generateRandomNum(random, 3, time);
+        
+        if (time == 24) {
+            if (currentPlayTime <= 10 && generateRandomNum(random, 1, 10) <= 8) currentPlayTime += 8;
+            if (currentPlayTime >= 17 && generateRandomNum(random, 1, 10) <= 7) currentPlayTime -= 6;
+        }
+        
         return currentPlayTime;
     }
 

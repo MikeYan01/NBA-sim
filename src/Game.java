@@ -86,6 +86,9 @@ public class Game {
         boolean hasGarbageSubstituted = false;
         boolean startersBack = false;
 
+        // decide whether current play is second chance play
+        boolean isSecondChance = false;
+
         List<Integer> team1Scores = new LinkedList<>();
         List<Integer> team2Scores = new LinkedList<>();
 
@@ -96,7 +99,14 @@ public class Game {
         while (quarterTime >= 0) {
 
             // decide play time consumption and substitution
-            int currentPlayTime = quarterTime > 24 ? Utilities.generateRandomPlayTime(random) : quarterTime;
+            int currentPlayTime;
+            if (!isSecondChance) {
+                currentPlayTime = quarterTime > 24 ? Utilities.generateRandomPlayTime(random, 24) : quarterTime;
+            } else {
+                currentPlayTime = quarterTime > 24 ? Utilities.generateRandomPlayTime(random, 14) : quarterTime;
+                isSecondChance = false;
+            }
+            
             
             // after each quarter, update two teams' quarter scores
             if (quarterTime == 0) Utilities.updateQuarterScores(team1Scores, team2Scores, team1.totalScore, team2.totalScore);
@@ -228,6 +238,7 @@ public class Game {
             }
             else if (shotValue == 2) {
                 quarterTime -= currentPlayTime;
+                isSecondChance = true;
                 continue;
             }
         }
