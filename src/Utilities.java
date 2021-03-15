@@ -49,20 +49,31 @@ public class Utilities {
     }
 
     /**
-     * Generate current play's time from range [1, time] in seconds.
+     * Generate current play's time from range [4, time] in seconds.
      * 
      * @param time Maximum time of current play
      * @return current play's time
      */
     public static int generateRandomPlayTime(Random random, int time) {
-        int currentPlayTime = generateRandomNum(random, 3, time);
+        int currentPlayTime = generateRandomNum(random, 4, time);
         
         if (time == 24) {
             if (currentPlayTime <= 10 && generateRandomNum(random, 1, 10) <= 8) currentPlayTime += 8;
-            if (currentPlayTime >= 17 && generateRandomNum(random, 1, 10) <= 7) currentPlayTime -= 6;
+            if (currentPlayTime >= 17 && generateRandomNum(random, 1, 10) <= 6) currentPlayTime -= 6;
         }
         
         return currentPlayTime;
+    }
+
+    /**
+     * Overloading for choosePlayerBasedOnRating() function, remove quarter and team information.
+     * 
+     * @param TeamOnCourt Current players on the court
+     * @param attr The rating criteria, including 'rating', 'orb', 'drb' and 'ast'
+     * @return Selected player
+     */
+    public static Player choosePlayerBasedOnRating(Random random, Map<String, Player> TeamOnCourt, String attr) {
+        return choosePlayerBasedOnRating(random, TeamOnCourt, attr, 0, 0, null, null);
     }
 
     /**
@@ -70,51 +81,78 @@ public class Utilities {
      * 
      * @param TeamOnCourt Current players on the court
      * @param attr The rating criteria, including 'rating', 'orb', 'drb' and 'ast'
+     * @param currentQuarter Current quarter number
+     * @param quarterTime Time left in current quarter
+     * @param offenseTeam Offense team
+     * @param defenseTeam Defense team
      * @return Selected player
      */
-    public static Player choosePlayerBasedOnRating(Random random, Map<String, Player> TeamOnCourt, String attr) {
-        int totalRating = 0;
+    public static Player choosePlayerBasedOnRating(Random random, Map<String, Player> TeamOnCourt, String attr,
+                                                   int currentQuarter, int quarterTime, Team offenseTeam, Team defenseTeam) {
+        double totalRating = 0;
         for (String pos : TeamOnCourt.keySet()) {
             if (attr.equals("rating")) 
-                totalRating += (0.65*TeamOnCourt.get(pos).rating + 0.07*TeamOnCourt.get(pos).astRating + 0.07*TeamOnCourt.get(pos).insideRating
-                                + 0.07*TeamOnCourt.get(pos).midRating + 0.07*TeamOnCourt.get(pos).threeRating + 0.07*TeamOnCourt.get(pos).layupRating);
+                totalRating += (0.6*TeamOnCourt.get(pos).rating + 
+                                0.1*TeamOnCourt.get(pos).insideRating + 0.1*TeamOnCourt.get(pos).midRating
+                                + 0.1*TeamOnCourt.get(pos).threeRating + 0.1*TeamOnCourt.get(pos).layupRating);
             if (attr.equals("orb")) totalRating += 0.1*TeamOnCourt.get(pos).rating + 0.9*TeamOnCourt.get(pos).orbRating;
             if (attr.equals("drb")) totalRating += 0.1*TeamOnCourt.get(pos).rating + 0.9*TeamOnCourt.get(pos).drbRating;
             if (attr.equals("ast")) totalRating += TeamOnCourt.get(pos).astRating;
         }
         double avgRating = totalRating * 1.0 / 5;
 
-        int poss1, poss2, poss3, poss4 = 0;
+        double poss1, poss2, poss3, poss4 = 0;
         if (attr.equals("rating")) {
-            poss1 = (int)(10 * (20 + (0.65*TeamOnCourt.get("C").rating + 0.07*TeamOnCourt.get("C").astRating + 0.07*TeamOnCourt.get("C").insideRating
-                    + 0.07*TeamOnCourt.get("C").midRating + 0.07*TeamOnCourt.get("C").threeRating + 0.07*TeamOnCourt.get("C").layupRating - avgRating) ));
+            // clutch time, 50% percent to give the star player with highest rating
+            if (currentQuarter >= 4 && quarterTime <= 300 && Math.abs(offenseTeam.totalScore - defenseTeam.totalScore) <= 8) {
+                if (generateRandomNum(random, 1, 100) <= 50) {
+                    int highestRating = 0;
+                    Player selectedPlayer = null;
+
+                    for (Player p : TeamOnCourt.values()) {
+                        if (highestRating < p.rating) {
+                            highestRating = p.rating;
+                            selectedPlayer = p;
+                        }
+                    }
+
+                    return selectedPlayer;
+                }
+            } 
+
+            poss1 = (10 * (20 + (0.6*TeamOnCourt.get("C").rating + 0.1*TeamOnCourt.get("C").insideRating
+                    + 0.1*TeamOnCourt.get("C").midRating + 0.1*TeamOnCourt.get("C").threeRating + 0.1*TeamOnCourt.get("C").layupRating
+                    - avgRating) ));
             
-            poss2 = (int)(10 * (20 + (0.65*TeamOnCourt.get("PF").rating + 0.07*TeamOnCourt.get("PF").astRating + 0.07*TeamOnCourt.get("PF").insideRating
-                + 0.07*TeamOnCourt.get("PF").midRating + 0.07*TeamOnCourt.get("PF").threeRating + 0.07*TeamOnCourt.get("PF").layupRating - avgRating) ));
+            poss2 = (10 * (20 + (0.6*TeamOnCourt.get("PF").rating + 0.1*TeamOnCourt.get("PF").insideRating
+                    + 0.1*TeamOnCourt.get("PF").midRating + 0.1*TeamOnCourt.get("PF").threeRating + 0.1*TeamOnCourt.get("PF").layupRating
+                    - avgRating) ));
             
-            poss3 = (int)(10 * (20 + (0.65*TeamOnCourt.get("SF").rating + 0.07*TeamOnCourt.get("SF").astRating + 0.07*TeamOnCourt.get("SF").insideRating
-                + 0.07*TeamOnCourt.get("SF").midRating + 0.07*TeamOnCourt.get("SF").threeRating + 0.07*TeamOnCourt.get("SF").layupRating - avgRating) ));
+            poss3 = (10 * (20 + (0.6*TeamOnCourt.get("SF").rating + 0.1*TeamOnCourt.get("SF").insideRating
+                    + 0.1*TeamOnCourt.get("SF").midRating + 0.1*TeamOnCourt.get("SF").threeRating + 0.1*TeamOnCourt.get("SF").layupRating
+                    - avgRating) ));
             
-            poss4 = (int)(10 * (20 + (0.65*TeamOnCourt.get("SG").rating + 0.07*TeamOnCourt.get("SF").astRating + 0.07*TeamOnCourt.get("SG").insideRating
-                + 0.07*TeamOnCourt.get("SG").midRating + 0.07*TeamOnCourt.get("SG").threeRating + 0.07*TeamOnCourt.get("SG").layupRating - avgRating) ));
+            poss4 = (10 * (20 + (0.6*TeamOnCourt.get("SG").rating + 0.1*TeamOnCourt.get("SG").insideRating
+                    + 0.1*TeamOnCourt.get("SG").midRating + 0.1*TeamOnCourt.get("SG").threeRating + 0.1*TeamOnCourt.get("SG").layupRating
+                    - avgRating) ));
         }
         else if (attr.equals("orb")) {
-            poss1 = Math.max( (int)(1000 * (2*TeamOnCourt.get("C").orbRating - avgRating) / totalRating), 0);
-            poss2 = Math.max( (int)(1000 * (2*TeamOnCourt.get("PF").orbRating - avgRating) / totalRating), 0);
-            poss3 = Math.max( (int)(1000 * (2*TeamOnCourt.get("SF").orbRating - avgRating) / totalRating), 0);
-            poss4 = Math.max( (int)(1000 * (2*TeamOnCourt.get("C").orbRating - avgRating) / totalRating), 0);
+            poss1 = Math.max( (1000 * (2*TeamOnCourt.get("C").orbRating - avgRating) / totalRating), 0);
+            poss2 = Math.max( (1000 * (2*TeamOnCourt.get("PF").orbRating - avgRating) / totalRating), 0);
+            poss3 = Math.max( (1000 * (2*TeamOnCourt.get("SF").orbRating - avgRating) / totalRating), 0);
+            poss4 = Math.max( (1000 * (2*TeamOnCourt.get("C").orbRating - avgRating) / totalRating), 0);
         }
         else if (attr.equals("drb")) {
-            poss1 = Math.max( (int)(1000 * (2*TeamOnCourt.get("C").drbRating - avgRating) / totalRating), 0) ;
-            poss2 = Math.max( (int)(1000 * (2*TeamOnCourt.get("PF").drbRating - avgRating) / totalRating), 0);
-            poss3 = Math.max( (int)(1000 * (2*TeamOnCourt.get("SF").drbRating - avgRating) / totalRating), 0);
-            poss4 = Math.max( (int)(1000 * (2*TeamOnCourt.get("SG").drbRating - avgRating) / totalRating), 0);
+            poss1 = Math.max( (1000 * (2*TeamOnCourt.get("C").drbRating - avgRating) / totalRating), 0) ;
+            poss2 = Math.max( (1000 * (2*TeamOnCourt.get("PF").drbRating - avgRating) / totalRating), 0);
+            poss3 = Math.max( (1000 * (2*TeamOnCourt.get("SF").drbRating - avgRating) / totalRating), 0);
+            poss4 = Math.max( (1000 * (2*TeamOnCourt.get("SG").drbRating - avgRating) / totalRating), 0);
         }
         else {
-            poss1 = Math.max( (int)(1000 * (2*TeamOnCourt.get("C").astRating - avgRating) / totalRating), 0);
-            poss2 = Math.max( (int)(1000 * (2*TeamOnCourt.get("PF").astRating - avgRating) / totalRating), 0);
-            poss3 = Math.max( (int)(1000 * (2*TeamOnCourt.get("SF").astRating - avgRating) / totalRating), 0);
-            poss4 = Math.max( (int)(1000 * (2*TeamOnCourt.get("SG").astRating - avgRating) / totalRating), 0);
+            poss1 = Math.max( (1000 * (2*TeamOnCourt.get("C").astRating - avgRating) / totalRating), 0);
+            poss2 = Math.max( (1000 * (2*TeamOnCourt.get("PF").astRating - avgRating) / totalRating), 0);
+            poss3 = Math.max( (1000 * (2*TeamOnCourt.get("SF").astRating - avgRating) / totalRating), 0);
+            poss4 = Math.max( (1000 * (2*TeamOnCourt.get("SG").astRating - avgRating) / totalRating), 0);
         }
         
         int pick = generateRandomNum(random, 1, 1000);
@@ -159,9 +197,12 @@ public class Utilities {
     public static int judgeLoseBall(Random random, Team defenseTeam, Map<String, Player> defenseTeamOnCourt, Player offensePlayer, Player defensePlayer) {
         int poss = generateRandomNum(random, 1, 100);
 
-        double range = 6 * 80 + 5 * defensePlayer.stlRating + defensePlayer.athleticism;
-        if (defensePlayer.stlRating >= 80 && defensePlayer.stlRating < 90) range *= 1.15;
-        else if (defensePlayer.stlRating >= 90) range *= 1.3;
+        double range = 6 * 70 + 3 * defensePlayer.stlRating
+                        + 2 * Math.max(defensePlayer.interiorDefense, defensePlayer.perimeterDefense) + defensePlayer.athleticism;
+        if (defensePlayer.stlRating >= 83 && defensePlayer.stlRating < 87) range *= 1.15;
+        else if (defensePlayer.stlRating >= 87 && defensePlayer.stlRating < 92) range *= 1.3;
+        else if (defensePlayer.stlRating >= 92 && defensePlayer.stlRating < 95) range *= 1.4;
+        else if (defensePlayer.stlRating >= 95) range *= 1.5;
 
         // 0.6% chance to jump ball
         if (poss <= 1) {
@@ -233,9 +274,14 @@ public class Utilities {
     public static int judgeBlock(Random random, int distance, Map<String, Player> offenseTeamOnCourt, Map<String, Player> defenseTeamOnCourt,
                                  Player offensePlayer, Player defensePlayer) {
         int poss = generateRandomNum(random, 1, 100);
-        double range = 6 * 20 + 5 * defensePlayer.blkRating + defensePlayer.athleticism;
-        if (defensePlayer.blkRating >= 80 && defensePlayer.blkRating < 90) range *= 1.25;
-        else if (defensePlayer.blkRating >= 90) range *= 1.5;
+        double range = 3 * defensePlayer.blkRating +
+                        Math.max(defensePlayer.interiorDefense, defensePlayer.perimeterDefense) + defensePlayer.athleticism;
+
+        if (defensePlayer.blkRating >= 75 && defensePlayer.blkRating < 83) range *= 1.3;
+        else if (defensePlayer.blkRating >= 83 && defensePlayer.blkRating < 88) range *= 1.75;
+        else if (defensePlayer.blkRating >= 88 && defensePlayer.blkRating < 92) range *= 2.25;
+        else if (defensePlayer.blkRating >= 92 && defensePlayer.blkRating < 95) range *= 3;
+        else if (defensePlayer.blkRating >= 95) range *= 4;
 
         if (60 * poss <= range) {
             offensePlayer.shotAttempted++;
@@ -277,18 +323,42 @@ public class Utilities {
         
         int temp = generateRandomNum(random, 1, 100);
         
-        // offensive rebound
+        // offensive rebound & defensive rebound
+        int rebAssign = generateRandomNum(random, 1, 100);
+        Player rebounder = null;
         if ((offRebBonus && temp <= 15) || (!offRebBonus && temp <= 10)) {
-            Player offenseRebounder = choosePlayerBasedOnRating(random, offenseTeamOnCourt, "orb");
-            Comments.getReboundComment(offenseRebounder.name, true);
-            offenseRebounder.rebound++;
+            if (rebAssign <= 13) {
+                for (String pos : offenseTeamOnCourt.keySet()) {
+                    if (offenseTeamOnCourt.get(pos).orbRating >= 88) {
+                        rebounder = offenseTeamOnCourt.get(pos);
+                        break;
+                    }
+                }
+
+                if (rebounder == null) rebounder = choosePlayerBasedOnRating(random, offenseTeamOnCourt, "orb");
+            } else {
+                rebounder = choosePlayerBasedOnRating(random, offenseTeamOnCourt, "orb");
+            }
+
+            Comments.getReboundComment(rebounder.name, true);
+            rebounder.rebound++;
             return true;
-        }
-        // defensive rebound
-        else {
-            Player defenseRebounder = choosePlayerBasedOnRating(random, defenseTeamOnCourt, "drb");
-            Comments.getReboundComment(defenseRebounder.name, false);
-            defenseRebounder.rebound++;
+        } else {
+            if (rebAssign <= 13) {
+                for (String pos : defenseTeamOnCourt.keySet()) {
+                    if (defenseTeamOnCourt.get(pos).drbRating >= 88) {
+                        rebounder = defenseTeamOnCourt.get(pos);
+                        break;
+                    }
+                }
+
+                if (rebounder == null) rebounder = choosePlayerBasedOnRating(random, defenseTeamOnCourt, "drb");
+            } else {
+                rebounder = choosePlayerBasedOnRating(random, defenseTeamOnCourt, "drb");
+            }
+
+            Comments.getReboundComment(rebounder.name, false);
+            rebounder.rebound++;
             return false;
         }
     }
@@ -605,7 +675,7 @@ public class Utilities {
         // initial value
         if (distance <= 20) percentage = -0.5 * distance + 35;
         else if (distance <= 23) percentage = distance + 5;
-        else percentage = -23/35 * (distance - 24) * (distance - 24) + 1283/35;
+        else percentage = -23/35 * (distance - 24) * (distance - 24) + 1353/35;
 
         // based on shot choice, adjust percentage
         if (movement.contains("扣")) percentage *= 2.5;
@@ -638,7 +708,7 @@ public class Utilities {
             else if (temp > 65) percentage -= 10;
         }
         else {
-            if (temp <= 20) percentage += 10;
+            if (temp <= 20) percentage += 5;
             else if (temp > 60) percentage -= 10;
         }
 
@@ -652,12 +722,12 @@ public class Utilities {
         // star player bonus
         if (offensePlayer.rating >= 83 && offensePlayer.rating <= 86) percentage *= 1.03;
         else if (offensePlayer.rating >= 87 && offensePlayer.rating <= 89) percentage *= 1.06;
-        else if (offensePlayer.rating >= 90 && offensePlayer.rating <= 93) percentage *= 1.09;
-        else if (offensePlayer.rating >= 94) percentage *= 1.12;
+        else if (offensePlayer.rating >= 90 && offensePlayer.rating <= 93) percentage *= 1.08;
+        else if (offensePlayer.rating >= 94) percentage *= 1.1;
 
         // clutch time
         if (!offensePlayer.isMrClutch && currentQuarter >= 4
-            && Math.abs(team1.totalScore - team2.totalScore) <= 8 && quarterTime <= 360) percentage *= 0.75;
+            && Math.abs(team1.totalScore - team2.totalScore) <= 8 && quarterTime <= 360) percentage *= 0.6;
         
         return percentage;
     }
@@ -678,9 +748,9 @@ public class Utilities {
      * @param percentage Shot goal percentage
      * @return 1 - make the shot or make the last free throw  2 - offensive rebound  3 - defensive rebound  4 - out of bound
      */
-    public static int judgeMakeShot(Random random, int distance, Player offensePlayer, Player defensePlayer, Team offenseTeam, Team defenseTeam,
-                                    Map<String, Player> offenseTeamOnCourt, Map<String, Player> defenseTeamOnCourt, double percentage, int quarterTime,
-                                    int currentQuarter, Team team1, Team team2, String movement) {
+    public static int judgeMakeShot(Random random, int distance, Player offensePlayer, Player defensePlayer, Team offenseTeam, 
+                                    Team defenseTeam, Map<String, Player> offenseTeamOnCourt, Map<String, Player> defenseTeamOnCourt,
+                                    double percentage, int quarterTime, int currentQuarter, Team team1, Team team2, String movement) {
         int judgeShot = generateRandomNum(random, 1, 10000);
 
         // make the shot
@@ -713,42 +783,39 @@ public class Utilities {
                 }
             }
 
-            // get assist directly from 10-cent player
-            int firstAst = 0, secondAst = 0;
+            // get assist directly from 10-cent player or star player
+            int firstAst = 0;
+            int highestRating = 0;
+            Player highestPlayer = null;
             for (String pos : offenseTeamOnCourt.keySet()) {
                 int currentAst = offenseTeamOnCourt.get(pos).astRating;
-                if (currentAst > firstAst) {
-                    secondAst = firstAst;
-                    firstAst = currentAst;
-                } else if (currentAst > secondAst) {
-                    secondAst = currentAst;
+                int currentRating = offenseTeamOnCourt.get(pos).rating;
+                firstAst = Math.max(firstAst, currentAst);
+
+                if (highestRating < currentRating) {
+                    highestRating = currentRating;
+                    highestPlayer = offenseTeamOnCourt.get(pos);
                 }
             }
 
             int assistAssign = generateRandomNum(random, 1, 100);
-
-            if (assistAssign <= 30) {
+            if (assistAssign <= 40) {
                 for (String pos : offenseTeamOnCourt.keySet()) {
                     if (pos != offensePlayer.position) {
-                        if (offenseTeamOnCourt.get(pos).astRating >= 87 ||
-                            (offenseTeamOnCourt.get(pos).astRating == firstAst && assistAssign <= 20)) {
+                        if ((offenseTeamOnCourt.get(pos).rating > 85 && offenseTeamOnCourt.get(pos).astRating > 85) ||
+                            (offenseTeamOnCourt.get(pos).astRating == firstAst && assistAssign <= 18)) {
                             offenseTeamOnCourt.get(pos).assist += 1;
                             break;
                         }
                     }
                 }
-            } else if (assistAssign <= 40) {
-                for (String pos : offenseTeamOnCourt.keySet()) {
-                    if (pos != offensePlayer.position) {
-                        if (offenseTeamOnCourt.get(pos).astRating == secondAst && offensePlayer.astRating == firstAst) {
-                            offenseTeamOnCourt.get(pos).assist += 1;
-                            break;
-                        }
-                    }
+            } else if (assistAssign <= 50) {
+                if (highestPlayer.position != offensePlayer.position && highestPlayer.astRating <= 85) {
+                    highestPlayer.assist += 1;
                 }
             } else {
                 int astTemp = generateRandomNum(random, 1, 100);
-                if ((offensePlayer.isStar && astTemp <= 60) || (!offensePlayer.isStar && astTemp <= 95)) {
+                if ((offensePlayer.isStar && astTemp <= 70) || (!offensePlayer.isStar && astTemp <= 90)) {
                     Player assister;
                     while (true) {
                         assister = choosePlayerBasedOnRating(random, offenseTeamOnCourt, "ast");
@@ -761,12 +828,24 @@ public class Utilities {
             // judge free throw chance
             int andOneTemp = generateRandomNum(random, 1, 10000);
 
-            int basePercent = distance <= 10 ? 3 : distance <= 23 ? 2 : 1;
+            int basePercent = distance <= 10 ? 4 : distance <= 23 ? 2 : 1;
 
-            int drawFoulAttr = basePercent * (100 + offensePlayer.drawFoul > 90 ? 5 * offensePlayer.drawFoul
-                                                                                : 2 * offensePlayer.drawFoul);
+            int drawFoulAttr;
+            if (offensePlayer.drawFoul >= 94) {
+                if (offensePlayer.position.equals("C") || offensePlayer.position.equals("PF"))
+                    drawFoulAttr = basePercent * (100 + 4 * offensePlayer.drawFoul);
+                else
+                    drawFoulAttr = basePercent * (100 + 3 * offensePlayer.drawFoul);
+            } else if (offensePlayer.drawFoul >= 85) {
+                if (offensePlayer.position.equals("C") || offensePlayer.position.equals("PF"))
+                    drawFoulAttr = basePercent * (100 + 3 * offensePlayer.drawFoul);
+                else
+                    drawFoulAttr = basePercent * (100 + 5 * offensePlayer.drawFoul / 2);
+            } else {
+                drawFoulAttr = basePercent * (100 + 5 * offensePlayer.drawFoul / 2);
+            }
             
-            if (offensePlayer.isStar) drawFoulAttr *= 2;
+            if (offensePlayer.isStar) drawFoulAttr = drawFoulAttr * 9 / 5;
 
             if (andOneTemp <= drawFoulAttr) {
                 defensePlayer.foul++;
@@ -785,10 +864,23 @@ public class Utilities {
             // judge free throw chance
             int foulTemp = generateRandomNum(random, 1, 10000);
 
-            int basePercent = distance <= 10 ? 8 : distance <= 23 ? 5 : 2;
-            int drawFoulAttr = basePercent * (100 + offensePlayer.drawFoul > 90 ? 9 * offensePlayer.drawFoul / 2
-                                                                                : 2 * offensePlayer.drawFoul);
-            if (offensePlayer.isStar) drawFoulAttr *= 2;
+            int basePercent = distance <= 10 ? 10 : distance <= 23 ? 6 : 2;
+            int drawFoulAttr;
+            if (offensePlayer.drawFoul >= 94) {
+                if (offensePlayer.position.equals("C") || offensePlayer.position.equals("PF"))
+                    drawFoulAttr = basePercent * (100 + 4 * offensePlayer.drawFoul);
+                else
+                    drawFoulAttr = basePercent * (100 + 3 * offensePlayer.drawFoul);
+            } else if (offensePlayer.drawFoul >= 85) {
+                if (offensePlayer.position.equals("C") || offensePlayer.position.equals("PF"))
+                    drawFoulAttr = basePercent * (100 + 3 * offensePlayer.drawFoul);
+                else
+                    drawFoulAttr = basePercent * (100 + 5 * offensePlayer.drawFoul / 2);
+            } else {
+                drawFoulAttr = basePercent * (100 + 5 * offensePlayer.drawFoul / 2);
+            }
+            
+            if (offensePlayer.isStar) drawFoulAttr = drawFoulAttr * 9 / 5;
 
             if (foulTemp <= drawFoulAttr) {
                 // 5% flag foul

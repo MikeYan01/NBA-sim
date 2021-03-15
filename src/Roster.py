@@ -1,6 +1,7 @@
 import requests, sys
 from bs4 import BeautifulSoup
 import os
+import math
 
 """
 URL and headers
@@ -143,6 +144,8 @@ for TEAM_NAME in TEAM_LIST:
         column2_card1 = column2_cards[0].find('ul', attrs={'class':'list-group list-no-bullet'}).find_all('span')
         column2_card1_result = [each.text for each in column2_card1]
         column2_card2 = column2_cards[1].find('div', attrs={'class':'card-header'}).find('span')
+        column2_card2_content = column2_cards[1].find('ul', attrs={'class':'list-group list-no-bullet'}).find_all('span')
+        column2_card2_result = [int(each.text) for each in column2_card2_content]
 
         """
         column3
@@ -168,7 +171,8 @@ for TEAM_NAME in TEAM_LIST:
         result.append(column3_card2_result[0]) # Offensive Rebound
         result.append(column3_card2_result[1]) # Defensive Rebound
 
-        result.append(column2_card2.text) # Assist Rating
+        ast_avg = (sum(column2_card2_result) - column2_card2_result[2]) / 4
+        result.append(str(math.ceil(ast_avg))) # Assist Rating
 
         result.append(column3_card1_result[2]) # Steal
         result.append(column3_card1_result[3]) # Block
