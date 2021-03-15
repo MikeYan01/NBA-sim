@@ -167,7 +167,8 @@ public class Game {
             Team defenseTeam = !team1.hasBall ? team1 : team2;
             Map<String, Player> offenseTeamOnCourt = team1.hasBall ? teamOneOnCourt : teamTwoOnCourt;
             Map<String, Player> defenseTeamOnCourt = !team1.hasBall ? teamOneOnCourt : teamTwoOnCourt;
-            Player offensePlayer = Utilities.choosePlayerBasedOnRating(random, offenseTeamOnCourt, "rating");
+            Player offensePlayer = Utilities.choosePlayerBasedOnRating(random, offenseTeamOnCourt, "rating",
+                                                                       currentQuarter, quarterTime, offenseTeam, defenseTeam);
             Player defensePlayer = Utilities.chooseDefensePlayer(random, offensePlayer, defenseTeamOnCourt);
             Comments.getBallComment(offenseTeam.name, offensePlayer.name, defensePlayer.name);
 

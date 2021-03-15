@@ -139,7 +139,7 @@ public class SeasonStats {
      */
     public void printPlayerRank(Map<String, Double> table) {
         // current rank and total rank numbers
-        int MAX_RANK = 30;
+        int MAX_RANK = 100;
         int rank = 1;
 
         String name;
