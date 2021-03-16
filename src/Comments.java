@@ -212,7 +212,7 @@ public class Comments {
             "背身跳投",
             "翻身跳投"
         );
-        String prefix = distance >= 24 ? "三分" : "";
+        String prefix = distance >= 23 ? "三分" : "";
         int rdm = distance >= 20 ? Utilities.generateRandomNum(random, 1, resources1.size()) - 1
                                  : Utilities.generateRandomNum(random, 1, resources2.size()) - 1;
 
@@ -489,7 +489,7 @@ public class Comments {
             "颠了几下滚了出来!",
             "涮框不中!",
             "砸前框不中!",
-            "刷框而出"
+            "刷框而出!"
         );
         int rdm = Utilities.generateRandomNum(random, 1, resources.size()) - 1;
         System.out.println(countPrefix + resources.get(rdm));
@@ -702,7 +702,7 @@ public class Comments {
             "Bang! Bang! Bang!"
         );
 
-        if (distance <= 23) {
+        if (distance < 23) {
             int rdm = Utilities.generateRandomNum(random, 1, resources1.size()) - 1;
             System.out.println(resources1.get(rdm));
         } else {

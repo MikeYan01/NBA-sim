@@ -285,7 +285,7 @@ public class Utilities {
 
         if (60 * poss <= range) {
             offensePlayer.shotAttempted++;
-            if (distance >= 24) offensePlayer.threeAttempted++;
+            if (distance >= 23) offensePlayer.threeAttempted++;
             defensePlayer.block++;
             Comments.getBlockComment(defensePlayer.name);
 
@@ -391,7 +391,7 @@ public class Utilities {
      * @param currentQuarter Current quarter number
      */
     public static void foulProtect(Player previousPlayer, Team team, Map<String, Player> teamOnCourt, int currentQuarter) {
-        if (previousPlayer.playerType == 1 && 
+        if (previousPlayer.rotationType == 1 && 
             ((currentQuarter == 1 && previousPlayer.foul == 2) || (currentQuarter == 2 && previousPlayer.foul == 4) ||
             (currentQuarter == 3 && previousPlayer.foul == 5))) {
             Comments.getFoulProtectComment(previousPlayer.name);
@@ -640,8 +640,8 @@ public class Utilities {
             case 4:
                 int temp1 = generateRandomNum(random, 1, 100);
                 if (temp1 <= 35) distance = generateRandomNum(random, 1, 10);
-                else if (temp1 <= 45) distance = generateRandomNum(random, 11, 23);
-                else distance = generateRandomNum(random, 24, 30);
+                else if (temp1 <= 45) distance = generateRandomNum(random, 11, 22);
+                else distance = generateRandomNum(random, 23, 30);
                 break;
             case 5:
                 int temp2 = generateRandomNum(random, 1, 100);
@@ -674,15 +674,15 @@ public class Utilities {
 
         // initial value
         if (distance <= 20) percentage = -0.5 * distance + 35;
-        else if (distance <= 23) percentage = distance + 5;
-        else percentage = -23/35 * (distance - 24) * (distance - 24) + 1353/35;
+        else if (distance < 23) percentage = distance + 5;
+        else percentage = -23/35 * (distance - 23) * (distance - 23) + 1318/35;
 
         // based on shot choice, adjust percentage
         if (movement.contains("扣")) percentage *= 2.5;
         else if (movement.contains("篮")) percentage += 0.25 * offensePlayer.layupRating;
         else {
             if (distance <= 10) percentage += 0.25 * (offensePlayer.insideRating - 80);
-            else if (distance <= 23) percentage += 0.25 * (offensePlayer.midRating - 75);
+            else if (distance < 23) percentage += 0.25 * (offensePlayer.midRating - 75);
             else percentage += 0.2 * (offensePlayer.threeRating - 75);
         }
 
@@ -758,7 +758,7 @@ public class Utilities {
             offensePlayer.shotMade++;
             offensePlayer.shotAttempted++;
 
-            if (distance >= 24) {
+            if (distance >= 23) {
                 offensePlayer.threeAttempted++;
                 offensePlayer.threeMade++;
                 offensePlayer.score += 3;
@@ -828,19 +828,11 @@ public class Utilities {
             // judge free throw chance
             int andOneTemp = generateRandomNum(random, 1, 10000);
 
-            int basePercent = distance <= 10 ? 4 : distance <= 23 ? 2 : 1;
+            int basePercent = distance <= 10 ? 4 : distance < 23 ? 2 : 1;
 
             int drawFoulAttr;
             if (offensePlayer.drawFoul >= 94) {
-                if (offensePlayer.position.equals("C") || offensePlayer.position.equals("PF"))
-                    drawFoulAttr = basePercent * (100 + 4 * offensePlayer.drawFoul);
-                else
-                    drawFoulAttr = basePercent * (100 + 3 * offensePlayer.drawFoul);
-            } else if (offensePlayer.drawFoul >= 85) {
-                if (offensePlayer.position.equals("C") || offensePlayer.position.equals("PF"))
-                    drawFoulAttr = basePercent * (100 + 3 * offensePlayer.drawFoul);
-                else
-                    drawFoulAttr = basePercent * (100 + 5 * offensePlayer.drawFoul / 2);
+                drawFoulAttr = basePercent * (100 + 7 * offensePlayer.drawFoul / 2);
             } else {
                 drawFoulAttr = basePercent * (100 + 5 * offensePlayer.drawFoul / 2);
             }
@@ -864,7 +856,7 @@ public class Utilities {
             // judge free throw chance
             int foulTemp = generateRandomNum(random, 1, 10000);
 
-            int basePercent = distance <= 10 ? 10 : distance <= 23 ? 6 : 2;
+            int basePercent = distance <= 10 ? 10 : distance < 23 ? 6 : 2;
             int drawFoulAttr;
             if (offensePlayer.drawFoul >= 94) {
                 if (offensePlayer.position.equals("C") || offensePlayer.position.equals("PF"))
@@ -902,7 +894,7 @@ public class Utilities {
                 foulProtect(defensePlayer, defenseTeam, defenseTeamOnCourt, currentQuarter);
 
                 int freeThrowResult = 0;
-                if (distance <= 23) 
+                if (distance < 23) 
                     freeThrowResult = makeFreeThrow(random, offensePlayer, offenseTeamOnCourt, defenseTeamOnCourt,
                                                     offenseTeam, 2, quarterTime, currentQuarter, team1, team2, false);
                 else freeThrowResult = makeFreeThrow(random, offensePlayer, offenseTeamOnCourt, defenseTeamOnCourt,
@@ -912,7 +904,7 @@ public class Utilities {
             }
 
             offensePlayer.shotAttempted++;
-            if (distance >= 24) offensePlayer.threeAttempted++;
+            if (distance >= 23) offensePlayer.threeAttempted++;
             Comments.getMissShotsComment(movement);
             if (generateRandomNum(random, 1, 10) <= 4) Comments.getStatusComment(offensePlayer, false);
 
