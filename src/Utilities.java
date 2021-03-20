@@ -19,15 +19,26 @@ public class Utilities {
     }
 
     /**
-     * Round a double number to 2 scale.
+     * Round a double number to any given scale.
+     * 
+     * @param num The double number to be rounded
+     * @parm scale The scale to rouned
+     * @return A rounded number
+     */
+    public static double roundDouble(double num, int scale) {
+        BigDecimal b = new BigDecimal(num);
+        double result = b.setScale(scale, RoundingMode.HALF_UP).doubleValue();
+        return result;
+    }
+
+    /**
+     * Overloading, round a double number to default 2 scale.
      * 
      * @param num The double number to be rounded
      * @return A rounded number
      */
     public static double roundDouble(double num) {
-        BigDecimal b = new BigDecimal(num);
-        double result = b.setScale(2, RoundingMode.HALF_UP).doubleValue();
-        return result;
+        return roundDouble(num, 2);
     }
 
     /**
@@ -59,7 +70,7 @@ public class Utilities {
         
         if (time == 24) {
             if (currentPlayTime <= 10 && generateRandomNum(random, 1, 10) <= 8) currentPlayTime += 8;
-            if (currentPlayTime >= 17 && generateRandomNum(random, 1, 10) <= 6) currentPlayTime -= 6;
+            if (currentPlayTime >= 17 && generateRandomNum(random, 1, 10) <= 6) currentPlayTime -= 7;
         }
         
         return currentPlayTime;
@@ -673,8 +684,8 @@ public class Utilities {
         double percentage = 0.0;
 
         // initial value
-        if (distance <= 20) percentage = -0.5 * distance + 35;
-        else if (distance < 23) percentage = distance + 5;
+        if (distance <= 20) percentage = -0.5 * distance + 34;
+        else if (distance < 23) percentage = distance + 4;
         else percentage = -23/35 * (distance - 23) * (distance - 23) + 1318/35;
 
         // based on shot choice, adjust percentage
@@ -683,17 +694,15 @@ public class Utilities {
         else {
             if (distance <= 10) percentage += 0.25 * (offensePlayer.insideRating - 80);
             else if (distance < 23) percentage += 0.25 * (offensePlayer.midRating - 75);
-            else percentage += 0.2 * (offensePlayer.threeRating - 75);
+            else percentage += 0.25 * (offensePlayer.threeRating - 75);
         }
 
         // players with high astRating will increase percentage
         for (String pos : offenseTeamOnCourt.keySet()) {
             if (pos != offensePlayer.position && offenseTeamOnCourt.get(pos).astRating >= 83) {
-                if (offenseTeamOnCourt.get(pos).astRating <= 87) percentage += 1;
-                else if (offenseTeamOnCourt.get(pos).astRating <= 93) percentage += 2;
-                else percentage += 3;
-                
-                break;
+                if (offenseTeamOnCourt.get(pos).astRating <= 87) percentage += 0.5;
+                else if (offenseTeamOnCourt.get(pos).astRating <= 93) percentage += 0.75;
+                else percentage += 1;
             }
         }
 
@@ -704,7 +713,7 @@ public class Utilities {
         // check defense density
         int temp = generateRandomNum(random, 1, 100);
         if (!offensePlayer.isStar) {
-            if (temp <= 25) percentage += 10;
+            if (temp <= 25) percentage += 8;
             else if (temp > 65) percentage -= 10;
         }
         else {
@@ -720,10 +729,10 @@ public class Utilities {
         percentage += (offensePlayer.athleticism - defensePlayer.athleticism) / 8;
 
         // star player bonus
-        if (offensePlayer.rating >= 83 && offensePlayer.rating <= 86) percentage *= 1.03;
-        else if (offensePlayer.rating >= 87 && offensePlayer.rating <= 89) percentage *= 1.06;
-        else if (offensePlayer.rating >= 90 && offensePlayer.rating <= 93) percentage *= 1.08;
-        else if (offensePlayer.rating >= 94) percentage *= 1.1;
+        if (offensePlayer.rating >= 83 && offensePlayer.rating <= 86) percentage *= 1.01;
+        else if (offensePlayer.rating >= 87 && offensePlayer.rating <= 89) percentage *= 1.02;
+        else if (offensePlayer.rating >= 90 && offensePlayer.rating <= 93) percentage *= 1.03;
+        else if (offensePlayer.rating >= 94) percentage *= 1.04;
 
         // clutch time
         if (!offensePlayer.isMrClutch && currentQuarter >= 4
@@ -832,12 +841,14 @@ public class Utilities {
 
             int drawFoulAttr;
             if (offensePlayer.drawFoul >= 94) {
-                drawFoulAttr = basePercent * (100 + 7 * offensePlayer.drawFoul / 2);
+                drawFoulAttr = basePercent * (100 + 4 * offensePlayer.drawFoul);
+            } else if (offensePlayer.drawFoul >= 85) {
+                drawFoulAttr = basePercent * (100 + 3 * offensePlayer.drawFoul);
             } else {
                 drawFoulAttr = basePercent * (100 + 5 * offensePlayer.drawFoul / 2);
             }
             
-            if (offensePlayer.isStar) drawFoulAttr = drawFoulAttr * 9 / 5;
+            if (offensePlayer.isStar && !defensePlayer.isStar) drawFoulAttr = drawFoulAttr * 2;
 
             if (andOneTemp <= drawFoulAttr) {
                 defensePlayer.foul++;
@@ -859,20 +870,14 @@ public class Utilities {
             int basePercent = distance <= 10 ? 10 : distance < 23 ? 6 : 2;
             int drawFoulAttr;
             if (offensePlayer.drawFoul >= 94) {
-                if (offensePlayer.position.equals("C") || offensePlayer.position.equals("PF"))
-                    drawFoulAttr = basePercent * (100 + 4 * offensePlayer.drawFoul);
-                else
-                    drawFoulAttr = basePercent * (100 + 3 * offensePlayer.drawFoul);
+                drawFoulAttr = basePercent * (100 + 4 * offensePlayer.drawFoul);
             } else if (offensePlayer.drawFoul >= 85) {
-                if (offensePlayer.position.equals("C") || offensePlayer.position.equals("PF"))
-                    drawFoulAttr = basePercent * (100 + 3 * offensePlayer.drawFoul);
-                else
-                    drawFoulAttr = basePercent * (100 + 5 * offensePlayer.drawFoul / 2);
+                drawFoulAttr = basePercent * (100 + 3 * offensePlayer.drawFoul);
             } else {
                 drawFoulAttr = basePercent * (100 + 5 * offensePlayer.drawFoul / 2);
             }
             
-            if (offensePlayer.isStar) drawFoulAttr = drawFoulAttr * 9 / 5;
+            if (offensePlayer.isStar && !defensePlayer.isStar) drawFoulAttr = drawFoulAttr * 2;
 
             if (foulTemp <= drawFoulAttr) {
                 // 5% flag foul

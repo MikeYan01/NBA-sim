@@ -301,7 +301,7 @@ public class Game {
                 if (line.length() == 0) continue;
                 
                 // current line only contains a date, set as current date
-                else if (line.charAt(0) == '0' || line.charAt(0) == '1') currentDate = line;
+                else if ((line.charAt(0) == '0' || line.charAt(0) == '1') && line.charAt(2) == '-') currentDate = line;
 
                 // teams line, host game between two teams
                 else {
@@ -338,7 +338,7 @@ public class Game {
             System.out.println("\n球员场均盖帽榜");
             stat.printPlayerRank(stat.playerPerBlks);
 
-            System.out.println("\n球员场均罚球命中个数榜榜");
+            System.out.println("\n球员场均罚球命中个数榜");
             stat.printPlayerRank(stat.playerPerFts);
 
             System.out.println("\n球员场均三分命中个数榜");
@@ -349,6 +349,15 @@ public class Game {
 
             System.out.println("\n球队场均失分榜");
             stat.printTeamRank(stat.teamPerScoresAllowed);
+
+            System.out.println("\n球队场均投篮命中数榜");
+            stat.printTeamRank(stat.teamPerShotsMade);
+
+            System.out.println("\n球队场均投篮命中率榜");
+            stat.printTeamRank(stat.teamPerShotsPercent);
+
+            System.out.println("\n球队场均三分命中率榜");
+            stat.printTeamRank(stat.teamPerThreePercent);
         } catch (Exception e) {}
 
         // generate west & east divisions top 8 seeds
