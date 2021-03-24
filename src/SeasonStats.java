@@ -158,13 +158,12 @@ public class SeasonStats {
     }
 
     /**
-     * Print the rank of a player stat table
+     * Print the rank of a player stat table.
      * 
      * @param table A stat table
      */
     public void printPlayerRank(Map<String, Double> table) {
-        // current rank and total rank numbers
-        int MAX_RANK = 100;
+        // current rank
         int rank = 1;
 
         String name;
@@ -191,25 +190,40 @@ public class SeasonStats {
             }
 
             rank++;
-            if (rank > MAX_RANK) break;
+            if (rank > Constants.MAX_PLAYER_RANK) break;
         }
     }
 
     /**
-     * Print the rank of a player stat table
+     * Print the rank of a player stat table.
      * 
      * @param table A stat table
      */
     public void printTeamRank(Map<String, Double> table) {
-        // current rank and total rank numbers
-        int MAX_RANK = 30;
+        // current rank
         int rank = 1;
 
         for (Map.Entry<String, Double> team : sortStats(table)) {
             System.out.println(rank + " " + team.getKey() + "  " + team.getValue());
 
             rank++;
-            if (rank > MAX_RANK) break;
+            if (rank > Constants.MAX_TEAM_RANK) break;
+        }
+    }
+
+    /**
+     * Print out all teams' division standing.
+     * 
+     * @param standing The hashmap which contains all team's win and lose num
+     * @param list The list container for standing rank
+     */
+    public static void printStanding(Map<String, List<Integer>> standing, List<Map.Entry<String, Integer>> list) {
+        int rank = 1;
+        for (Map.Entry<String, Integer> team : list) {
+            double winRate = team.getValue() * 100.0 / (team.getValue() + standing.get(team.getKey()).get(1));
+            System.out.println(rank + " " + team.getKey() + ": " + team.getValue() + "-" + standing.get(team.getKey()).get(1)
+                               + "  胜率" + String.format("%.2f", winRate) + "%");
+            rank++;
         }
     }
 }
