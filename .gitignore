@@ -3,3 +3,4 @@
 *.class
 tempRoster.csv
 tempFolder/
+output/

@@ -15,7 +15,7 @@ public class Game {
     public String singleResultsPath;
     public String regularResultsPath;
     public String regularStatsPath;
-    public String playoffResultsPath;
+    public String playoffsResultsPath;
     public String standingFilePath;
     public String statFilePath;
 
@@ -26,23 +26,23 @@ public class Game {
      * Construct new Game instance to host a game or a season
      */
     public Game() {
-        this.schedulePath = "database/schedule/schedule-82games.txt";
+        this.schedulePath = Constants.SCHEDULE_PATH;
 
         // current year and next year's prefix
-        this.currentYear = "2020-";
-        this.nextYear = "2021-";
+        this.currentYear = Constants.CURRENT_YEAR;
+        this.nextYear = Constants.NEXT_YEAR;
 
-        this.singleResultsPath = "output/";
-        this.regularResultsPath = "output/regular-results";
-        this.regularStatsPath = "output/regular-stats";
-        this.playoffResultsPath = "output/playoffs-results";
-        this.standingFilePath = regularStatsPath + "/standing.txt";
-        this.statFilePath = regularStatsPath + "/stat.txt";
+        this.singleResultsPath = Constants.SINGLE_GAME_DIR;
+        this.regularResultsPath = Constants.REGULAR_GAMES_DIR;
+        this.regularStatsPath = Constants.REGULAR_STATS_DIR;
+        this.playoffsResultsPath = Constants.PLAYOFFS_GAMES_DIR;
+        this.standingFilePath = Constants.REGULAR_STATS_DIR + Constants.STANDING_NAME;
+        this.statFilePath = Constants.REGULAR_STATS_DIR + Constants.STAT_NAME;
 
         // initialize file paths
         Utilities.initializePath(this.regularResultsPath);
         Utilities.initializePath(this.regularStatsPath);
-        Utilities.initializePath(this.playoffResultsPath);
+        Utilities.initializePath(this.playoffsResultsPath);
     }
 
     /**
@@ -57,11 +57,11 @@ public class Game {
 
         // each game's result file
         String filePath;
-        if (gameMode.equals("playoffs")) filePath = playoffResultsPath + "/" + team1Name + team2Name + "-" + info + ".txt";
+        if (gameMode.equals("playoffs")) filePath = playoffsResultsPath + team1Name + team2Name + "-" + info + ".txt";
         else if (gameMode.equals("regular")) {
             // games in Oct, Nov, Dec are hosted in current year
-            if (info.charAt(0) == '1') filePath = regularResultsPath + "/" + currentYear + info + "-" + team1Name + team2Name + ".txt";
-            else filePath = regularResultsPath + "/" + nextYear + info + "-" + team1Name + team2Name + ".txt";
+            if (info.charAt(0) == '1') filePath = regularResultsPath + currentYear + info + "-" + team1Name + team2Name + ".txt";
+            else filePath = regularResultsPath + nextYear + info + "-" + team1Name + team2Name + ".txt";
         }
         else {
             filePath = singleResultsPath + team1Name + team2Name + ".txt";
@@ -97,7 +97,6 @@ public class Game {
 
         // Play-by-play simulation
         while (quarterTime >= 0) {
-
             // decide play time consumption and substitution
             int currentPlayTime;
             if (!isSecondChance) {
@@ -106,7 +105,6 @@ public class Game {
                 currentPlayTime = quarterTime > 24 ? Utilities.generateRandomPlayTime(random, 14) : quarterTime;
                 isSecondChance = false;
             }
-            
             
             // after each quarter, update two teams' quarter scores
             if (quarterTime == 0) Utilities.updateQuarterScores(team1Scores, team2Scores, team1.totalScore, team2.totalScore);
@@ -134,30 +132,29 @@ public class Game {
 
             // substitution
             if (!hasSubstituted) {
-                if (quarterTime < 180 && (currentQuarter == 1 || currentQuarter == 3)) {
-                    Utilities.timeOutSub(random, team1, team2, true, teamOneOnCourt, teamTwoOnCourt, false);
+                if (quarterTime < Constants.ODD_QUARTERS_TIME_LEFT && (currentQuarter == 1 || currentQuarter == 3)) {
+                    Utilities.timeOutSub(team1, team2, true, false, teamOneOnCourt, teamTwoOnCourt);
                     hasSubstituted = true;
                 }
 
-                if (quarterTime < 480 && (currentQuarter == 2 || (currentQuarter == 4 && !hasGarbageSubstituted))) {
-                    Utilities.timeOutSub(random, team1, team2, false, teamOneOnCourt, teamTwoOnCourt, false);
+                if (quarterTime < Constants.EVEN_QUARTERS_TIME_LEFT && (currentQuarter == 2 || (currentQuarter == 4 && !hasGarbageSubstituted))) {
+                    Utilities.timeOutSub(team1, team2, false, false, teamOneOnCourt, teamTwoOnCourt);
                     hasSubstituted = true;
                 }
             }
             if (!hasGarbageSubstituted && !startersBack) {
                 if (currentQuarter == 4 && 
-                    ( (Math.abs(team1.totalScore - team2.totalScore) >= 25 && quarterTime < 720)
-                    || (Math.abs(team1.totalScore - team2.totalScore) >= 18 && quarterTime < 360)
-                    || (Math.abs(team1.totalScore - team2.totalScore) >= 9 && quarterTime < 60))) {
-                    Utilities.timeOutSub(random, team1, team2, true, teamOneOnCourt, teamTwoOnCourt, true);
+                    ( (Math.abs(team1.totalScore - team2.totalScore) >= Constants.DIFF1 && quarterTime <= Constants.TIME_LEFT1)
+                    || (Math.abs(team1.totalScore - team2.totalScore) >= Constants.DIFF2 && quarterTime <= Constants.TIME_LEFT2)
+                    || (Math.abs(team1.totalScore - team2.totalScore) >= Constants.DIFF3 && quarterTime <= Constants.TIME_LEFT3))) {
+                    Utilities.timeOutSub(team1, team2, true, true, teamOneOnCourt, teamTwoOnCourt);
                     hasGarbageSubstituted = true;
                 }
             }
-
             if (hasGarbageSubstituted && !startersBack) {
                 if (currentQuarter == 4 && 
-                    ((Math.abs(team1.totalScore - team2.totalScore) <= 8 && quarterTime < 300))) {
-                    Utilities.timeOutSub(random, team1, team2, false, teamOneOnCourt, teamTwoOnCourt, false);
+                    ((Math.abs(team1.totalScore - team2.totalScore) <= Constants.CLUTCH_DIFF && quarterTime <= Constants.TIME_LEFT_CLUTCH))) {
+                    Utilities.timeOutSub(team1, team2, false, false, teamOneOnCourt, teamTwoOnCourt);
                     startersBack = true;
                 }
             }
@@ -279,13 +276,8 @@ public class Game {
     public void hostSeason() {
         SeasonStats stat = new SeasonStats();
 
-        String[] eastDivision = {"76人", "公牛", "凯尔特人", "奇才", "尼克斯",
-                                 "步行者", "活塞", "热火", "猛龙", "篮网",
-                                 "老鹰", "雄鹿", "骑士", "魔术", "黄蜂"};
-        
-        String[] westDivision = {"勇士", "国王", "太阳", "开拓者", "快船",
-                                 "掘金", "森林狼", "湖人", "火箭", "独行侠",
-                                 "灰熊", "爵士", "雷霆", "马刺", "鹈鹕"};
+        String[] eastDivision = Constants.EAST_TEAMS;
+        String[] westDivision = Constants.WEST_TEAMS;
 
         // <teamName, [totalWin, totalLose, division(0 west, 1 east)]>
         Map<String, List<Integer>> standing = new HashMap<>();
@@ -399,13 +391,13 @@ public class Game {
             System.out.println("西部排名");
             List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>(westStanding.entrySet());
             Collections.sort(list, vComparator);
-            printStanding(standing, list);
+            SeasonStats.printStanding(standing, list);
             for (int i = 0; i < 8; i++) westTemp[i] = list.get(i).getKey(); // copy west seeds
 
             System.out.println("\n东部排名");
             list = new ArrayList<Map.Entry<String, Integer>>(eastStanding.entrySet());
             Collections.sort(list, vComparator);
-            printStanding(standing, list);
+            SeasonStats.printStanding(standing, list);
             for (int i = 0; i < 8; i++) eastTemp[i] = list.get(i).getKey(); // copy east seeds
 
             List<String> westSeeds = reorderSeeds(westTemp);
@@ -433,22 +425,6 @@ public class Game {
         result.add(temp[5]);
 
         return result;
-    }
-
-    /**
-     * Print out all teams' division standing.
-     * 
-     * @param standing The hashmap which contains all team's win and lose num
-     * @param list The list container for standing rank
-     */
-    public void printStanding(Map<String, List<Integer>> standing, List<Map.Entry<String, Integer>> list) {
-        int rank = 1;
-        for (Map.Entry<String, Integer> team : list) {
-            double winRate = team.getValue() * 100.0 / (team.getValue() + standing.get(team.getKey()).get(1));
-            System.out.println(rank + " " + team.getKey() + ": " + team.getValue() + "-" + standing.get(team.getKey()).get(1)
-                               + "  胜率" + String.format("%.2f", winRate) + "%");
-            rank++;
-        }
     }
 
     /**
@@ -507,7 +483,6 @@ public class Game {
             for (int i = 0; i < 8; i += 2) {
                 team1 = seeds.get(i);
                 team2 = seeds.get(i + 1);
-                
                 winner = hostSeries(team1, team2, DIVISION + FIRST_PREFIX);
                 winIndexes[i/2] = winner.equals(team1) ? i : i+1;
             }
@@ -519,7 +494,6 @@ public class Game {
             for (int i = 0; i < 4; i += 2) {
                 team1 = secondRound.get(i);
                 team2 = secondRound.get(i + 1);
-                
                 winner = hostSeries(team1, team2, DIVISION + SECOND_PREFIX);
                 winIndexes[i/2] = winner.equals(team1) ? i : i+1;
             }
@@ -529,7 +503,6 @@ public class Game {
             for (int i = 0; i < 2; i++) thirdRound.add(secondRound.get(winIndexes[i]));
             team1 = thirdRound.get(0);
             team2 = thirdRound.get(1);
-
             conferenceChamp = hostSeries(team1, team2, DIVISION + THIRD_PREFIX);
         } catch (Exception e) {}
 
@@ -546,7 +519,6 @@ public class Game {
         String FINAL_PREFIX = "总决赛";
         String westChamp = getConferenceChamp(westSeeds, true);
         String eastChamp = getConferenceChamp(eastSeeds, false);
-        
         hostSeries(westChamp, eastChamp, FINAL_PREFIX);
     }
 }

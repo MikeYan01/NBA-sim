@@ -119,17 +119,19 @@ public class Player {
         // Type 1 - rarely dunk: stankDunk + drivingDunk <= 60
         // Type 2 - normal: other cases
         // Type 3 - excellent dunker: stankDunk + drivingDunk >= 160, or one of them exceeds 90
-        if (this.standDunk + this.drivingDunk <= 60) this.dunkerType = 1;
-        else if (this.standDunk + this.drivingDunk >= 160 || 
-                (this.standDunk + this.drivingDunk < 160 && this.standDunk >= 90) ||
-                (this.standDunk + this.drivingDunk < 160 && this.drivingDunk >= 90))
+        if (this.standDunk + this.drivingDunk <= Constants.DUNK_SUM_LB) this.dunkerType = 1;
+        else if (this.standDunk + this.drivingDunk >= Constants.DUNK_SUM_UB || 
+                (this.standDunk + this.drivingDunk < Constants.DUNK_SUM_UB
+                    && this.standDunk >= Constants.DUNK_EXCEL_LB) ||
+                (this.standDunk + this.drivingDunk < Constants.DUNK_SUM_UB
+                    && this.drivingDunk >= Constants.DUNK_EXCEL_LB))
             this.dunkerType = 3;
         else this.dunkerType = 2;
 
         this.isMrClutch = isMrClutch.equals("1") ? true : false;
 
-        // player with general rating > 85 is a star player
-        this.isStar = this.rating > 85 ? true : false;
+        // player with general rating >= 86 is a star player
+        this.isStar = this.rating >= Constants.PLAYER_STAR_LB ? true : false;
 
         this.score = 0;
         this.rebound = 0;

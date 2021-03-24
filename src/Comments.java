@@ -7,7 +7,7 @@ public class Comments {
     public static Random random = new Random();
 
     // The string builder for comment output
-    public static StringBuilder sb = new StringBuilder(128);
+    public static StringBuilder sb = new StringBuilder(Constants.MAX_SB_LEN);
 
     /**
      * Get player's last name from full name.
@@ -212,12 +212,12 @@ public class Comments {
             "背身跳投",
             "翻身跳投"
         );
-        String prefix = distance >= 23 ? "三分" : "";
-        int rdm = distance >= 20 ? Utilities.generateRandomNum(random, 1, resources1.size()) - 1
-                                 : Utilities.generateRandomNum(random, 1, resources2.size()) - 1;
+        String suffix = distance >= Constants.MIN_THREE_SHOT ? "三分" : "";
+        int rdm = distance >= Constants.SHOT_CHOICE_THLD ? Utilities.generateRandomNum(random, 1, resources1.size()) - 1
+                                                         : Utilities.generateRandomNum(random, 1, resources2.size()) - 1;
 
         sb.delete( 0, sb.length() );
-        sb.append(distance >= 20 ? resources1.get(rdm) : resources2.get(rdm)).append(prefix);
+        sb.append(distance >= Constants.SHOT_CHOICE_THLD ? resources1.get(rdm) : resources2.get(rdm)).append(suffix);
         return sb.toString();
     }
 
@@ -228,30 +228,27 @@ public class Comments {
      * @return Player's shot comments string
      */
     public static String getShotChoice(Random random, Player player, int distance, String shotPos) {
-        int temp = Utilities.generateRandomNum(random, 1, 100);
+        int temp = Utilities.generateRandomNum(random);
         int dunkerType = player.dunkerType;
         String movement = "";
-        if (distance <= 10) {
+        if (distance <= Constants.MAX_CLOSE_SHOT) {
             if (dunkerType == 1) {
-                if (temp <= 80) movement = pickLayup(random);
-                else if (temp <= 90) movement = pickDunk(random, dunkerType);
-                else movement = pickShot(random, distance);
+                if (temp <= Constants.TYPE_1_LAYUP) movement = pickLayup(random);
+                else if (temp <= Constants.TYPE_1_LAYUP + Constants.TYPE_1_DUNK) movement = pickDunk(random, dunkerType);
+            } else if (dunkerType == 2) {
+                if (temp <= Constants.TYPE_2_LAYUP) movement = pickLayup(random);
+                else if (temp <= Constants.TYPE_2_LAYUP + Constants.TYPE_2_DUNK) movement = pickDunk(random, dunkerType);
+            } else {
+                if (temp <= Constants.TYPE_3_LAYUP) movement = pickLayup(random);
+                else if (temp <= Constants.TYPE_3_LAYUP + Constants.TYPE_3_DUNK) movement = pickDunk(random, dunkerType);
             }
-            else if (dunkerType == 2) {
-                if (temp <= 60) movement = pickLayup(random);
-                else if (temp <= 90) movement = pickDunk(random, dunkerType);
-                else movement = pickShot(random, distance);
-            }
-            else {
-                if (temp <= 50) movement = pickLayup(random);
-                else if (temp <= 90) movement = pickDunk(random, dunkerType);
-                else movement = pickShot(random, distance);
-            }
+
+            if (movement.equals("")) movement = pickShot(random, distance);
         } else movement = pickShot(random, distance);
 
         sb.delete( 0, sb.length() );
         sb.append(distance).append("英尺外");
-        if (Utilities.generateRandomNum(random, 1, 100) <= 30) sb.append(shotPos);  // 30% chance to output shotPos
+        if (Utilities.generateRandomNum(random) <= Constants.SHOT_POSITION_PERCENT) sb.append(shotPos);
         sb.append(movement).append("!");
 
         System.out.println(sb.toString());
@@ -259,50 +256,56 @@ public class Comments {
     }
 
     /**
-     * Generate player celebration comments.
+     * Generate player celebration comments with a specified percentage.
      * 
      * @param name Player's name
+     * @param percent The percent to generate celebrate comment
      */
-    public static void getCelebrateComment(String name) {
-        String lastName = getLastName(name);
-        List<String> resources = Arrays.asList(
-            lastName + "看起来面无表情!十分淡定!",
-            lastName + "兴高采烈!跟板凳席上的队友不停击掌!",
-            lastName + "兴奋地与队友撞胸庆祝!",
-            lastName + "霸气环视全场!",
-            lastName + "振臂高呼!",
-            lastName + "双手举起带动场边观众庆祝!",
-            lastName + "疯狂捶胸怒吼庆祝!",
-            "队友纷纷围上来跟" + lastName + "撞胸庆祝!",
-            lastName + "跟场边球迷有说有笑!看起来十分自信!"
-        );
-        int rdm = Utilities.generateRandomNum(random, 1, resources.size()) - 1;
-        System.out.println(resources.get(rdm));
+    public static void getCelebrateComment(String name, int percent) {
+        if (Utilities.generateRandomNum(random) <= percent) {
+            String lastName = getLastName(name);
+            List<String> resources = Arrays.asList(
+                lastName + "看起来面无表情!十分淡定!",
+                lastName + "兴高采烈!跟板凳席上的队友不停击掌!",
+                lastName + "兴奋地与队友撞胸庆祝!",
+                lastName + "霸气环视全场!",
+                lastName + "振臂高呼!",
+                lastName + "双手举起带动场边观众庆祝!",
+                lastName + "疯狂捶胸怒吼庆祝!",
+                "队友纷纷围上来跟" + lastName + "撞胸庆祝!",
+                lastName + "跟场边球迷有说有笑!看起来十分自信!"
+            );
+            int rdm = Utilities.generateRandomNum(random, 1, resources.size()) - 1;
+            System.out.println(resources.get(rdm));
+        }
     }
 
     /**
-     * Generate player upset comments.
+     * Generate player upset comments with a specified percentage.
      * 
      * @param name Player's name
+     * @param percent The percent to generate upset comment
      */
-    public static void getUpsetComment(String name) {
-        String lastName = getLastName(name);
-        List<String> resources = Arrays.asList(
-            lastName + "一脸懊恼!",
-            lastName + "很不满意!",
-            lastName + "一脸懵逼!",
-            lastName + "面露不满!跟队友讨论此前的战术安排不太合理!",
-            lastName + "一边往回走一边嘴里唠唠叨叨在抱怨着什么!",
-            lastName + "表情激动，口吐芬芳!",
-            lastName + "抬手表示无语!",
-            "教练在场边对着" + lastName + "一直在大声嚷嚷!",
-            lastName + "走到裁判跟前似乎想要理论!\n被队友急忙拉回!",
-            "教练无可奈何!对着" + lastName + "欲言又止!",
-            "教练目不忍视!在边线摇头叹气!",
-            lastName + "一脸尴尬!"
-        );
-        int rdm = Utilities.generateRandomNum(random, 1, resources.size()) - 1;
-        System.out.println(resources.get(rdm));
+    public static void getUpsetComment(String name, int percent) {
+        if (Utilities.generateRandomNum(random) <= percent) {
+            String lastName = getLastName(name);
+            List<String> resources = Arrays.asList(
+                lastName + "一脸懊恼!",
+                lastName + "很不满意!",
+                lastName + "一脸懵逼!",
+                lastName + "面露不满!跟队友讨论此前的战术安排不太合理!",
+                lastName + "一边往回走一边嘴里唠唠叨叨在抱怨着什么!",
+                lastName + "表情激动，口吐芬芳!",
+                lastName + "抬手表示无语!",
+                "教练在场边对着" + lastName + "一直在大声嚷嚷!",
+                lastName + "走到裁判跟前似乎想要理论!\n被队友急忙拉回!",
+                "教练无可奈何!对着" + lastName + "欲言又止!",
+                "教练目不忍视!在边线摇头叹气!",
+                lastName + "一脸尴尬!"
+            );
+            int rdm = Utilities.generateRandomNum(random, 1, resources.size()) - 1;
+            System.out.println(resources.get(rdm));
+        }
     }
 
     /**
@@ -385,9 +388,7 @@ public class Comments {
         int rdm = Utilities.generateRandomNum(random, 1, resources.size()) - 1;
         System.out.println(resources.get(rdm));
 
-        // 70% of chance to get upset comment
-        rdm = Utilities.generateRandomNum(random, 1, 10);
-        if (rdm <= 7) getUpsetComment(name);
+        getUpsetComment(name, Constants.UPSET_HIGH_PERCENT);
     }
 
     /**
@@ -418,7 +419,7 @@ public class Comments {
         List<String> resources = Arrays.asList(
             defenseLastName + "死亡缠绕直接掏球!",
             defenseLastName + "半空杀出!直接横断!",
-            defenseLastName + "老摸金校尉了!暗中盗球!",
+            defenseLastName + "真是摸金校尉!趁人不备暗中盗球!",
             defenseLastName + "眼疾手快!小手一摸皮球到手!",
             defenseLastName + "鬼魅般钻出捅走球!",
             offenseLastName + "手滑了!\n" + defenseLastName + "趁机捞走皮球!",
@@ -533,9 +534,7 @@ public class Comments {
         int rdm = Utilities.generateRandomNum(random, 1, resources.size()) - 1;
         System.out.println(resources.get(rdm));
 
-        // 70% of chance to get celebrate comment
-        rdm = Utilities.generateRandomNum(random, 1, 10);
-        if (rdm <= 7) getCelebrateComment(name);
+        getCelebrateComment(name, Constants.CELEBRATE_HIGH_PERCENT);
     }
 
     /**
@@ -702,7 +701,7 @@ public class Comments {
             "Bang! Bang! Bang!"
         );
 
-        if (distance < 23) {
+        if (distance < Constants.MIN_THREE_SHOT) {
             int rdm = Utilities.generateRandomNum(random, 1, resources1.size()) - 1;
             System.out.println(resources1.get(rdm));
         } else {
@@ -710,17 +709,18 @@ public class Comments {
             System.out.println(resources2.get(rdm));
         }
         
-        // 30% of chance to get celebrate comment
-        int rdm = Utilities.generateRandomNum(random, 1, 10);
-        if (rdm <= 3) getCelebrateComment(offenseName);
+        getCelebrateComment(offenseName, Constants.CELEBRATE_LOW_PERCENT);
     }
 
     /**
      * Generate comments when the player misses a shot.
      * 
      * @param movement Player's shot choice
+     * @param offenseName Player's name
      */
-    public static void getMissShotsComment(String movement) {
+    public static void getMissShotsComment(String movement, String offenseName) {
+        String offenseLastName = getLastName(offenseName);
+
         List<String> resources = movement.contains("扣")
             ? Arrays.asList(
                 "扣飞了。。。",
@@ -753,6 +753,8 @@ public class Comments {
 
         int rdm = Utilities.generateRandomNum(random, 1, resources.size()) - 1;
         System.out.println(resources.get(rdm));
+
+        getUpsetComment(offenseLastName, Constants.UPSET_LOW_PERCENT);
     }
 
     /**
@@ -762,33 +764,37 @@ public class Comments {
      * @param isGoodstatus Whether the player is in good status or bad status
      */
     public static void getStatusComment(Player player, boolean isGoodstatus) {
-        String lastName = getLastName(player.name);
+        if (isGoodstatus &&
+            (player.score >= Constants.MIN_GOOD_SCORE ||
+            (player.shotMade >= Constants.MIN_SHOT_MADE && player.shotMade * 1.0 / player.shotAttempted >= Constants.MIN_GOOD_SHOT_PERCENT))
+            || !isGoodstatus &&
+            (player.shotAttempted >= Constants.MIN_SHOT_ATTEMPTED && player.shotMade * 1.0 / player.shotAttempted <= Constants.MAX_BAD_SHOT_PERCENT)) {
+            
+            String lastName = getLastName(player.name);
 
-        List<String> resources = isGoodstatus
-            ? Arrays.asList(
-                lastName + "今晚状态很好啊!",
-                lastName + "今晚状态不错!",
-                lastName + "手感火热!",
-                lastName + "这场比赛真是不可阻挡啊!",
-                lastName + "目前手感上佳!",
-                lastName + "今晚命中率很高!",
-                lastName + "目前效率很高!"
-            )
-            : Arrays.asList(
-                lastName + "今晚怎么了!不在状态!",
-                lastName + "手感冰凉!",
-                lastName + "今晚打了多少个铁了。。。",
-                lastName + "今晚真是四仰化三铁。。。",
-                lastName + "今晚真是化身米兰的小铁匠。。。",
-                lastName + "手感不好啊!",
-                lastName + "命中率惨不忍睹!",
-                lastName + "今晚打铁有点多啊!"
-            );
+            List<String> resources = isGoodstatus
+                ? Arrays.asList(
+                    lastName + "今晚状态很好啊!",
+                    lastName + "今晚状态不错!",
+                    lastName + "手感火热!",
+                    lastName + "这场比赛真是不可阻挡啊!",
+                    lastName + "目前手感上佳!",
+                    lastName + "今晚命中率很高!",
+                    lastName + "目前效率很高!"
+                )
+                : Arrays.asList(
+                    lastName + "今晚怎么了!不在状态!",
+                    lastName + "手感冰凉!",
+                    lastName + "今晚打了多少个铁了。。。",
+                    lastName + "今晚真是四仰化三铁。。。",
+                    lastName + "今晚真是化身米兰的小铁匠。。。",
+                    lastName + "手感不好啊!",
+                    lastName + "命中率惨不忍睹!",
+                    lastName + "今晚打铁有点多啊!"
+                );
 
-        String suffix = "\n目前" + player.shotAttempted + "投" + player.shotMade + "中拿到" + player.score + "分!";
-
-        if (isGoodstatus && (player.score > 35 || (player.shotMade >= 8 && player.shotMade * 1.0 / player.shotAttempted > 0.6))
-            || !isGoodstatus && (player.shotAttempted >= 7 && player.shotMade * 1.0 / player.shotAttempted < 0.2)) {
+            String suffix = "\n目前" + player.shotAttempted + "投" + player.shotMade + "中拿到" + player.score + "分!";
+            
             int rdm = Utilities.generateRandomNum(random, 1, resources.size()) - 1;
             System.out.println(resources.get(rdm) + suffix);
         }
@@ -824,7 +830,7 @@ public class Comments {
      * 
      * @param defensePlayer Defense player name
      */
-    public static void getOutOfBound(String defensePlayer) {
+    public static void getOutOfBound(String defenseName) {
         List<String> resources = Arrays.asList(
             "皮球直接滚出界外!",
             "皮球直接飞进观众席的人群中!",
@@ -834,9 +840,7 @@ public class Comments {
         int rdm = Utilities.generateRandomNum(random, 1, resources.size()) - 1;
         System.out.println(resources.get(rdm));
 
-        // 70% of chance to get celebrate comment
-        rdm = Utilities.generateRandomNum(random, 1, 10);
-        if (rdm <= 7) getCelebrateComment(defensePlayer);
+        getCelebrateComment(defenseName, Constants.CELEBRATE_HIGH_PERCENT);
     }
 
     /**
@@ -853,9 +857,7 @@ public class Comments {
         int rdm = Utilities.generateRandomNum(random, 1, resources.size()) - 1;
         System.out.println(resources.get(rdm));
 
-        // 20% of chance to get upset comment
-        rdm = Utilities.generateRandomNum(random, 1, 10);
-        if (rdm <= 2) getUpsetComment(offensePlayer);
+        getUpsetComment(offensePlayer, Constants.UPSET_LOW_PERCENT);
     }
 
     /**
@@ -867,12 +869,12 @@ public class Comments {
         String lastName = getLastName(name);
         List<String> resources = Arrays.asList(
             "镜头突然给到" + lastName + "!\n他痛苦的趴在地上!\n应该是在刚才的对抗中受伤了!",
-            lastName + "一瘸一拐地走下场!应该是受伤了!",
-            lastName + "面部在刚才的回合中被撞出血了!下场接受治疗!",
-            lastName + "突破进入人堆!突然重重倒地!\n回放慢镜头显示似乎是崴脚了!",
-            lastName + "被撞翻在地!痛苦地捂着膝盖!",
-            lastName + "在刚才的回合中倒地了!一直握着自己的大腿!\n队友上来把他搀扶下场!",
-            lastName + "在刚才的回合中重重摔在地上!半天倒地不起!\n估计是脑震荡了!\n队医上来把他抬下场!"
+            "镜头突然给到" + lastName + "!\n一瘸一拐地走下场!应该是受伤了!",
+            "这边裁判突然吹停比赛!\n" + lastName + "面部在刚才的回合中被撞出血了!下场接受治疗!",
+            lastName + "突破进入人堆!突然重重倒地!\n看回放慢镜头显示他似乎是崴脚了!\n队友围上来把他抬出场外!",
+            "裁判突然吹停比赛!\n" + lastName + "被撞翻在地!痛苦地捂着膝盖!",
+            "裁判突然上前中止比赛!镜头同时给到了" + lastName + "!\n他在刚才的回合中倒地了!一直握着自己的大腿!\n队友上来把他搀扶下场!",
+            "这时镜头突然给到了" + lastName + "!\n他在刚才的回合中重重摔在地上!半天倒地不起!\n估计是脑震荡了!\n队友上来把他抬下场!"
         );
         int rdm = Utilities.generateRandomNum(random, 1, resources.size()) - 1;
         System.out.println(resources.get(rdm));
@@ -898,9 +900,7 @@ public class Comments {
         int rdm = Utilities.generateRandomNum(random, 1, resources.size()) - 1;
         System.out.println(resources.get(rdm));
         
-        // 70% of chance to get celebrate comment
-        rdm = Utilities.generateRandomNum(random, 1, 10);
-        if (rdm <= 7) getCelebrateComment(offensePlayer);
+        getCelebrateComment(offensePlayer, Constants.CELEBRATE_HIGH_PERCENT);
     }
 
     /**
@@ -927,16 +927,12 @@ public class Comments {
         if (type == 1) {
             rdm = Utilities.generateRandomNum(random, 0, resources1.size() - 1);
             System.out.println(resources1.get(rdm));
-        }
-
-        if (type == 2) {
+        } else if (type == 2) {
             rdm = Utilities.generateRandomNum(random, 0, resources2.size() - 1);
             System.out.println(resources2.get(rdm));
         }
-        
-        // 70% of chance to get upset comment
-        rdm = Utilities.generateRandomNum(random, 1, 10);
-        if (rdm <= 7) getUpsetComment(offensePlayer);
+
+        getUpsetComment(offensePlayer, Constants.UPSET_HIGH_PERCENT);
     }
 
     /**
@@ -960,16 +956,12 @@ public class Comments {
         if (type == 1) {
             rdm = Utilities.generateRandomNum(random, 0, resources1.size() - 1);
             System.out.println(resources1.get(rdm));
-        }
-
-        if (type == 2) {
+        } else if (type == 2) {
             rdm = Utilities.generateRandomNum(random, 0, resources1.size() - 1);
             System.out.println(resources2.get(rdm));
         }
-        
-        // 70% of chance to get upset comment
-        rdm = Utilities.generateRandomNum(random, 1, 10);
-        if (rdm <= 7) getUpsetComment(defensePlayer);
+
+        getUpsetComment(defensePlayer, Constants.UPSET_HIGH_PERCENT);
     }
 
     /**
@@ -1001,7 +993,7 @@ public class Comments {
         );
         int rdm = Utilities.generateRandomNum(random, 1, resources.size()) - 1;
         System.out.println(resources.get(rdm));
-        getUpsetComment(name);
+        getUpsetComment(name, Constants.UPSET_HIGH_PERCENT);
 
         sb.delete( 0, sb.length() );
         sb.append("这边技术台回放确认了!").append(lastName).append("确认被罚出场!\n现场镜头给到他!此刻正一脸郁闷地往球员通道走去!");
