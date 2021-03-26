@@ -27,7 +27,6 @@ Generate simulated NBA season results based on real NBA teams, player abilities 
 ```
 .
 ├── database    
-  ├── player-names   All players' names
   ├── roster    Every team's roster with detailed player attributes
   └── schedule    Schedule for the whole regular season
 ├── output    

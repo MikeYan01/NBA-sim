@@ -27,7 +27,6 @@
 ```
 .
 ├── database    
-  ├── player-names   所有球队球员纯姓名文本
   ├── roster    每支球队球员名单与能力详情
   └── schedule    球队赛程文件
 ├── output    

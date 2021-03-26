@@ -58,23 +58,8 @@ TEAM_NAME_MAPPING = {
 }
 
 for TEAM_NAME in TEAM_LIST:
-
     print(TEAM_NAME)
-
-    ROSTER_PATH = "./database/player-names/" + TEAM_NAME + ".txt"
     NAME_LIST = []
-
-    with open(ROSTER_PATH, 'r') as rf:
-        lines = rf.readlines()
-
-        for line in lines:
-            if line == '\n' or len(line) <= 1:
-                continue
-            
-            if line[-1] == '\n':
-                NAME_LIST.append(line[:-1])
-            else:
-                NAME_LIST.append(line)
 
     """
     each team's detail
@@ -92,7 +77,11 @@ for TEAM_NAME in TEAM_LIST:
         for line in old_file_lines:
             if line[-1] == '\n':
                 line = line[:-1]
-            old_file_data[line] = line.split(",")
+            split_result = line.split(",")
+            old_file_data[line] = split_result
+
+            if split_result[-1] != "enName":
+                NAME_LIST.append(split_result[-1])
         of.close()
 
     # new data files

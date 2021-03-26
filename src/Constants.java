@@ -218,10 +218,10 @@ public class Constants {
     public final static int STAR_RATING_THLD2 = 86;
     public final static int STAR_RATING_THLD3 = 89;
     public final static int STAR_RATING_THLD4 = 93;
-    public final static double STAR_RATING_BONUS1 = 1.01;
-    public final static double STAR_RATING_BONUS2 = 1.02;
-    public final static double STAR_RATING_BONUS3 = 1.03;
-    public final static double STAR_RATING_BONUS4 = 1.04;
+    public final static double STAR_RATING_BONUS1 = 1.005;
+    public final static double STAR_RATING_BONUS2 = 1.01;
+    public final static double STAR_RATING_BONUS3 = 1.0105;
+    public final static double STAR_RATING_BONUS4 = 1.02;
 
     /** Clutch time */
     public final static double CLUTCH_SHOT_COFF = 0.6;
