@@ -1,7 +1,7 @@
 name,position,playerType,rotationType,rating,insideRating,midRating,threeRating,freeThrowPercent,interiorDefense,perimeterDefense,orbRating,drbRating,astRating,stlRating,blkRating,layupRating,standDunk,drivingDunk,athleticism,durability,offConst,defConst,drawFoul,isMrClutch,enName
 杰森·塔图姆,PF,4,1,90,79,86,85,88,77,89,33,76,78,53,52,89,50,88,82,80,95,85,82,0,jayson-tatum
 杰伦·布朗,SF,4,1,89,89,96,86,78,70,87,43,62,77,46,52,93,40,89,83,82,98,85,84,0,jaylen-brown
-肯巴·沃克,PG,4,1,83,68,85,81,91,32,75,33,56,87,53,45,86,25,30,82,86,80,60,80,0,kemba-walker
+肯巴·沃克,PG,1,1,83,68,85,81,91,32,75,33,56,87,53,45,86,25,30,82,86,80,60,80,0,kemba-walker
 马库斯·斯玛特,SG,1,1,80,83,58,72,74,74,93,32,45,69,86,55,65,25,50,81,83,30,95,30,0,marcus-smart
 罗伯特·威廉姆斯三世,C,2,1,80,92,44,25,62,76,40,91,87,45,88,95,72,90,75,77,81,65,60,44,0,robert-williams-iii
 特里斯坦·汤普森,PF,2,2,78,93,70,62,64,75,54,91,88,43,35,56,65,85,75,75,90,50,55,40,0,tristan-thompson

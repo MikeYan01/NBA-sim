@@ -147,8 +147,6 @@ Every play should have the following process:
 
     - Layup and dunk have higher percentage than normal shooting
 
-    - Teammates with high playmaking ability can increase percentage
-
     - Defense density can affect the percentage. Density could be loose, normal or intense
 
     - Offense player's offense consistency, and defense player's defense consistency

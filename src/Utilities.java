@@ -621,6 +621,8 @@ public class Utilities {
                 break;
             case 3:
                 distance = generateRandomNum(random, Constants.MIN_CLOSE_SHOT, Constants.MID_THREE_SHOT);
+                if (distance >= Constants.MIN_MID_SHOT && generateRandomNum(random) <= 30) 
+                    distance -= (Constants.MIN_MID_SHOT - Constants.MIN_CLOSE_SHOT);
                 break;
             case 4:
                 if (shotChoice <= Constants.TYPE4_CLOSE_SHOT)
@@ -676,15 +678,6 @@ public class Utilities {
             else percentage += Constants.SHOT_COFF * (offensePlayer.threeRating - Constants.BASE_DEFENSE);
         }
 
-        // players with high astRating will increase percentage
-        for (String pos : offenseTeamOnCourt.keySet()) {
-            if (pos != offensePlayer.position && offenseTeamOnCourt.get(pos).astRating >= Constants.AST_RATING_THLD1) {
-                if (offenseTeamOnCourt.get(pos).astRating <= Constants.AST_RATING_THLD2) percentage += Constants.AST_RATING_BONUS1;
-                else if (offenseTeamOnCourt.get(pos).astRating <= Constants.AST_RATING_THLD3) percentage += Constants.AST_RATING_BONUS2;
-                else percentage += Constants.AST_RATING_BONUS3;
-            }
-        }
-
         // based on defender, adjust percentage
         if (distance <= Constants.MAX_CLOSE_SHOT) percentage -= Constants.DEFENSE_COFF * (defensePlayer.interiorDefense - Constants.DEFENSE_BASE);
         else percentage -= Constants.DEFENSE_COFF * (defensePlayer.perimeterDefense - Constants.DEFENSE_BASE);
@@ -695,8 +688,10 @@ public class Utilities {
         else if (temp <= Constants.DEFENSE_EASY + Constants.DEFENSE_HARD) percentage -= Constants.DEFENSE_HARD_DEBUFF;
 
         // offensive consistency & defense player's defensive consistency
-        percentage -= Constants.CONSISTENCY_COFF * (99 - offensePlayer.offConst);
-        percentage += Constants.CONSISTENCY_COFF * (99 - defensePlayer.defConst);
+        double consistencyDiff = Constants.CONSISTENCY_COFF * (offensePlayer.offConst - defensePlayer.defConst);
+        if (consistencyDiff > Constants.CONSISTENCY_MAX_BONUS) percentage += Constants.CONSISTENCY_MAX_BONUS;
+        else if (consistencyDiff < -Constants.CONSISTENCY_MAX_BONUS) percentage -= Constants.CONSISTENCY_MAX_BONUS;
+        else percentage += consistencyDiff;
 
         // athleticism
         percentage += Constants.ATHLETIC_COFF * (offensePlayer.athleticism - defensePlayer.athleticism);

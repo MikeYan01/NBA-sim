@@ -68,7 +68,7 @@ public class Constants {
 
     /** Time left in quarters to substitute */
     public final static int ODD_QUARTERS_TIME_LEFT = 180;
-    public final static int EVEN_QUARTERS_TIME_LEFT = 480;
+    public final static int EVEN_QUARTERS_TIME_LEFT = 540;
 
     /** Score difference to enter garbage time */
     public final static int DIFF1 = 30;
@@ -175,7 +175,7 @@ public class Constants {
     public final static int TYPE4_CLOSE_SHOT = 40;
     public final static int TYPE4_MID_SHOT = 10;
     public final static int TYPE5_CLOSE_SHOT = 10;
-    public final static int TYPE5_MID_SHOT = 25;
+    public final static int TYPE5_MID_SHOT = 30;
 
     /** Initial shot percent */
     public final static double INIT_CLOSE_SHOT_COFF = -0.5;
@@ -202,13 +202,14 @@ public class Constants {
     public final static int DEFENSE_BASE = 45;
 
     /** Defense density percent */
-    public final static int DEFENSE_EASY = 25;
-    public final static int DEFENSE_HARD = 35;
-    public final static int DEFENSE_EASY_BONUS = 8;
+    public final static int DEFENSE_EASY = 20;
+    public final static int DEFENSE_HARD = 30;
+    public final static int DEFENSE_EASY_BONUS = 10;
     public final static int DEFENSE_HARD_DEBUFF = 10;
 
     /** Offense and defense consistency */
     public final static double CONSISTENCY_COFF = 0.3;
+    public final static double CONSISTENCY_MAX_BONUS = 10;
 
     /** Athleticism */
     public final static double ATHLETIC_COFF = 0.15;
