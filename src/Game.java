@@ -350,7 +350,9 @@ public class Game {
 
             System.out.println("\n球队场均三分命中率榜");
             stat.printTeamRank(stat.teamPerThreePercent);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            System.out.println(e);
+        }
 
         // generate west & east divisions top 8 seeds
         try {

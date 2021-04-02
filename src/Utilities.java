@@ -120,7 +120,8 @@ public class Utilities {
             if (attr.equals("rating")) 
                 totalRating += (major*TeamOnCourt.get(pos).rating + 
                                 minor*Math.max(TeamOnCourt.get(pos).insideRating, TeamOnCourt.get(pos).layupRating) +
-                                minor*Math.max(TeamOnCourt.get(pos).midRating, TeamOnCourt.get(pos).threeRating));
+                                minor*Math.max(TeamOnCourt.get(pos).midRating, TeamOnCourt.get(pos).threeRating) +
+                                minor*TeamOnCourt.get(pos).offConst);
             if (attr.equals("orb")) totalRating += TeamOnCourt.get(pos).orbRating;
             if (attr.equals("drb")) totalRating += TeamOnCourt.get(pos).drbRating;
             if (attr.equals("ast")) totalRating += TeamOnCourt.get(pos).astRating;
@@ -133,28 +134,50 @@ public class Utilities {
         double poss1, poss2, poss3, poss4 = 0;
         int basePoss = 100 / 5;
         if (attr.equals("rating")) {
-            // clutch time, 60% to give star players with top-highest rating
-            if (currentQuarter >= 4 && quarterTime <= Constants.TIME_LEFT_CLUTCH
-                && Math.abs(offenseTeam.totalScore - defenseTeam.totalScore) <= Constants.CLUTCH_DIFF) {
-                if (generateRandomNum(random) <= Constants.CLUTCH_PERCENT) {
-                    int highestRating = 0;
-                    List<Player> selectedPlayerList = new ArrayList<>();
-                    Player selectedPlayer = null;
+            // get top-highest rating players
+            int highestRating = 0;
+            PriorityQueue<Player> selectedPlayerList = new PriorityQueue<>((a, b) -> { return b.rating - a.rating; });
+            Player selectedPlayer = null;
 
-                    for (Player p : TeamOnCourt.values())
-                        highestRating = Math.max(highestRating, p.rating);
+            for (Player p : TeamOnCourt.values())
+                highestRating = Math.max(highestRating, p.rating);
 
-                    for (Player p : TeamOnCourt.values()) {
-                        if (highestRating - p.rating <= Constants.CLUTCH_RATING_RANGE)
-                            selectedPlayerList.add(p);
+            for (Player p : TeamOnCourt.values()) {
+                if (highestRating - p.rating <= Constants.CLUTCH_RATING_RANGE && p.playerType != 2 && p.isStar)
+                    selectedPlayerList.offer(p);
+            }
+            
+            // higher chance to select the player with highest rating
+            if (selectedPlayerList.size() >= 1) {
+                if (selectedPlayerList.size() == 1 ||
+                    (generateRandomNum(random) <= Constants.SINGLE_STAR_EXTRA_1 && selectedPlayerList.peek().rating > Constants.GENERAL_THLD) ||
+                    (generateRandomNum(random) <= Constants.SINGLE_STAR_EXTRA_2 && selectedPlayerList.peek().rating <= Constants.GENERAL_THLD))
+                    selectedPlayer = selectedPlayerList.peek();
+                else {
+                    int totalStarRating = 0;
+                    for (Player p : selectedPlayerList) totalStarRating += p.rating;
+
+                    int currentRatingSum = 0;
+                    int randomPick = generateRandomNum(random, 1, totalStarRating);
+                    for (Player p : selectedPlayerList) {
+                        currentRatingSum += p.rating;
+                        if (randomPick <= currentRatingSum) {
+                            selectedPlayer = p;
+                            break;
+                        }
                     }
+                }
 
-                    if (selectedPlayerList.size() == 1) selectedPlayer = selectedPlayerList.get(0);
-                    else {
-                        int randomIdx = generateRandomNum(random, 1, selectedPlayerList.size());
-                        selectedPlayer =  selectedPlayerList.get(randomIdx - 1);
+                // clutch time, give star players with top-highest rating
+                if (currentQuarter >= 4 && quarterTime <= Constants.TIME_LEFT_CLUTCH
+                    && Math.abs(offenseTeam.totalScore - defenseTeam.totalScore) <= Constants.CLUTCH_DIFF) {
+                    if (generateRandomNum(random) <= Constants.CLUTCH_PERCENT) {
+                        return selectedPlayer;
                     }
+                }
 
+                // not clutch time, directly give players with top-highest rating
+                if (generateRandomNum(random) <= Constants.SINGLE_STAR_PERCENT * selectedPlayerList.size()) {
                     return selectedPlayer;
                 }
             }
@@ -163,7 +186,8 @@ public class Utilities {
                 String currentPos = positions[i];
                 poss[i] = (10 * (basePoss + major*TeamOnCourt.get(currentPos).rating + 
                                 minor*Math.max(TeamOnCourt.get(currentPos).insideRating, TeamOnCourt.get(currentPos).layupRating) +
-                                minor*Math.max(TeamOnCourt.get(currentPos).midRating, TeamOnCourt.get(currentPos).threeRating) - avgRating ));
+                                minor*Math.max(TeamOnCourt.get(currentPos).midRating, TeamOnCourt.get(currentPos).threeRating) +
+                                minor*TeamOnCourt.get(currentPos).offConst - avgRating ));
             }
         } else {
             for (int i = 0; i < poss.length; i++) {
@@ -684,8 +708,11 @@ public class Utilities {
 
         // check defense density
         int temp = generateRandomNum(random);
-        if (temp <= Constants.DEFENSE_EASY) percentage += Constants.DEFENSE_EASY_BONUS;
-        else if (temp <= Constants.DEFENSE_EASY + Constants.DEFENSE_HARD) percentage -= Constants.DEFENSE_HARD_DEBUFF;
+        if ((temp <= Constants.DEFENSE_EASY_STAR && offensePlayer.isStar) || (temp <= Constants.DEFENSE_EASY && !offensePlayer.isStar))
+            percentage += Constants.DEFENSE_EASY_BONUS;
+        else if ((temp <= Constants.DEFENSE_EASY + Constants.DEFENSE_HARD && !offensePlayer.isStar) ||
+                (temp <= Constants.DEFENSE_EASY_STAR + Constants.DEFENSE_HARD_STAR  && offensePlayer.isStar))
+            percentage -= Constants.DEFENSE_HARD_DEBUFF;
 
         // offensive consistency & defense player's defensive consistency
         double consistencyDiff = Constants.CONSISTENCY_COFF * (offensePlayer.offConst - defensePlayer.defConst);
@@ -695,15 +722,6 @@ public class Utilities {
 
         // athleticism
         percentage += Constants.ATHLETIC_COFF * (offensePlayer.athleticism - defensePlayer.athleticism);
-
-        // star player bonus
-        if (offensePlayer.rating >= Constants.STAR_RATING_THLD1 && offensePlayer.rating < Constants.STAR_RATING_THLD2)
-            percentage *= Constants.STAR_RATING_BONUS1;
-        else if (offensePlayer.rating >= Constants.STAR_RATING_THLD2 && offensePlayer.rating < Constants.STAR_RATING_THLD3)
-            percentage *= Constants.STAR_RATING_BONUS2;
-        else if (offensePlayer.rating >= Constants.STAR_RATING_THLD3 && offensePlayer.rating < Constants.STAR_RATING_THLD4)
-            percentage *= Constants.STAR_RATING_BONUS3;
-        else if (offensePlayer.rating >= Constants.STAR_RATING_THLD4) percentage *= Constants.STAR_RATING_BONUS4;
 
         // clutch time
         if (!offensePlayer.isMrClutch && currentQuarter >= 4
