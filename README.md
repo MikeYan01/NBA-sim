@@ -151,8 +151,6 @@ Every play should have the following process:
 
     - Offense player's offense consistency, and defense player's defense consistency
 
-    - Star players have more chances to make a shot
-
     - Mr.Clutch have more chances to make a shot in clutch time
 
     - Athleticism difference between offense and defense players

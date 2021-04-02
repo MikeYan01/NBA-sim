@@ -1,9 +1,9 @@
 name,position,playerType,rotationType,rating,insideRating,midRating,threeRating,freeThrowPercent,interiorDefense,perimeterDefense,orbRating,drbRating,astRating,stlRating,blkRating,layupRating,standDunk,drivingDunk,athleticism,durability,offConst,defConst,drawFoul,isMrClutch,enName
 卢卡·东契奇,PG,1,1,93,94,93,80,76,48,73,37,83,92,42,57,96,55,70,84,85,98,65,96,0,luka-doncic
 克里斯塔普斯·波尔津吉斯,C,1,1,86,79,93,81,86,83,56,60,82,49,33,85,78,90,75,77,77,90,65,88,0,kristaps-porzingis
-约什·理查德森,SG,4,1,78,69,92,73,94,69,87,41,44,65,40,45,75,50,78,79,83,65,85,50,0,josh-richardson
-马克西·克勒贝尔,PF,5,1,75,77,75,85,96,74,72,43,70,59,36,72,70,75,75,67,80,50,70,57,0,maxi-kleber
-多里安·芬尼·史密斯,SF,4,1,73,76,71,79,72,72,79,50,56,55,40,52,67,40,84,72,81,75,70,48,0,dorian-finney-smith
+约什·理查德森,SG,4,1,78,79,92,73,94,69,87,41,44,65,40,45,75,50,78,79,83,65,85,50,0,josh-richardson
+马克西·克勒贝尔,PF,4,1,75,77,75,85,96,74,72,43,72,59,36,72,70,75,75,67,80,50,70,57,0,maxi-kleber
+多里安·芬尼·史密斯,SF,4,1,73,76,71,79,72,72,79,50,56,55,43,52,67,40,84,72,81,75,70,48,0,dorian-finney-smith
 小蒂姆·哈达威,SF,4,2,79,85,83,82,80,45,70,31,50,69,37,40,70,35,78,74,83,80,40,82,0,tim-hardaway-jr
 杰伦·布伦森,SG,1,2,80,94,86,83,85,55,70,29,61,82,37,25,77,40,50,74,81,85,35,65,0,jalen-brunson
 威利·考利·斯坦,C,2,2,77,79,37,49,65,76,51,65,77,53,36,80,79,85,70,79,84,80,65,73,0,willie-cauley-stein

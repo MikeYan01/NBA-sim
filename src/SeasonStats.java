@@ -12,6 +12,8 @@ public class SeasonStats {
     public final Map<String, Integer> playerTotalBlks;
     public final Map<String, Integer> playerTotalThrees;
     public final Map<String, Integer> playerTotalFts;
+    public final Map<String, Integer> playerTotalShotsAttempted;
+    public final Map<String, Integer> playerTotalShotsMade;
 
     // player per-game stats table
     public final Map<String, Double> playerPerScores;
@@ -21,6 +23,8 @@ public class SeasonStats {
     public final Map<String, Double> playerPerBlks;
     public final Map<String, Double> playerPerThrees;
     public final Map<String, Double> playerPerFts;
+    public final Map<String, Double> playerPerShotsAttempted;
+    public final Map<String, Double> playerPerShotsMade;
 
     // team total stats table
     public final Map<String, Integer> teamTotalGames;
@@ -50,6 +54,8 @@ public class SeasonStats {
         playerTotalBlks = new HashMap<>();
         playerTotalThrees = new HashMap<>();
         playerTotalFts = new HashMap<>();
+        playerTotalShotsAttempted = new HashMap<>();
+        playerTotalShotsMade = new HashMap<>();
 
         playerPerScores = new HashMap<>();
         playerPerRebs = new HashMap<>();
@@ -58,6 +64,8 @@ public class SeasonStats {
         playerPerBlks = new HashMap<>();
         playerPerThrees = new HashMap<>();
         playerPerFts = new HashMap<>();
+        playerPerShotsAttempted = new HashMap<>();
+        playerPerShotsMade = new HashMap<>();
 
         teamTotalGames = new HashMap<>();
         teamTotalScores = new HashMap<>();
@@ -88,25 +96,36 @@ public class SeasonStats {
         int blk = p.block;
         int three = p.threeMade;
         int ft = p.freeThrowMade;
+        int shotMade = p.shotMade;
+        int shotAttempted = p.shotAttempted;
 
-        // update total stats
-        playerTotalGames.put(name, playerTotalGames.getOrDefault(name, 0) + 1);
-        playerTotalScores.put(name, playerTotalScores.getOrDefault(name, 0) + score);
-        playerTotalRebs.put(name, playerTotalRebs.getOrDefault(name, 0) + reb);
-        playerTotalAsts.put(name, playerTotalAsts.getOrDefault(name, 0) + ast);
-        playerTotalStls.put(name, playerTotalStls.getOrDefault(name, 0) + stl);
-        playerTotalBlks.put(name, playerTotalBlks.getOrDefault(name, 0) + blk);
-        playerTotalThrees.put(name, playerTotalThrees.getOrDefault(name, 0) + three);
-        playerTotalFts.put(name, playerTotalFts.getOrDefault(name, 0) + ft);
+        if (p.hasBeenOnCourt) {
+            // update total stats
+            playerTotalGames.put(name, playerTotalGames.getOrDefault(name, 0) + 1);
+            playerTotalScores.put(name, playerTotalScores.getOrDefault(name, 0) + score);
+            playerTotalRebs.put(name, playerTotalRebs.getOrDefault(name, 0) + reb);
+            playerTotalAsts.put(name, playerTotalAsts.getOrDefault(name, 0) + ast);
+            playerTotalStls.put(name, playerTotalStls.getOrDefault(name, 0) + stl);
+            playerTotalBlks.put(name, playerTotalBlks.getOrDefault(name, 0) + blk);
+            playerTotalThrees.put(name, playerTotalThrees.getOrDefault(name, 0) + three);
+            playerTotalFts.put(name, playerTotalFts.getOrDefault(name, 0) + ft);
+            playerTotalShotsAttempted.put(name, playerTotalShotsAttempted.getOrDefault(name, 0) + shotAttempted);
+            playerTotalShotsMade.put(name, playerTotalShotsMade.getOrDefault(name, 0) + shotMade);
 
-        // update per-game stats
-        playerPerScores.put(name, Utilities.roundDouble(playerTotalScores.get(name) * 1.0 / playerTotalGames.get(name)));
-        playerPerRebs.put(name, Utilities.roundDouble(playerTotalRebs.get(name) * 1.0 / playerTotalGames.get(name)));
-        playerPerAsts.put(name, Utilities.roundDouble(playerTotalAsts.get(name) * 1.0 / playerTotalGames.get(name)));
-        playerPerStls.put(name, Utilities.roundDouble(playerTotalStls.get(name) * 1.0 / playerTotalGames.get(name)));
-        playerPerBlks.put(name, Utilities.roundDouble(playerTotalBlks.get(name) * 1.0 / playerTotalGames.get(name)));
-        playerPerThrees.put(name, Utilities.roundDouble(playerTotalThrees.get(name) * 1.0 / playerTotalGames.get(name)));
-        playerPerFts.put(name, Utilities.roundDouble(playerTotalFts.get(name) * 1.0 / playerTotalGames.get(name)));
+            // update per-game stats
+            playerPerScores.put(name, Utilities.roundDouble(playerTotalScores.get(name) * 1.0 / playerTotalGames.get(name)));
+            playerPerRebs.put(name, Utilities.roundDouble(playerTotalRebs.get(name) * 1.0 / playerTotalGames.get(name)));
+            playerPerAsts.put(name, Utilities.roundDouble(playerTotalAsts.get(name) * 1.0 / playerTotalGames.get(name)));
+            playerPerStls.put(name, Utilities.roundDouble(playerTotalStls.get(name) * 1.0 / playerTotalGames.get(name)));
+            playerPerBlks.put(name, Utilities.roundDouble(playerTotalBlks.get(name) * 1.0 / playerTotalGames.get(name)));
+            playerPerThrees.put(name, Utilities.roundDouble(playerTotalThrees.get(name) * 1.0 / playerTotalGames.get(name)));
+            playerPerFts.put(name, Utilities.roundDouble(playerTotalFts.get(name) * 1.0 / playerTotalGames.get(name)));
+
+            if (shotAttempted > 0) {
+                playerPerShotsAttempted.put(name, Utilities.roundDouble(playerTotalShotsAttempted.get(name) * 1.0 / playerTotalGames.get(name)));
+                playerPerShotsMade.put(name, Utilities.roundDouble(playerTotalShotsMade.get(name) * 1.0 / playerTotalGames.get(name)));
+            }
+        }
     }
 
     /**
@@ -172,9 +191,11 @@ public class SeasonStats {
         double ast;
         double stl;
         double blk;
+        double perShotMade;
+        double perShotAttempted;
 
         for (Map.Entry<String, Double> player : sortStats(table)) {
-            // output each player's basic 5 stats, except for three mades per game ranking or turnovers per game
+            // output each player's basic 5 stats, except for three mades per game ranking or free-throws per game
             if (!table.equals(playerPerThrees) && !table.equals(playerPerFts)) {
                 name = player.getKey();
                 score = playerPerScores.get(name);
@@ -182,9 +203,12 @@ public class SeasonStats {
                 ast = playerPerAsts.get(name);
                 stl = playerPerStls.get(name);
                 blk = playerPerBlks.get(name);
+                perShotMade = playerPerShotsMade.get(name);
+                perShotAttempted = playerPerShotsAttempted.get(name);
 
                 System.out.println(rank + " " + name + " " + score + "分 " + reb + "板 " + ast + "助 " + 
-                                   + stl + "断 " + blk + "帽");
+                                   + stl + "断 " + blk + "帽  投篮" + perShotMade + "/" + perShotAttempted + " " +
+                                   String.format("%.2f", perShotMade * 100.0 / perShotAttempted) + "%");
             } else {
                 System.out.println(rank + " " + player.getKey() + "  " + player.getValue());
             }
