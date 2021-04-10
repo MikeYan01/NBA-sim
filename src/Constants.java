@@ -8,7 +8,7 @@ public class Constants {
     public final static int DUNK_EXCEL_LB = 90;
 
     /** Star player rating constant */
-    public final static int PLAYER_STAR_LB = 86;
+    public final static int PLAYER_STAR_LB = 88;
     //-------------------------------------------
 
 
@@ -105,12 +105,12 @@ public class Constants {
     /** Choose offense player based on ratings and time */
     public final static double MAJOR_SCORE_FACTOR = 0.55;
     public final static double MINOR_SCORE_FACTOR = 0.15;
-    public final static int SINGLE_STAR_PERCENT = 6;
-    public final static int SINGLE_STAR_EXTRA_1 = 10;
-    public final static int SINGLE_STAR_EXTRA_2 = 25;
-    public final static int GENERAL_THLD = 94;
-    public final static int CLUTCH_PERCENT = 40;
-    public final static int CLUTCH_RATING_RANGE = 10;
+    public final static int SINGLE_STAR_PERCENT_1 = 3;
+    public final static int SINGLE_STAR_PERCENT_2 = 6;
+    public final static int SINGLE_STAR_EXTRA = 25;
+    public final static int GENERAL_THLD = 90;
+    public final static int CLUTCH_PERCENT = 60;
+    public final static int RATING_RANGE = 10;
     public final static int REB_AST_SCALE = 2;
 
     /** Choose same position player or other position player */
@@ -182,16 +182,16 @@ public class Constants {
     public final static int TYPE5_MID_SHOT = 30;
 
     /** Initial shot percent */
-    public final static double INIT_CLOSE_SHOT_COFF = -0.4;
+    public final static double INIT_CLOSE_SHOT_COFF = -0.3;
     public final static double INIT_CLOSE_SHOT_INTCP = 33;
-    public final static double INIT_MID_SHOT_INTCP = 3;
-    public final static double INIT_THREE_SHOT_COFF = -23/35;
-    public final static double INIT_THREE_SHOT_INTCP = 1388/35;
+    public final static double INIT_MID_SHOT_INTCP = 6;
+    public final static double INIT_THREE_SHOT_COFF = -31/81;
+    public final static double INIT_THREE_SHOT_INTCP = 41;
 
     /** Shot percent adjust based on shot type and distance */
     public final static double DUNK_SCALE = 2.5;
-    public final static double SHOT_COFF = 0.2;
-    public final static int BASE_DEFENSE = 75;
+    public final static double SHOT_COFF = 0.3;
+    public final static int OFFENSE_BASE = 70;
 
     /** High astRating players increase shot percent */
     public final static int AST_RATING_THLD1 = 83;
@@ -203,19 +203,16 @@ public class Constants {
 
     /** Defense players affect percent */
     public final static double DEFENSE_COFF = 0.3;
-    public final static int DEFENSE_BASE = 45;
+    public final static int DEFENSE_BASE = 41;
 
     /** Defense density percent */
-    public final static int DEFENSE_EASY_STAR = 10;
-    public final static int DEFENSE_HARD_STAR = 50;
-    public final static int DEFENSE_EASY = 20;
-    public final static int DEFENSE_HARD = 30;
-    public final static int DEFENSE_EASY_BONUS = 8;
-    public final static int DEFENSE_HARD_DEBUFF = 10;
+    public final static int DEFENSE_EASY = 10;
+    public final static int DEFENSE_HARD = 35;
+    public final static int DEFENSE_BUFF = 10;
 
     /** Offense and defense consistency */
     public final static double CONSISTENCY_COFF = 0.3;
-    public final static double CONSISTENCY_MAX_BONUS = 10;
+    public final static double CONSISTENCY_MAX_BONUS = 4;
 
     /** Athleticism */
     public final static double ATHLETIC_COFF = 0.15;
@@ -237,8 +234,8 @@ public class Constants {
     public final static int NON_STAR_PLAYER_AST = 95;
 
     /** Foul percent */
-    public final static int AND_ONE_CLOSE_BASE = 6;
-    public final static int AND_ONE_MID_BASE = 3;
+    public final static int AND_ONE_CLOSE_BASE = 5;
+    public final static int AND_ONE_MID_BASE = 2;
     public final static int AND_ONE_THREE_BASE = 1;
     public final static int NORMAL_CLOSE_BASE = 12;
     public final static int NORMAL_MID_BASE = 6;
@@ -247,7 +244,7 @@ public class Constants {
     /** Foul ratings and scales */
     public final static int FOUL_RATING_THLD1 = 94;
     public final static int FOUL_RATING_THLD2 = 85;
-    public final static double FOUL_COFF1 = 2.5;
+    public final static double FOUL_COFF1 = 2.8;
     public final static double FOUL_COFF2 = 2.3;
     public final static double FOUL_COFF3 = 2.1;
     public final static double STAR_FOUL_SCALE = 1.5;

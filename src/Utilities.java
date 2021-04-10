@@ -143,15 +143,14 @@ public class Utilities {
                 highestRating = Math.max(highestRating, p.rating);
 
             for (Player p : TeamOnCourt.values()) {
-                if (highestRating - p.rating <= Constants.CLUTCH_RATING_RANGE && p.playerType != 2 && p.isStar)
+                if (highestRating - p.rating <= Constants.RATING_RANGE && p.playerType != 2)
                     selectedPlayerList.offer(p);
             }
             
             // higher chance to select the player with highest rating
             if (selectedPlayerList.size() >= 1) {
                 if (selectedPlayerList.size() == 1 ||
-                    (generateRandomNum(random) <= Constants.SINGLE_STAR_EXTRA_1 && selectedPlayerList.peek().rating > Constants.GENERAL_THLD) ||
-                    (generateRandomNum(random) <= Constants.SINGLE_STAR_EXTRA_2 && selectedPlayerList.peek().rating <= Constants.GENERAL_THLD))
+                    (generateRandomNum(random) <= Constants.SINGLE_STAR_EXTRA && selectedPlayerList.peek().rating <= Constants.GENERAL_THLD))
                     selectedPlayer = selectedPlayerList.peek();
                 else {
                     int totalStarRating = 0;
@@ -171,13 +170,14 @@ public class Utilities {
                 // clutch time, give star players with top-highest rating
                 if (currentQuarter >= 4 && quarterTime <= Constants.TIME_LEFT_CLUTCH
                     && Math.abs(offenseTeam.totalScore - defenseTeam.totalScore) <= Constants.CLUTCH_DIFF) {
-                    if (generateRandomNum(random) <= Constants.CLUTCH_PERCENT) {
+                    if (generateRandomNum(random) <= Constants.CLUTCH_PERCENT && selectedPlayer.isStar) {
                         return selectedPlayer;
                     }
                 }
 
-                // not clutch time, directly give players with top-highest rating
-                if (generateRandomNum(random) <= Constants.SINGLE_STAR_PERCENT * selectedPlayerList.size()) {
+                // not clutch time, give players with top-highest rating
+                int star_pos = highestRating > Constants.GENERAL_THLD ? Constants.SINGLE_STAR_PERCENT_1 : Constants.SINGLE_STAR_PERCENT_2;
+                if (generateRandomNum(random) <= star_pos * selectedPlayerList.size()) {
                     return selectedPlayer;
                 }
             }
@@ -697,9 +697,9 @@ public class Utilities {
         if (movement.contains("扣")) percentage *= Constants.DUNK_SCALE;
         else if (movement.contains("篮")) percentage += Constants.SHOT_COFF * offensePlayer.layupRating;
         else {
-            if (distance <= Constants.MAX_CLOSE_SHOT) percentage += Constants.SHOT_COFF * (offensePlayer.insideRating - Constants.BASE_DEFENSE);
-            else if (distance <= Constants.MAX_MID_SHOT) percentage += Constants.SHOT_COFF * (offensePlayer.midRating - Constants.BASE_DEFENSE);
-            else percentage += Constants.SHOT_COFF * (offensePlayer.threeRating - Constants.BASE_DEFENSE);
+            if (distance <= Constants.MAX_CLOSE_SHOT) percentage += Constants.SHOT_COFF * (offensePlayer.insideRating - Constants.OFFENSE_BASE);
+            else if (distance <= Constants.MAX_MID_SHOT) percentage += Constants.SHOT_COFF * (offensePlayer.midRating - Constants.OFFENSE_BASE);
+            else percentage += Constants.SHOT_COFF * (offensePlayer.threeRating - Constants.OFFENSE_BASE);
         }
 
         // based on defender, adjust percentage
@@ -708,11 +708,8 @@ public class Utilities {
 
         // check defense density
         int temp = generateRandomNum(random);
-        if ((temp <= Constants.DEFENSE_EASY_STAR && offensePlayer.isStar) || (temp <= Constants.DEFENSE_EASY && !offensePlayer.isStar))
-            percentage += Constants.DEFENSE_EASY_BONUS;
-        else if ((temp <= Constants.DEFENSE_EASY + Constants.DEFENSE_HARD && !offensePlayer.isStar) ||
-                (temp <= Constants.DEFENSE_EASY_STAR + Constants.DEFENSE_HARD_STAR  && offensePlayer.isStar))
-            percentage -= Constants.DEFENSE_HARD_DEBUFF;
+        if (temp <= Constants.DEFENSE_EASY) percentage += Constants.DEFENSE_BUFF;
+        else if (temp <= Constants.DEFENSE_EASY + Constants.DEFENSE_HARD) percentage -= Constants.DEFENSE_BUFF;
 
         // offensive consistency & defense player's defensive consistency
         double consistencyDiff = Constants.CONSISTENCY_COFF * (offensePlayer.offConst - defensePlayer.defConst);
