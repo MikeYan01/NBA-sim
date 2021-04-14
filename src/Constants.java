@@ -135,12 +135,12 @@ public class Constants {
 
     /** Block */
     public final static int BLOCK_RATING_SCALE = 3;
-    public final static double BLOCK_BONUS_SCALE1 = 1.3;
-    public final static double BLOCK_BONUS_SCALE2 = 1.75;
-    public final static double BLOCK_BONUS_SCALE3 = 2.25;
+    public final static double BLOCK_BONUS_SCALE1 = 1.4;
+    public final static double BLOCK_BONUS_SCALE2 = 1.7;
+    public final static double BLOCK_BONUS_SCALE3 = 2.2;
     public final static double BLOCK_BONUS_SCALE4 = 3;
-    public final static double BLOCK_BONUS_SCALE5 = 4;
-    public final static int BLOCK_BONUS_THLD1 = 75;
+    public final static double BLOCK_BONUS_SCALE5 = 3.8;
+    public final static int BLOCK_BONUS_THLD1 = 70;
     public final static int BLOCK_BONUS_THLD2 = 83;
     public final static int BLOCK_BONUS_THLD3 = 88;
     public final static int BLOCK_BONUS_THLD4 = 92;
@@ -176,7 +176,8 @@ public class Constants {
     public final static int DIST_CURVE = 4;
 
     /** Shot choices percent */
-    public final static int TYPE4_CLOSE_SHOT = 35;
+    public final static int TYPE3_PERCENT = 30;
+    public final static int TYPE4_CLOSE_SHOT = 40;
     public final static int TYPE4_MID_SHOT = 15;
     public final static int TYPE5_CLOSE_SHOT = 20;
     public final static int TYPE5_MID_SHOT = 30;

@@ -1,5 +1,5 @@
 name,position,playerType,rotationType,rating,insideRating,midRating,threeRating,freeThrowPercent,interiorDefense,perimeterDefense,orbRating,drbRating,astRating,stlRating,blkRating,layupRating,standDunk,drivingDunk,athleticism,durability,offConst,defConst,drawFoul,isMrClutch,enName
-尼古拉·约基奇,C,1,1,95,98,98,87,89,73,61,73,87,89,63,75,89,90,75,79,83,98,65,97,1,nikola-jokic
+尼古拉·约基奇,C,3,1,95,98,98,87,89,73,61,73,87,89,63,75,89,90,75,79,83,98,65,77,1,nikola-jokic
 贾马尔·默里,PG,1,1,86,93,81,85,84,35,79,37,51,83,53,42,90,30,82,78,78,90,70,78,1,jamal-murray
 小迈克尔·波特,SF,4,1,84,92,88,88,77,60,64,59,80,59,38,71,84,60,80,78,66,85,40,65,0,michael-porter-jr
 阿龙·戈登,PF,4,1,80,88,66,81,61,78,80,50,70,65,40,67,83,95,95,82,84,75,80,74,0,aaron-gordon

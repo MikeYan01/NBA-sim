@@ -1,6 +1,6 @@
 name,position,playerType,rotationType,rating,insideRating,midRating,threeRating,freeThrowPercent,interiorDefense,perimeterDefense,orbRating,drbRating,astRating,stlRating,blkRating,layupRating,standDunk,drivingDunk,athleticism,durability,offConst,defConst,drawFoul,isMrClutch,enName
 布拉德利·比尔,SG,1,1,90,96,94,84,90,45,66,41,54,82,46,47,95,30,84,80,82,98,40,90,1,bradley-beal
-拉塞尔·威斯布鲁克,PG,1,1,88,87,76,73,60,42,83,48,88,88,49,50,88,30,86,92,92,95,80,82,0,russell-westbrook
+拉塞尔·威斯布鲁克,PG,3,1,88,87,76,73,60,42,83,48,88,88,49,50,88,30,86,92,92,95,80,82,0,russell-westbrook
 八村垒,PF,1,1,79,88,80,77,77,60,54,38,67,53,38,30,82,80,80,80,80,80,35,65,0,rui-hachimura
 托马斯·布莱恩特,C,4,1,80,92,74,82,67,63,40,68,70,43,33,66,72,75,65,74,82,95,50,68,0,thomas-bryant
 德尼·阿夫迪亚,SF,4,1,74,93,75,75,58,62,69,34,78,64,38,47,73,40,75,78,84,45,55,30,0,deni-avdija

@@ -1,9 +1,9 @@
 name,position,playerType,rotationType,rating,insideRating,midRating,threeRating,freeThrowPercent,interiorDefense,perimeterDefense,orbRating,drbRating,astRating,stlRating,blkRating,layupRating,standDunk,drivingDunk,athleticism,durability,offConst,defConst,drawFoul,isMrClutch,enName
 乔尔·恩比德,C,1,1,95,88,96,85,86,91,64,86,95,59,53,86,85,90,80,79,76,98,93,97,1,joel-embiid
 本·西蒙斯,PG,2,1,86,85,46,58,67,79,87,54,75,83,83,56,90,83,86,88,83,90,90,90,0,ben-simmons
-托拜厄斯·哈里斯,PF,4,1,87,96,96,86,89,59,58,42,76,75,41,62,85,65,75,77,82,90,60,73,1,tobias-harris
+托拜厄斯·哈里斯,PF,1,1,87,96,96,86,89,59,58,42,76,75,41,62,85,65,75,77,82,90,60,73,1,tobias-harris
 塞思·库里,SG,5,1,76,87,89,85,92,25,57,28,42,72,42,40,75,25,36,74,80,80,35,50,0,seth-curry
-丹尼·格林,SF,4,1,75,82,64,85,65,66,87,41,52,62,66,67,67,40,45,73,82,40,85,35,0,danny-green
+丹尼·格林,SF,5,1,75,82,64,85,65,66,87,41,52,62,66,67,67,40,45,73,82,40,85,35,0,danny-green
 德怀特·霍华德,C,2,2,80,90,69,68,53,76,55,93,94,41,40,83,77,85,80,74,82,30,70,30,0,dwight-howard
 谢克·米尔顿,SF,1,2,79,93,89,75,88,30,65,38,43,78,41,47,84,30,60,73,83,75,40,63,0,shake-milton
 富尔坎·科尔克马兹,PF,4,2,72,60,71,80,78,40,64,32,49,58,56,45,70,40,75,74,80,70,45,45,0,furkan-korkmaz

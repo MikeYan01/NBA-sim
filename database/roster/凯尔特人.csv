@@ -1,8 +1,8 @@
 name,position,playerType,rotationType,rating,insideRating,midRating,threeRating,freeThrowPercent,interiorDefense,perimeterDefense,orbRating,drbRating,astRating,stlRating,blkRating,layupRating,standDunk,drivingDunk,athleticism,durability,offConst,defConst,drawFoul,isMrClutch,enName
 杰森·塔图姆,PF,4,1,89,82,80,82,88,77,89,36,75,78,53,51,89,50,88,82,80,95,85,82,0,jayson-tatum
 杰伦·布朗,SF,4,1,88,91,90,84,78,70,87,45,63,76,53,53,93,40,89,83,82,98,85,84,0,jaylen-brown
-肯巴·沃克,PG,1,1,83,71,76,79,91,32,75,30,55,87,53,47,86,25,30,82,86,80,60,70,0,kemba-walker
-马库斯·斯玛特,SG,1,1,80,87,58,77,74,74,93,34,46,68,80,55,65,25,50,81,83,30,95,30,0,marcus-smart
+肯巴·沃克,PG,5,1,83,71,76,79,91,32,75,30,55,87,53,47,86,25,30,82,86,80,60,70,0,kemba-walker
+马库斯·斯玛特,SG,4,1,80,87,58,77,74,74,93,34,46,68,80,55,65,25,50,81,83,30,95,30,0,marcus-smart
 罗伯特·威廉姆斯三世,C,2,1,81,93,44,25,62,76,40,91,87,49,73,96,72,90,75,77,81,80,60,44,0,robert-williams-iii
 特里斯坦·汤普森,PF,2,2,78,93,70,62,64,75,54,91,88,43,35,56,65,85,75,75,90,50,55,40,0,tristan-thompson
 莫里茨·瓦格纳,C,4,2,76,89,78,74,73,58,40,45,70,49,73,56,70,75,65,78,81,70,35,54,0,moritz-wagner
