@@ -49,7 +49,7 @@ Generate simulated NBA season results based on real NBA teams, player abilities 
 
 ## Run
 
-The program is developed on Java (JDK 15.0).
+The program is developed on Java (JDK 16.0).
 
 Manual compile and run:
 

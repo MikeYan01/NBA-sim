@@ -645,7 +645,7 @@ public class Utilities {
                 break;
             case 3:
                 distance = generateRandomNum(random, Constants.MIN_CLOSE_SHOT, Constants.MID_THREE_SHOT);
-                if (distance >= Constants.MIN_MID_SHOT && generateRandomNum(random) <= 30) 
+                if (distance >= Constants.MIN_MID_SHOT && generateRandomNum(random) <= Constants.TYPE3_PERCENT) 
                     distance -= (Constants.MIN_MID_SHOT - Constants.MIN_CLOSE_SHOT);
                 break;
             case 4:

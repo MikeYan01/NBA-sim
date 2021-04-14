@@ -1,5 +1,5 @@
 name,position,playerType,rotationType,rating,insideRating,midRating,threeRating,freeThrowPercent,interiorDefense,perimeterDefense,orbRating,drbRating,astRating,stlRating,blkRating,layupRating,standDunk,drivingDunk,athleticism,durability,offConst,defConst,drawFoul,isMrClutch,enName
-多曼塔斯·萨博尼斯,PF,1,1,87,80,74,75,72,70,49,64,89,74,46,52,86,70,75,72,86,95,50,88,0,domantas-sabonis
+多曼塔斯·萨博尼斯,PF,3,1,87,80,74,75,72,70,49,64,89,74,46,52,86,70,75,72,86,95,50,88,0,domantas-sabonis
 TJ·沃伦,SF,1,1,84,91,82,78,81,54,62,34,53,60,35,40,92,50,80,72,84,90,50,75,0,tj-warren
 马尔科姆·布罗格登,PG,1,1,83,81,90,84,91,65,77,37,56,85,42,37,76,40,70,79,84,90,65,88,0,malcolm-brogdon
 卡里斯·勒韦尔,SG,1,1,82,78,71,76,77,45,74,38,56,77,70,45,87,60,75,76,78,95,60,76,0,caris-levert

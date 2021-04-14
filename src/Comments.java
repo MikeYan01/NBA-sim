@@ -373,7 +373,7 @@ public class Comments {
     public static void getTurnoverComment(String name) {
         String lastName = getLastName(name);
         List<String> resources = Arrays.asList(
-            lastName + "大力传球给前场队友推反击!\n给大了!球出界!\n",
+            lastName + "大力传球给前场队友推反击!\n给大了!球出界!",
             lastName + "没接住球!球飞出界!",
             lastName + "没拿稳球!摸了一下出界了!",
             lastName + "运球踩到边线!裁判立即吹哨!",
