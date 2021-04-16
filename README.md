@@ -36,7 +36,7 @@ Generate simulated NBA season results based on real NBA teams, player abilities 
   └── regular-stats   All stats and rankings files of the regular season
 ├── run.sh    A shell script to compile and run the program
 ├── src    
-  ├── Roster.py    2KRatings player attributes crawling
+  ├── Roster.py    2KRatings player attributes scraping
   ├── Comments.java    Generate game live comments
   ├── Constants.java    Constant variables defined in the whole program
   ├── Game.java    Simulate a single game, or a full season    
@@ -49,22 +49,25 @@ Generate simulated NBA season results based on real NBA teams, player abilities 
 
 ## Run
 
-The program is developed on Java (JDK 16.0).
+The program is developed on Java (JDK 16.0), so a proper [Java Platform](https://www.oracle.com/java/technologies/javase-downloads.html) is needed to be installed.
 
-Manual compile and run:
+Make sure you are under **the program root directory**:
+    
+- For Linux/Unix users, you can directly run shell script to compile and run the program
+  - To host a season: `./run.sh`
+  - To host a single game: `./run.sh Team1 Team2`, `Team1` and `Team2` are the names of two matching teams
 
-1. In the root directory, compile the program: `javac src/*.java`
-2. Still in the root directory, to run the program 
-     - To host a season, input `java src/Main`
-     - To host a single game, input `java src/Main Team1 Team2`，where `Team1` and `Team2` are the names of two teams
+- For Windows users, if you have trouble running the shell file, you can manually compile and run the program:
+  - To compile: `javac src/*.java`
+  - To host a season: `java src/Main`
+  - To host a single game: `java src/Main Team1 Team2`
 
-Use shell:
+The re-run the program, just type the command again in the CLI, the program will delete the last simulation result and generate new result files again. 
 
-1. In the root directory：
-     - To host a season: `./run.sh`
-     - To host a single game: `./run.sh Team1 Team2`
 
-The program supports multiple runs, just type the command again at the command line, the program will delete the last simulation result and generate new result files in the same path again. All the result files will be generated in the `output/` folder. There are 3 types of result files:
+## Result Files
+
+All the result files will be generated in the `output/` folder under the root directory. There are 3 types of result files:
 
 **Game results(All files under `output/regular-results/` and `output/playoffs-results/` for season mode，.txt file under `output/` for a single game)**
 
@@ -179,6 +182,10 @@ Every play should have the following process:
 
 ## Roster update
 
-If you need to update the current team roster, please execute the `src/Roster.py` file in the root directory, the code will automatically crawl the latest roster to the `tempFolder/` folder in the root directory. You can make further updates and overwrite the source roster files as needed.
+If you need to update the current team roster, please execute the Python file `src/Roster.py` in the root directory:
 
-Note: This feature only supports Linux/Unix systems now.
+```bash
+python src/Roster.py
+```
+
+The code will automatically scrape the latest roster to the `tempFolder` folder in the root directory. You can manually make extra updates or directly overwrite the source roster files.

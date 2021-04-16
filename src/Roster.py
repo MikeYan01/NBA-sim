@@ -10,7 +10,7 @@ headers = {'User-Agent':'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/53
 URL = "https://www.2kratings.com/"
 
 """
-read teams rosters
+team lists and bilingual mappings
 """
 TEAM_LIST = ["76ers", "bulls", "celtics", "kings", "suns", "warriors", "wizards", "knicks", "trail-blazers", "clippers", "nuggets", "timberwolves", \
              "pacers", "pistons", "lakers", "rockets", "grizzlies", "heat", "jazz", "mavericks", "raptors", "nets", "hawks", "bucks", "thunder", \
@@ -57,6 +57,13 @@ TEAM_NAME_MAPPING = {
     "1617-warriors": "1617勇士"
 }
 
+"""
+read team rosters
+"""
+current_dir = os.getcwd()
+temp_path = os.path.join(current_dir, "tempFolder")
+roster_path = os.path.join(current_dir, "database", "roster")
+
 for TEAM_NAME in TEAM_LIST:
     print(TEAM_NAME)
     NAME_LIST = []
@@ -64,15 +71,13 @@ for TEAM_NAME in TEAM_LIST:
     """
     each team's detail
     """
-    if not os.path.exists("./tempFolder"):
-        os.mkdir("./tempFolder")
+    if not os.path.exists(temp_path):
+        os.mkdir(temp_path)
 
-    # old data files
-    OLD_FILE_NAME = "./database/roster/" + TEAM_NAME_MAPPING[TEAM_NAME] + ".csv"
+    old_file_name = os.path.join(roster_path, TEAM_NAME_MAPPING[TEAM_NAME] + ".csv")
     old_file_lines = []
     old_file_data = {} # line -> line split
-
-    with open(OLD_FILE_NAME, 'r') as of:
+    with open(old_file_name, 'r') as of:
         old_file_lines = of.readlines()
         for line in old_file_lines:
             if line[-1] == '\n':
@@ -84,9 +89,8 @@ for TEAM_NAME in TEAM_LIST:
                 NAME_LIST.append(split_result[-1])
         of.close()
 
-    # new data files
-    FILE_NAME = "./tempFolder/" + TEAM_NAME_MAPPING[TEAM_NAME] + ".csv"
-    with open(FILE_NAME, 'a+') as f:
+    file_name = os.path.join(temp_path, TEAM_NAME_MAPPING[TEAM_NAME] + ".csv")
+    with open(file_name, 'a+') as f:
         f.write("name,position,playerType,rotationType,rating,insideRating,midRating,threeRating,freeThrowPercent,interiorDefense,")
         f.write("perimeterDefense,orbRating,drbRating,astRating,stlRating,blkRating,layupRating,standDunk,drivingDunk,athleticism,")
         f.write("durability,offConst,defConst,drawFoul,isMrClutch,enName\n")
@@ -148,7 +152,7 @@ for TEAM_NAME in TEAM_LIST:
         column3_card2_result = [each.text for each in column3_card2]
 
         """
-        get result
+        add result
         """
         result.append(column1_card1_result[0]) # Close Shot
         result.append(column1_card1_result[1]) # Mid-Range Shot
@@ -181,7 +185,7 @@ for TEAM_NAME in TEAM_LIST:
         """
         write to file
         """
-        with open(FILE_NAME, 'a+') as f:
+        with open(file_name, 'a+') as f:
             temp_data = []
             for key in old_file_data.keys(): 
                 if (old_file_data[key][-1] == NAME):

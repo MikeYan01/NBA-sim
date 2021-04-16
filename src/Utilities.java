@@ -252,7 +252,7 @@ public class Utilities {
         else if (defensePlayer.stlRating >= Constants.STEAL_BONUS_THLD4) range *= Constants.STEAL_BONUS_SCALE4;
 
         int poss = generateRandomNum(random);
-        // 0.6% chance to jump ball
+        // chance to jump ball
         if (poss <= 1) {
             if (generateRandomNum(random) <= Constants.JUMP_BALL_PLAY) {
                 String winPlayer = jumpBall(random, offensePlayer.name, defensePlayer.name);
@@ -260,7 +260,7 @@ public class Utilities {
             }
         }
 
-        // 5% chance to turnover
+        // chance to turnover
         else if (poss <= 1 + Constants.TURNOVER) {
             offensePlayer.turnover++;
             Comments.getTurnoverComment(offensePlayer.name);
@@ -273,35 +273,33 @@ public class Utilities {
             defensePlayer.steal++;
             Comments.getStealComment(offensePlayer.name, defensePlayer.name);
 
-            // 30% chance to start a non-fast-break play, 70% chance to start a fast break
+            // low chance to start a non-fast-break play, high chance to start a fast break
             int fastBreak = generateRandomNum(random);
             if (fastBreak <= Constants.NON_FASTBREAK) {
                 Comments.getNonFastBreak(defenseTeam.name);
                 return 1;
             } else {
                 int fastBreakTemp = generateRandomNum(random);
-                Player fastBreakFinisher;
-                // 60% chance to finish by himself
-                if (fastBreakTemp <= Constants.SAME_POS) fastBreakFinisher = defensePlayer;
-                // 40% chance to finish by teammate
+                
+                // finish by himself or teammate
+                Player finisher;
+                if (fastBreakTemp <= Constants.SAME_POS) finisher = defensePlayer;
                 else {
                     List<String> otherTeammate = new ArrayList<>();
                     for (String pos : defenseTeamOnCourt.keySet()) 
                         if (pos != defensePlayer.position) otherTeammate.add(pos);
 
-                    if (poss <= Constants.SAME_POS + Constants.OTHER_POS) fastBreakFinisher = defenseTeamOnCourt.get( otherTeammate.get(0) );
-                    else if (poss <= Constants.SAME_POS + 2 * Constants.OTHER_POS)
-                        fastBreakFinisher = defenseTeamOnCourt.get( otherTeammate.get(1) );
-                    else if (poss <= Constants.SAME_POS + 3 * Constants.OTHER_POS)
-                        fastBreakFinisher = defenseTeamOnCourt.get( otherTeammate.get(2) );
-                    else fastBreakFinisher = defenseTeamOnCourt.get( otherTeammate.get(3) );
+                    if (poss <= Constants.SAME_POS + Constants.OTHER_POS) finisher = defenseTeamOnCourt.get( otherTeammate.get(0) );
+                    else if (poss <= Constants.SAME_POS + 2 * Constants.OTHER_POS) finisher = defenseTeamOnCourt.get( otherTeammate.get(1) );
+                    else if (poss <= Constants.SAME_POS + 3 * Constants.OTHER_POS) finisher = defenseTeamOnCourt.get( otherTeammate.get(2) );
+                    else finisher = defenseTeamOnCourt.get( otherTeammate.get(3) );
                 }
 
-                Comments.getFastBreak(defenseTeam.name, fastBreakFinisher.name);
+                Comments.getFastBreak(defenseTeam.name, finisher.name);
                 defenseTeam.totalScore += 2;
-                fastBreakFinisher.score += 2;
-                fastBreakFinisher.shotMade++;
-                fastBreakFinisher.shotAttempted++;
+                finisher.score += 2;
+                finisher.shotMade++;
+                finisher.shotAttempted++;
             }
             return 2;
         }
@@ -340,7 +338,7 @@ public class Utilities {
             defensePlayer.block++;
             Comments.getBlockComment(defensePlayer.name);
 
-            // 40% chance to out of bound, 60% change to go to rebound juding
+            // low chance to out of bound, high chance to go to rebound juding
             int outOfBound = generateRandomNum(random);
             if (outOfBound <= Constants.BLOCK_OUT_OF_BOUND) {
                 Comments.getOutOfBound(defensePlayer.name);
@@ -467,11 +465,10 @@ public class Utilities {
         int poss = generateRandomNum(random);
         int foulTemp = generateRandomNum(random);
 
-        // 1% offensive foul, 1% defensive foul
         if (poss <= Constants.OFF_FOUL) {
             Player fouler;
 
-            // 60% chance to foul on offensePlayer, 40% on teammates
+            // high chance to foul on offensePlayer, small chance on teammates
             if (foulTemp <= Constants.SAME_POS) {
                 fouler = offensePlayer;
                 Comments.getOffensiveFoul(fouler.name, 1);
@@ -491,10 +488,10 @@ public class Utilities {
             judgeFoulOut(fouler, offenseTeam, offenseTeamOnCourt);
             foulProtect(fouler, offenseTeam, offenseTeamOnCourt, currentQuarter);
             return 1;
-        } else if (poss <= Constants.DEF_FOUL) {
+        } else if (poss <= Constants.OFF_FOUL + Constants.DEF_FOUL) {
             Player fouler;
 
-            // 60% chance to foul on defensePlayer, 40% on teammates
+            // high chance to foul on offensePlayer, small chance on teammates
             if (foulTemp <= Constants.SAME_POS) {
                 fouler = defensePlayer;
                 Comments.getDefensiveFoul(fouler.name, 1);
@@ -835,7 +832,7 @@ public class Utilities {
 
             // get a foul
             if (foulTemp <= drawFoulPercent) {
-                // 5% flag foul
+                // flagrant foul
                 if (generateRandomNum(random) <= Constants.FLAG_FOUL) {
                     defensePlayer.flagFoul++;
                     Comments.getFlagFoulComment(offensePlayer.name, defensePlayer.name);
@@ -867,7 +864,7 @@ public class Utilities {
             Comments.getMissShotsComment(movement, offensePlayer.name);
             if (generateRandomNum(random) <= Constants.STATUS_COMMENT_PERCENT) Comments.getStatusComment(offensePlayer, false);
 
-            // 3% chance that the ball will be out of bound
+            // shot out of bound
             if (generateRandomNum(random) <= Constants.SHOT_OUT_OF_BOUND) {
                 Comments.shotOutOfBound(offensePlayer.name);
                 return 4;

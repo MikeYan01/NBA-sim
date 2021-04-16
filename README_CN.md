@@ -47,24 +47,26 @@
   └── Utilities.java    比赛各模块的执行
 ```
 
-## 运行与结果
+## 运行
 
-程序基于Java (JDK 16.0)开发。
+程序兼容最新的Java (JDK 16.0)，因此运行前需要确保本机安装有[Java平台](https://www.oracle.com/java/technologies/javase-downloads.html) 。
 
-手动编译运行方式:
+进入项目文件夹，在项目的根目录下运行：
 
-1. 在根目录下，编译程序: `javac src/*.java`
-2. 运行程序
-     - 默认情况下，不输入额外参数`java src/Main`将模拟整个NBA赛季
-     - 如果要指定两队比赛，则输入`java src/Main Team1 Team2`，其中`Team1`和`Team2`是比赛双方球队的中文名 (例如:`java src/Main 湖人 快船`)
+    - 对于Linux/Unix用户，可以直接运行shell脚本编译运行程序：
+      - 模拟一个赛季：`./run.sh`
+      - 指定两队进行比赛：`./run.sh Team1 Team2`, 其中`Team1`和`Team2`是比赛双方球队的中文名
 
-shell编译运行方式:
+    - 对于Windows用户，如果本机上没有运行shell脚本的途径，可以尝试：
+      - 编译程序：`javac src/*.java`
+      - 模拟一个赛季：`java src/Main`
+      - 指定两队进行比赛：`java src/Main Team1 Team2`
 
-1. 在根目录下：
-     - 一次性模拟整个赛季，运行shell脚本: `./run.sh`
-     - 指定两队比赛，运行shell脚本: `./run.sh Team1 Team2`
+本程序支持重复多次运行，直接在命令行再次输入上述命令即可，程序将删除上次模拟结果，重新在相同路径下生成新结果文件。
 
-本程序支持重复多次运行，直接在命令行再次输入命令即可，程序将删除上次模拟结果，重新在相同路径下生成新结果文件。所有结果文件都将生成在`output/`文件夹中。共有3类结果文件：
+## 结果文件
+
+所有结果文件都将生成在`output/`文件夹中。共有3类结果文件：
 
 **单场比赛文件(赛季模式下`output/regular-results/`和`output/playoffs-results/`中的所有文件，单场比赛模式下直接位于`output/`根目录下的.txt文件)**
 
@@ -222,6 +224,10 @@ NBA比赛基本规则:
 
 ## 名单更新
 
-如果需要更新当前球队名单，请在根目录下执行`src/Roster.py`文件，代码将自动爬取最新名单到根目录下的`tempFolder/`文件夹中，用户可视需要作进一步更新、覆盖替换源文件。
+如果需要更新当前球队名单，请在根目录下运行`src`文件夹中的`Roster.py`代码：
 
-注：目前该功能仅支持Linux/Unix系统。
+```bash
+python src/Roster.py
+```
+
+代码将自动爬取最新名单到根目录下的`tempFolder`文件夹中，用户可视需要作进一步更新、覆盖替换源文件。

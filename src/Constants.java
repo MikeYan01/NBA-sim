@@ -1,6 +1,11 @@
 package src;
 
+import java.io.File;
+
 public class Constants {
+    /** File separator in current environment */
+    private final static String sep = File.separator;
+
     //--------------------------------Player.java
     /** Dunk constants */
     public final static int DUNK_SUM_LB = 60;
@@ -9,6 +14,12 @@ public class Constants {
 
     /** Star player rating constant */
     public final static int PLAYER_STAR_LB = 88;
+    //-------------------------------------------
+
+    //--------------------------------Team.java
+    /** Roster path and file extention */
+    public final static String ROSTER_PATH = String.format("database%sroster%s", sep, sep);
+    public final static String ROSTER_EXTENSION = ".csv";
     //-------------------------------------------
 
 
@@ -58,13 +69,14 @@ public class Constants {
     public final static String NEXT_YEAR = "2021-";
 
     /** Files directories and paths */
-    public final static String SCHEDULE_PATH = "database/schedule/schedule-82games.txt";
-    public final static String SINGLE_GAME_DIR = "output/";
-    public final static String REGULAR_GAMES_DIR = "output/regular-results/";
-    public final static String REGULAR_STATS_DIR = "output/regular-stats/";
-    public final static String PLAYOFFS_GAMES_DIR = "output/playoffs-results/";
+    public final static String SCHEDULE_PATH = String.format("database%sschedule%sschedule-82games.txt", sep, sep);
+    public final static String SINGLE_GAME_DIR = String.format("output%s", sep);
+    public final static String REGULAR_GAMES_DIR = String.format("output%sregular-results%s", sep, sep);
+    public final static String REGULAR_STATS_DIR = String.format("output%sregular-stats%s", sep, sep);
+    public final static String PLAYOFFS_GAMES_DIR = String.format("output%splayoffs-results%s", sep, sep);
     public final static String STANDING_NAME = "standing.txt";
     public final static String STAT_NAME = "stat.txt";
+    public final static String RESULT_EXTENSION = ".txt";
 
     /** Time left in quarters to substitute */
     public final static int ODD_QUARTERS_TIME_LEFT = 180;
@@ -107,9 +119,9 @@ public class Constants {
     public final static double MINOR_SCORE_FACTOR = 0.15;
     public final static int SINGLE_STAR_PERCENT_1 = 3;
     public final static int SINGLE_STAR_PERCENT_2 = 6;
-    public final static int SINGLE_STAR_EXTRA = 25;
+    public final static int SINGLE_STAR_EXTRA = 22;
     public final static int GENERAL_THLD = 90;
-    public final static int CLUTCH_PERCENT = 60;
+    public final static int CLUTCH_PERCENT = 50;
     public final static int RATING_RANGE = 10;
     public final static int REB_AST_SCALE = 2;
 
@@ -180,14 +192,14 @@ public class Constants {
     public final static int TYPE4_CLOSE_SHOT = 40;
     public final static int TYPE4_MID_SHOT = 15;
     public final static int TYPE5_CLOSE_SHOT = 20;
-    public final static int TYPE5_MID_SHOT = 30;
+    public final static int TYPE5_MID_SHOT = 20;
 
     /** Initial shot percent */
     public final static double INIT_CLOSE_SHOT_COFF = -0.3;
     public final static double INIT_CLOSE_SHOT_INTCP = 33;
     public final static double INIT_MID_SHOT_INTCP = 6;
     public final static double INIT_THREE_SHOT_COFF = -31/81;
-    public final static double INIT_THREE_SHOT_INTCP = 41;
+    public final static double INIT_THREE_SHOT_INTCP = 42;
 
     /** Shot percent adjust based on shot type and distance */
     public final static double DUNK_SCALE = 2.5;
