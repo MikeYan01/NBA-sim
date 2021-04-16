@@ -76,7 +76,7 @@ public class Team {
      */
     public static void loadPlayers(String name, List<Player> players, Map<String, Player> starters, Map<String, List<Player>> benches,
                                    Map<String, List<Player>> rareBenches) {
-        String filePath = "database/roster/" + name + ".csv";
+        String filePath = Constants.ROSTER_PATH + name + Constants.ROSTER_EXTENSION;
 
         try (BufferedReader file = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), "UTF-8"))) {
             String record;

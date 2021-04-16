@@ -57,14 +57,14 @@ public class Game {
 
         // each game's result file
         String filePath;
-        if (gameMode.equals("playoffs")) filePath = playoffsResultsPath + team1Name + team2Name + "-" + info + ".txt";
+        if (gameMode.equals("playoffs")) filePath = playoffsResultsPath + team1Name + team2Name + "-" + info + Constants.RESULT_EXTENSION;
         else if (gameMode.equals("regular")) {
             // games in Oct, Nov, Dec are hosted in current year
-            if (info.charAt(0) == '1') filePath = regularResultsPath + currentYear + info + "-" + team1Name + team2Name + ".txt";
-            else filePath = regularResultsPath + nextYear + info + "-" + team1Name + team2Name + ".txt";
+            if (info.charAt(0) == '1') filePath = regularResultsPath + currentYear + info + "-" + team1Name + team2Name + Constants.RESULT_EXTENSION;
+            else filePath = regularResultsPath + nextYear + info + "-" + team1Name + team2Name + Constants.RESULT_EXTENSION;
         }
         else {
-            filePath = singleResultsPath + team1Name + team2Name + ".txt";
+            filePath = singleResultsPath + team1Name + team2Name + Constants.RESULT_EXTENSION;
         }
                                     
         ps = new PrintStream(filePath);
@@ -417,15 +417,8 @@ public class Game {
      */
     public List<String> reorderSeeds(String[] temp) {
         List<String> result = new LinkedList<>();
-        result.add(temp[0]);
-        result.add(temp[7]);
-        result.add(temp[3]);
-        result.add(temp[4]);
-        result.add(temp[1]);
-        result.add(temp[6]);
-        result.add(temp[2]);
-        result.add(temp[5]);
-
+        int[] order = {0, 7, 3, 4, 1, 6, 2, 5};
+        for (int num : order) result.add(temp[num]);
         return result;
     }
 
