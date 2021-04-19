@@ -265,6 +265,11 @@ public class Constants {
     /** Flagrant foul */
     public final static int FLAG_FOUL = 5;
 
+    /** Foul challenge */
+    public final static int CHALLENGE_START_QUARTER = 3;
+    public final static int FOUL_CHALLENGE = 8;
+    public final static int CHALLENGE_SUCCESS = 40;
+
     /** Shot out-of-bound */
     public final static int SHOT_OUT_OF_BOUND = 3;
     //-------------------------------------------

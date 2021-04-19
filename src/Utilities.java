@@ -483,6 +483,16 @@ public class Utilities {
                 else fouler = offenseTeamOnCourt.get( otherTeammate.get(3) );
                 Comments.getOffensiveFoul(fouler.name, 2);
             }
+
+            // challenge the foul
+            if (currentQuarter >= Constants.CHALLENGE_START_QUARTER && offenseTeam.canChallenge &&
+                generateRandomNum(random) <= Constants.FOUL_CHALLENGE) {
+                boolean isSuccessful = Comments.getChallengeComment(offenseTeam.name);
+                offenseTeam.canChallenge = false;
+                
+                if (isSuccessful) return 0;
+            }
+
             fouler.turnover++;
             fouler.foul++;
             judgeFoulOut(fouler, offenseTeam, offenseTeamOnCourt);
@@ -506,6 +516,16 @@ public class Utilities {
                 else fouler = defenseTeamOnCourt.get( otherTeammate.get(3) );
                 Comments.getDefensiveFoul(fouler.name, 2);
             }
+
+            // challenge the foul
+            if (currentQuarter >= Constants.CHALLENGE_START_QUARTER && defenseTeam.canChallenge &&
+                generateRandomNum(random) <= Constants.FOUL_CHALLENGE) {
+                boolean isSuccessful = Comments.getChallengeComment(defenseTeam.name);
+                defenseTeam.canChallenge = false;
+                
+                if (isSuccessful) return 0;
+            }
+
             fouler.foul++;
             judgeFoulOut(fouler, defenseTeam, defenseTeamOnCourt);
             foulProtect(fouler, defenseTeam, defenseTeamOnCourt, currentQuarter);
@@ -842,10 +862,21 @@ public class Utilities {
                     return makeFreeThrow(random, offensePlayer, offenseTeamOnCourt, defenseTeamOnCourt,
                                          offenseTeam, 2, quarterTime, currentQuarter, team1, team2, true);
                 }
+
+                Comments.getFoulComment(offensePlayer.name, defensePlayer.name);
+
+                // challenge the foul
+                if (currentQuarter >= Constants.CHALLENGE_START_QUARTER && defenseTeam.canChallenge &&
+                    generateRandomNum(random) <= Constants.FOUL_CHALLENGE) {
+                    boolean isSuccessful = Comments.getChallengeComment(defenseTeam.name);
+                    defenseTeam.canChallenge = false;
+                    
+                    if (isSuccessful) return 3;
+                }
+
                 defensePlayer.foul++;
                 defenseTeam.quarterFoul++;
                 
-                Comments.getFoulComment(offensePlayer.name, defensePlayer.name);
                 judgeFoulOut(defensePlayer, defenseTeam, defenseTeamOnCourt);
                 foulProtect(defensePlayer, defenseTeam, defenseTeamOnCourt, currentQuarter);
 
@@ -925,6 +956,8 @@ public class Utilities {
         int timesLeft = times;
         boolean onlyOneShot = timesLeft == 1 ? true : false;
         int count = 0;
+
+        Comments.getFreeThrowPrepareComment(player.name);
 
         while (timesLeft > 0) {
             timesLeft--;
