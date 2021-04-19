@@ -97,7 +97,7 @@ public class Game {
 
         // Play-by-play simulation
         while (quarterTime >= 0) {
-            // decide play time consumption and substitution
+            // decide play time and substitution
             int currentPlayTime;
             if (!isSecondChance) {
                 currentPlayTime = quarterTime > 24 ? Utilities.generateRandomPlayTime(random, 24) : quarterTime;

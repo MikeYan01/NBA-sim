@@ -559,22 +559,17 @@ public class Comments {
         String offenseLastName = getLastName(offensePlayer);
         String defenseLastName = getLastName(defensePlayer);
 
-        String[] resources1 = {
+        String[] resources = {
             "哨响!\n" + defenseLastName + "打手犯规!",
             defenseLastName + "冲下去一把拽下来!\n裁判果断吹哨!",
             defenseLastName + "直接一把抱住不让出手!\n" + offenseLastName + "都乐了!",
             defenseLastName + "出手压住!\n哨响!打手犯规!",
             defenseLastName + "遮天蔽日按下来!\n哨响!裁判给了犯规!",
             defenseLastName + "被晃开了!有点不甘再冲上去伸手阻拦!\n哨响!裁判给了打手犯规!",
-            "哨响!\n" + defenseLastName + "抢在出手前提前犯规了!\n送" + offenseLastName + "上罚球线!"
+            "哨响!\n" + defenseLastName + "抢在出手前提前犯规了!"
         };
-        String[] resources2 = {
-            offenseLastName + "罚球!",
-            offenseLastName + "走上罚球线!",
-            "考验" + offenseLastName + "的罚球了!"
-        };
-        pickStringOutput(resources1, true);
-        pickStringOutput(resources2, true);
+        
+        pickStringOutput(resources, true);
     }
 
     /**
@@ -586,18 +581,62 @@ public class Comments {
     public static void getFlagFoulComment(String offensePlayer, String defensePlayer) {
         String offenseLastName = getLastName(offensePlayer);
         String defenseLastName = getLastName(defensePlayer);
-        String[] resources1 = {
+        String[] resources = {
             defenseLastName + "一把直接拉了下来!\n动作太大了!裁判直接给了恶意犯规!",
             defenseLastName + "直接顶上去把" + offenseLastName + "撞倒在地!\n双方险些酿成冲突!\n裁判给了" + defenseLastName + "恶意犯规!",
             defenseLastName + "估计之前的回合中和" + offenseLastName + "有一些不愉快!\n这一回直接上去报复性推搡了一把!\n裁判及时吹停并给了恶意犯规!"
         };
-        String[] resources2 = {
-            offenseLastName + "执行恶意犯规罚球!",
-            offenseLastName + "走上罚球线!",
-            "考验" + offenseLastName + "的罚球了!"
+
+        pickStringOutput(resources, true);
+    }
+
+    /**
+     * Generate comments when the player prepares to go to the free throw line.
+     * 
+     * @param player Free throw player name
+     */
+    public static void getFreeThrowPrepareComment(String player) {
+        String playerLastName = getLastName(player);
+        String[] resources = {
+            playerLastName + "罚球!",
+            playerLastName + "走上罚球线!",
+            "考验" + playerLastName + "的罚球了!"
         };
+
+        pickStringOutput(resources, true);
+    }
+
+    /**
+     * Generate foul challenge comments.
+     * 
+     * @param teamName Challenge team name
+     * @return Whether the challenge succeed
+     */
+    public static boolean getChallengeComment(String teamName) {
+        String[] resources1 = {
+            teamName + "对于这个判罚不太认可!向裁判组提出挑战!",
+            teamName + "教练走向裁判!要求挑战这个判罚!",
+            teamName + "十分不满!提出挑战要求裁判重新吹罚!",
+        };
+
         pickStringOutput(resources1, true);
-        pickStringOutput(resources2, true);
+
+        // challenge successful
+        if (Utilities.generateRandomNum(random) <= Constants.CHALLENGE_SUCCESS) {
+            String[] resources2 = {
+                "裁判反复观看录像!确认刚才的吹罚是个误判!\n挑战成功!球权归还" + teamName + "!",
+                "裁判聚在一起激烈讨论!\n最终达成一致!" + teamName + "挑战成功并且拿回球权!"
+            };
+            pickStringOutput(resources2, true);
+            return true;
+        } else {
+            String[] resources2 = {
+                "裁判反复观看录像!认为刚才吹罚没有问题!\n挑战失败!" + teamName + "还是被吹犯规!",
+                "裁判聚在一起激烈讨论!\n最终达成一致!" + teamName + "挑战失败!"
+            };
+            pickStringOutput(resources2, true);
+            return false;
+        }
     }
 
     /**
@@ -983,7 +1022,7 @@ public class Comments {
 
         sb.delete( 0, sb.length() );
         sb.append(pickStringOutput(resources, false));
-        sb.append("这边技术台回放确认了!").append(lastName).append("确认被罚出场!\n现场镜头给到他!此刻正一脸郁闷地往球员通道走去!");
+        sb.append("\n这边技术台回放确认了!").append(lastName).append("确认被罚出场!\n现场镜头给到他!此刻正一脸郁闷地往球员通道走去!");
         System.out.println(sb.toString());
     }
 

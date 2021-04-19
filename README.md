@@ -128,6 +128,7 @@ Every play should have the following process:
 3. Determine whether there is foul before the shot:
     - Offensive foul（Charging foul, Illegal screen, ...）
     - Defensive foul（Grabbing, Reach-in, Blocking...）
+    - Each team has a chance to challenge the foul. If challenge successfully, the foul will be canceled and the possession will be returned
   
 4. Determine the shot distance of the offense players
     
@@ -166,6 +167,7 @@ Every play should have the following process:
 10. If misses the shot:
 
     - Check if there is a foul and give free throws
+      - Each team has a chance to challenge the foul. If challenge successfully, the foul will be canceled and the possession will be returned
     - Two teams will compete for the rebound
 
 11. Free throw

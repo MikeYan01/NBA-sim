@@ -29,6 +29,9 @@ public class Team {
     // whether the team possess the ball in the next play
     public boolean hasBall;
 
+    // whether the team is able to challenge the foul or not
+    public boolean canChallenge;
+
     // all players in this teams
     public final List<Player> players = new ArrayList<Player>();
 
@@ -61,7 +64,8 @@ public class Team {
 
         this.quarterFoul = 0;
 
-        this.hasBall = false; 
+        this.hasBall = false;
+        this.canChallenge = true;
 
         loadPlayers(name, players, starters, benches, rareBenches);
     }
