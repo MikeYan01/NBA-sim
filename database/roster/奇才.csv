@@ -1,11 +1,11 @@
 name,position,playerType,rotationType,rating,insideRating,midRating,threeRating,freeThrowPercent,interiorDefense,perimeterDefense,orbRating,drbRating,astRating,stlRating,blkRating,layupRating,standDunk,drivingDunk,athleticism,durability,offConst,defConst,drawFoul,isMrClutch,enName
 布拉德利·比尔,SG,1,1,90,96,94,84,90,45,66,41,54,82,46,47,95,30,84,80,82,98,40,90,1,bradley-beal
 拉塞尔·威斯布鲁克,PG,3,1,88,87,76,73,60,42,83,48,88,88,49,50,88,30,86,92,92,95,80,82,0,russell-westbrook
-八村垒,PF,1,1,79,88,80,77,77,60,54,38,67,53,38,30,82,80,80,80,80,80,35,65,0,rui-hachimura
+八村垒,PF,1,1,78,88,80,75,77,60,54,38,67,53,38,30,82,80,80,80,80,80,35,65,0,rui-hachimura
 托马斯·布莱恩特,C,4,1,80,92,74,82,67,63,40,68,70,43,33,66,72,75,65,74,82,95,50,68,0,thomas-bryant
 德尼·阿夫迪亚,SF,4,1,74,93,75,75,58,62,69,34,78,64,38,47,73,40,75,78,84,45,55,30,0,deni-avdija
-戴维斯·贝尔坦斯,PF,4,2,77,78,70,82,86,64,40,34,52,47,40,45,69,65,65,65,68,70,50,65,0,davis-bertans
-加里森·马修斯,SG,5,2,73,74,75,85,92,42,52,34,42,65,42,40,79,45,55,66,79,50,35,69,0,garrison-mathews
+戴维斯·贝尔坦斯,PF,4,2,78,78,70,87,86,64,40,34,52,47,40,45,69,65,65,65,68,70,50,65,0,davis-bertans
+加里森·马修斯,SG,5,2,73,74,75,82,92,42,52,34,42,65,42,40,79,45,55,66,79,50,35,69,0,garrison-mathews
 劳尔·内托,PG,4,2,75,93,82,79,83,40,73,35,49,73,76,35,70,25,25,73,79,70,70,64,0,raul-neto
 丹尼尔·加福德,C,2,2,78,89,65,29,68,70,57,76,69,41,43,93,79,85,75,77,80,80,65,75,0,daniel-gafford
 钱德勒·哈奇森,SF,2,2,73,80,70,74,59,40,70,37,78,57,38,25,78,40,75,75,83,75,45,66,0,chandler-hutchison
