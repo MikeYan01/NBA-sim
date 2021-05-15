@@ -38,12 +38,12 @@ public class Constants {
     public final static int SHOT_POSITION_PERCENT = 30;
 
     /** Dunk percent based on dunkType */
-    public final static int TYPE_1_LAYUP = 80;
+    public final static int TYPE_1_LAYUP = 60;
     public final static int TYPE_1_DUNK = 10;
-    public final static int TYPE_2_LAYUP = 60;
-    public final static int TYPE_2_DUNK = 30;
+    public final static int TYPE_2_LAYUP = 50;
+    public final static int TYPE_2_DUNK = 20;
     public final static int TYPE_3_LAYUP = 40;
-    public final static int TYPE_3_DUNK = 50;
+    public final static int TYPE_3_DUNK = 30;
 
     /** Distance threshold to separate shot choice comments */
     public final static int SHOT_CHOICE_THLD = 20;
@@ -219,8 +219,8 @@ public class Constants {
     public final static int DEFENSE_BASE = 41;
 
     /** Defense density percent */
-    public final static int DEFENSE_EASY = 10;
-    public final static int DEFENSE_HARD = 35;
+    public final static int DEFENSE_EASY = 15;
+    public final static int DEFENSE_HARD = 30;
     public final static int DEFENSE_BUFF = 10;
 
     /** Offense and defense consistency */
@@ -228,7 +228,7 @@ public class Constants {
     public final static double CONSISTENCY_MAX_BONUS = 2;
 
     /** Athleticism */
-    public final static double ATHLETIC_COFF = 0.15;
+    public final static double ATHLETIC_COFF = 0.06;
 
     /** Clutch time */
     public final static double CLUTCH_SHOT_COFF = 0.6;
