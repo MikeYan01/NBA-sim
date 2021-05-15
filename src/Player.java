@@ -122,9 +122,7 @@ public class Player {
         if (this.standDunk + this.drivingDunk <= Constants.DUNK_SUM_LB) this.dunkerType = 1;
         else if (this.standDunk + this.drivingDunk >= Constants.DUNK_SUM_UB || 
                 (this.standDunk + this.drivingDunk < Constants.DUNK_SUM_UB
-                    && this.standDunk >= Constants.DUNK_EXCEL_LB) ||
-                (this.standDunk + this.drivingDunk < Constants.DUNK_SUM_UB
-                    && this.drivingDunk >= Constants.DUNK_EXCEL_LB))
+                    && (this.standDunk >= Constants.DUNK_EXCEL_LB || this.drivingDunk >= Constants.DUNK_EXCEL_LB)))
             this.dunkerType = 3;
         else this.dunkerType = 2;
 
