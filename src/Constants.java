@@ -195,15 +195,15 @@ public class Constants {
     public final static int TYPE5_MID_SHOT = 20;
 
     /** Initial shot percent */
-    public final static double INIT_CLOSE_SHOT_COFF = -0.3;
-    public final static double INIT_CLOSE_SHOT_INTCP = 36;
-    public final static double INIT_MID_SHOT_INTCP = 9;
+    public final static double INIT_CLOSE_SHOT_COFF = -0.2;
+    public final static double INIT_CLOSE_SHOT_INTCP = 38;
+    public final static double INIT_MID_SHOT_INTCP = 8;
     public final static double INIT_THREE_SHOT_COFF = -31/81;
     public final static double INIT_THREE_SHOT_INTCP = 42;
 
     /** Shot percent adjust based on shot type and distance */
     public final static double DUNK_SCALE = 2.5;
-    public final static double SHOT_COFF = 0.3;
+    public final static double SHOT_COFF = 0.2;
     public final static int OFFENSE_BASE = 70;
 
     /** High astRating players increase shot percent */
@@ -219,8 +219,8 @@ public class Constants {
     public final static int DEFENSE_BASE = 41;
 
     /** Defense density percent */
-    public final static int DEFENSE_EASY = 15;
-    public final static int DEFENSE_HARD = 30;
+    public final static int DEFENSE_EASY = 25;
+    public final static int DEFENSE_HARD = 25;
     public final static int DEFENSE_BUFF = 10;
 
     /** Offense and defense consistency */

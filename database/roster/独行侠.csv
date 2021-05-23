@@ -1,11 +1,11 @@
 name,position,playerType,rotationType,rating,insideRating,midRating,threeRating,freeThrowPercent,interiorDefense,perimeterDefense,orbRating,drbRating,astRating,stlRating,blkRating,layupRating,standDunk,drivingDunk,athleticism,durability,offConst,defConst,drawFoul,isMrClutch,enName
 卢卡·东契奇,PG,1,1,94,97,98,84,73,48,73,37,81,92,42,55,96,55,70,84,85,98,65,96,1,luka-doncic
 克里斯塔普斯·波尔津吉斯,C,1,1,86,84,89,80,85,83,56,59,86,49,35,81,78,90,75,77,77,90,65,88,0,kristaps-porzingis
-约什·理查德森,SG,4,1,77,85,86,77,91,69,87,40,47,66,43,52,75,50,78,79,83,55,85,40,0,josh-richardson
-马克西·克勒贝尔,PF,5,1,73,75,75,86,92,74,72,43,68,59,36,63,70,75,75,66,80,35,70,40,0,maxi-kleber
+小蒂姆·哈达威,SG,4,1,80,87,80,83,81,45,70,30,54,69,35,37,70,35,78,74,83,80,40,82,0,tim-hardaway-jr
 多里安·芬尼·史密斯,SF,4,1,75,76,71,83,80,72,79,54,57,55,42,51,67,40,84,72,81,75,70,48,0,dorian-finney-smith
+马克西·克勒贝尔,PF,5,1,73,75,75,86,92,74,72,43,68,59,36,63,70,75,75,66,80,35,70,40,0,maxi-kleber
 杰伦·布伦森,PG,1,2,80,91,90,78,79,55,70,35,59,82,37,25,77,40,50,74,81,85,35,65,0,jalen-brunson
-小蒂姆·哈达威,SF,1,2,80,87,80,83,81,45,70,30,54,69,35,37,70,35,78,74,83,80,40,82,0,tim-hardaway-jr
+约什·理查德森,SF,4,2,77,85,86,77,91,69,87,40,47,66,43,52,75,50,78,79,83,55,85,40,0,josh-richardson
 威利·考利·斯坦,C,2,2,76,75,37,49,63,76,51,65,75,52,38,81,75,85,70,79,84,70,65,73,0,willie-cauley-stein
 德怀特·鲍威尔,PF,2,2,77,67,65,60,76,74,45,75,75,53,56,62,70,75,65,76,83,95,65,83,0,dwight-powell
 JJ·雷迪克,SG,5,2,75,56,87,86,94,35,68,27,47,63,35,35,74,25,25,66,81,70,45,50,0,jj-redick
