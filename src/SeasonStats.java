@@ -25,6 +25,16 @@ public class SeasonStats {
     public final Map<String, Double> playerPerFts;
     public final Map<String, Double> playerPerShotsAttempted;
     public final Map<String, Double> playerPerShotsMade;
+    
+    // player additional stats
+    public final Map<String, Integer> playerTotalThreesAttempted;
+    public final Map<String, Integer> playerTotalFtsAttempted;
+    public final Map<String, Integer> playerTotalSecondsPlayed;  // Total seconds played
+    public final Map<String, Double> playerPerThreesAttempted;
+    public final Map<String, Double> playerPerFtsAttempted;
+    public final Map<String, Double> playerPerMinutesPlayed;  // Average minutes per game
+    public final Map<String, String> playerTeamMap;  // maps player name to team name
+    public final Map<String, String> playerEnglishNameMap;  // maps Chinese name to English name
 
     // team total stats table
     public final Map<String, Integer> teamTotalGames;
@@ -66,6 +76,15 @@ public class SeasonStats {
         playerPerFts = new HashMap<>();
         playerPerShotsAttempted = new HashMap<>();
         playerPerShotsMade = new HashMap<>();
+        
+        playerTotalThreesAttempted = new HashMap<>();
+        playerTotalFtsAttempted = new HashMap<>();
+        playerTotalSecondsPlayed = new HashMap<>();
+        playerPerThreesAttempted = new HashMap<>();
+        playerPerFtsAttempted = new HashMap<>();
+        playerPerMinutesPlayed = new HashMap<>();
+        playerTeamMap = new HashMap<>();
+        playerEnglishNameMap = new HashMap<>();
 
         teamTotalGames = new HashMap<>();
         teamTotalScores = new HashMap<>();
@@ -95,11 +114,18 @@ public class SeasonStats {
         int stl = p.steal;
         int blk = p.block;
         int three = p.threeMade;
+        int threeAttempted = p.threeAttempted;
         int ft = p.freeThrowMade;
+        int ftAttempted = p.freeThrowAttempted;
         int shotMade = p.shotMade;
         int shotAttempted = p.shotAttempted;
+        int secondsPlayed = p.secondsPlayed;
 
         if (p.hasBeenOnCourt) {
+            // Store player's team name and English name
+            playerTeamMap.put(name, p.teamName);
+            playerEnglishNameMap.put(name, p.englishName);
+            
             // update total stats
             playerTotalGames.put(name, playerTotalGames.getOrDefault(name, 0) + 1);
             playerTotalScores.put(name, playerTotalScores.getOrDefault(name, 0) + score);
@@ -108,9 +134,12 @@ public class SeasonStats {
             playerTotalStls.put(name, playerTotalStls.getOrDefault(name, 0) + stl);
             playerTotalBlks.put(name, playerTotalBlks.getOrDefault(name, 0) + blk);
             playerTotalThrees.put(name, playerTotalThrees.getOrDefault(name, 0) + three);
+            playerTotalThreesAttempted.put(name, playerTotalThreesAttempted.getOrDefault(name, 0) + threeAttempted);
             playerTotalFts.put(name, playerTotalFts.getOrDefault(name, 0) + ft);
+            playerTotalFtsAttempted.put(name, playerTotalFtsAttempted.getOrDefault(name, 0) + ftAttempted);
             playerTotalShotsAttempted.put(name, playerTotalShotsAttempted.getOrDefault(name, 0) + shotAttempted);
             playerTotalShotsMade.put(name, playerTotalShotsMade.getOrDefault(name, 0) + shotMade);
+            playerTotalSecondsPlayed.put(name, playerTotalSecondsPlayed.getOrDefault(name, 0) + secondsPlayed);
 
             // update per-game stats
             playerPerScores.put(name, Utilities.roundDouble(playerTotalScores.get(name) * 1.0 / playerTotalGames.get(name)));
@@ -119,7 +148,10 @@ public class SeasonStats {
             playerPerStls.put(name, Utilities.roundDouble(playerTotalStls.get(name) * 1.0 / playerTotalGames.get(name)));
             playerPerBlks.put(name, Utilities.roundDouble(playerTotalBlks.get(name) * 1.0 / playerTotalGames.get(name)));
             playerPerThrees.put(name, Utilities.roundDouble(playerTotalThrees.get(name) * 1.0 / playerTotalGames.get(name)));
+            playerPerThreesAttempted.put(name, Utilities.roundDouble(playerTotalThreesAttempted.get(name) * 1.0 / playerTotalGames.get(name)));
             playerPerFts.put(name, Utilities.roundDouble(playerTotalFts.get(name) * 1.0 / playerTotalGames.get(name)));
+            playerPerFtsAttempted.put(name, Utilities.roundDouble(playerTotalFtsAttempted.get(name) * 1.0 / playerTotalGames.get(name)));
+            playerPerMinutesPlayed.put(name, Utilities.roundDouble(playerTotalSecondsPlayed.get(name) / 60.0 / playerTotalGames.get(name)));
 
             if (shotAttempted > 0) {
                 playerPerShotsAttempted.put(name, Utilities.roundDouble(playerTotalShotsAttempted.get(name) * 1.0 / playerTotalGames.get(name)));
@@ -186,6 +218,7 @@ public class SeasonStats {
         int rank = 1;
 
         String name;
+        String teamName;
         double score;
         double reb;
         double ast;
@@ -193,24 +226,101 @@ public class SeasonStats {
         double blk;
         double perShotMade;
         double perShotAttempted;
+        double perThreeMade;
+        double perThreeAttempted;
+        double perFtMade;
+        double perFtAttempted;
 
         for (Map.Entry<String, Double> player : sortStats(table)) {
             // output each player's basic 5 stats, except for three mades per game ranking or free-throws per game
             if (!table.equals(playerPerThrees) && !table.equals(playerPerFts)) {
                 name = player.getKey();
+                teamName = playerTeamMap.getOrDefault(name, "");
                 score = playerPerScores.get(name);
                 reb = playerPerRebs.get(name);
                 ast = playerPerAsts.get(name);
                 stl = playerPerStls.get(name);
                 blk = playerPerBlks.get(name);
-                perShotMade = playerPerShotsMade.get(name);
-                perShotAttempted = playerPerShotsAttempted.get(name);
+                perShotMade = playerPerShotsMade.getOrDefault(name, 0.0);
+                perShotAttempted = playerPerShotsAttempted.getOrDefault(name, 0.0);
+                perThreeMade = playerPerThrees.getOrDefault(name, 0.0);
+                perThreeAttempted = playerPerThreesAttempted.getOrDefault(name, 0.0);
+                perFtMade = playerPerFts.getOrDefault(name, 0.0);
+                perFtAttempted = playerPerFtsAttempted.getOrDefault(name, 0.0);
+                double perMinutes = playerPerMinutesPlayed.getOrDefault(name, 0.0);
+                
+                // Translate team name if in Chinese mode
+                String teamDisplay = "";
+                if (!teamName.isEmpty()) {
+                    teamDisplay = LocalizedStrings.getCurrentLanguage() == LocalizedStrings.Language.CHINESE ?
+                                 Constants.translateToChinese(teamName) : teamName;
+                }
+                
+                // Get localized player name
+                String displayName = name;  // Default to Chinese name
+                if (LocalizedStrings.getCurrentLanguage() == LocalizedStrings.Language.ENGLISH) {
+                    displayName = playerEnglishNameMap.getOrDefault(name, name);
+                }
 
-                System.out.println(rank + " " + name + " " + score + "分 " + reb + "板 " + ast + "助 " + 
-                                   + stl + "断 " + blk + "帽  投篮" + perShotMade + "/" + perShotAttempted + " " +
-                                   String.format("%.2f", perShotMade * 100.0 / perShotAttempted) + "%");
+                // Build stats string
+                StringBuilder sb = new StringBuilder();
+                sb.append(rank).append(" ");
+                if (!teamDisplay.isEmpty()) {
+                    sb.append("(").append(teamDisplay).append(") ");
+                }
+                sb.append(displayName).append(" ");
+                
+                sb.append(score).append(LocalizedStrings.get("stat.points.short")).append(" ");
+                sb.append(reb).append(LocalizedStrings.get("stat.rebounds.short")).append(" ");
+                sb.append(ast).append(LocalizedStrings.get("stat.assists.short")).append(" ");
+                sb.append(stl).append(LocalizedStrings.get("stat.steals.short")).append(" ");
+                sb.append(blk).append(LocalizedStrings.get("stat.blocks.short")).append("  ");
+                
+                // Field goal stats
+                if (perShotAttempted > 0) {
+                    sb.append(LocalizedStrings.get("stat.fieldgoal.label"))
+                      .append(perShotMade).append("/").append(perShotAttempted).append(" ")
+                      .append(String.format("%.2f", perShotMade * 100.0 / perShotAttempted)).append("%  ");
+                } else {
+                    sb.append(LocalizedStrings.get("stat.fieldgoal.label")).append("0.0/0.0 0.00%  ");
+                }
+                
+                // Three-point stats
+                if (perThreeAttempted > 0) {
+                    sb.append(LocalizedStrings.get("stat.threepoint.label"))
+                      .append(perThreeMade).append("/").append(perThreeAttempted).append(" ")
+                      .append(String.format("%.2f", perThreeMade * 100.0 / perThreeAttempted)).append("%  ");
+                } else if (perThreeMade > 0) {
+                    // Player made 3s but attempted is 0 (shouldn't happen, but handle it)
+                    sb.append(LocalizedStrings.get("stat.threepoint.label"))
+                      .append(perThreeMade).append("/0.0 0.00%  ");
+                } else {
+                    sb.append(LocalizedStrings.get("stat.threepoint.label")).append("0.0  ");
+                }
+                
+                // Free throw stats
+                if (perFtAttempted > 0) {
+                    sb.append(LocalizedStrings.get("stat.freethrow.label"))
+                      .append(perFtMade).append("/").append(perFtAttempted).append(" ")
+                      .append(String.format("%.2f", perFtMade * 100.0 / perFtAttempted)).append("%  ");
+                } else {
+                    sb.append(LocalizedStrings.get("stat.freethrow.label")).append("0.0/0.0 0.00%  ");
+                }
+                
+                // Minutes played (at the end)
+                sb.append(LocalizedStrings.get("stat.minutes.long"))
+                  .append(String.format("%.1f", perMinutes))
+                  .append(" ")  // Add space before unit
+                  .append(LocalizedStrings.get("stat.minutes.short"));
+
+                System.out.println(sb.toString());
             } else {
-                System.out.println(rank + " " + player.getKey() + "  " + player.getValue());
+                // For Three-Pointers and Free Throws rankings, use English name in English mode
+                String playerName = player.getKey();
+                if (LocalizedStrings.getCurrentLanguage() == LocalizedStrings.Language.ENGLISH) {
+                    playerName = playerEnglishNameMap.getOrDefault(playerName, playerName);
+                }
+                System.out.println(rank + " " + playerName + "  " + player.getValue());
             }
 
             rank++;
@@ -228,7 +338,11 @@ public class SeasonStats {
         int rank = 1;
 
         for (Map.Entry<String, Double> team : sortStats(table)) {
-            System.out.println(rank + " " + team.getKey() + "  " + team.getValue());
+            // Translate team name if in Chinese mode
+            String teamDisplay = LocalizedStrings.getCurrentLanguage() == LocalizedStrings.Language.CHINESE ?
+                                Constants.translateToChinese(team.getKey()) : team.getKey();
+            
+            System.out.println(rank + " " + teamDisplay + "  " + team.getValue());
 
             rank++;
             if (rank > Constants.MAX_TEAM_RANK) break;
@@ -244,9 +358,13 @@ public class SeasonStats {
     public static void printStanding(Map<String, List<Integer>> standing, List<Map.Entry<String, Integer>> list) {
         int rank = 1;
         for (Map.Entry<String, Integer> team : list) {
+            // Translate team name if in Chinese mode
+            String teamDisplay = LocalizedStrings.getCurrentLanguage() == LocalizedStrings.Language.CHINESE ?
+                                Constants.translateToChinese(team.getKey()) : team.getKey();
+            
             double winRate = team.getValue() * 100.0 / (team.getValue() + standing.get(team.getKey()).get(1));
-            System.out.println(rank + " " + team.getKey() + ": " + team.getValue() + "-" + standing.get(team.getKey()).get(1)
-                               + "  胜率" + String.format("%.2f", winRate) + "%");
+            System.out.println(rank + " " + teamDisplay + " " + team.getValue() + "-" + standing.get(team.getKey()).get(1)
+                               + "  " + LocalizedStrings.get("stat.winrate") + String.format("%.2f", winRate) + "%");
             rank++;
         }
     }

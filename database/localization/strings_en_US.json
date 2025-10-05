@@ -1,0 +1,198 @@
+{
+    "stat": {
+        "points": {
+            "short": " Pts",
+            "long": "Points"
+        },
+        "rebounds": {
+            "short": " Reb",
+            "long": "Rebounds"
+        },
+        "assists": {
+            "short": " Ast",
+            "long": "Assists"
+        },
+        "steals": {
+            "short": " Stl",
+            "long": "Steals"
+        },
+        "blocks": {
+            "short": " Blk",
+            "long": "Blocks"
+        },
+        "minutes": {
+            "short": " Min",
+            "long": "Minutes Played"
+        },
+        "fieldgoal": {
+            "label": "FG ",
+            "pct": "FG%"
+        },
+        "threepoint": {
+            "label": "3P ",
+            "pct": "3P%"
+        },
+        "freethrow": {
+            "label": "FT ",
+            "pct": "FT%"
+        },
+        "winrate": " W%",
+        "wins": "W",
+        "losses": "L"
+    },
+    "game": {
+        "away": "Away",
+        "home": "Home",
+        "at": "@",
+        "recap": "Game Recap",
+        "finalscore": "Final Score",
+        "overtime": {
+            "suffix": "OT"
+        }
+    },
+    "playoff": {
+        "round": {
+            "first": " First Round",
+            "semi": " Semifinals",
+            "final": " Finals",
+            "championship": " Championship"
+        },
+        "game": {
+            "prefix": "G"
+        },
+        "recap": {
+            "series_result": "Series Result",
+            "series_mvp": "Series MVP",
+            "average": "Average",
+            "series_record": "Series",
+            "advance": " advances",
+            "champion": " wins the championship"
+        }
+    },
+    "playin": {
+        "7v8": " Play-in 7v8",
+        "9v10": " Play-in 9v10",
+        "final": " Play-in Final",
+        "final_battle": " Play-in 8th Seed Battle",
+        "secured": {
+            "7": "7th seed",
+            "8": "8th seed"
+        },
+        "advanced": "Advanced to 8th seed battle",
+        "advanced_final": "Advanced to final play-in game",
+        "eliminated": "Eliminated",
+        "winner": "Winner:",
+        "loser": "Loser:",
+        "summary": "Play-in Tournament Final Results",
+        "secured_prefix": "✅ Secured",
+        "eliminated_prefix": "❌ ",
+        "advance_prefix": "⏭️ ",
+        "final_seeds": "Final Playoff Seeds:",
+        "seed_label": " seed:",
+        "error": "Play-in error:"
+    },
+    "conference": {
+        "east": "Eastern",
+        "west": "Western",
+        "east_full": "Eastern Conference:",
+        "west_full": "Western Conference:",
+        "east_standings": "Eastern Conference Standings",
+        "west_standings": "Western Conference Standings"
+    },
+    "commentary": {
+        "distance": {
+            "feet": " feet "
+        },
+        "shot": {
+            "threepoint_suffix": " three-pointer",
+            "dunk_marker": "dunk",
+            "layup_marker": "layup"
+        },
+        "freethrow": {
+            "label": "Free throw",
+            "attempt_suffix": " of "
+        },
+        "rebound": {
+            "offensive": "offensive rebound",
+            "defensive": "defensive rebound"
+        },
+        "substitution": {
+            "replace": " replaces ",
+            "prefix": "Substitution"
+        },
+        "time": {
+            "quarter_prefix": "Q",
+            "quarter_suffix": "",
+            "overtime_prefix": "OT",
+            "seconds": "",
+            "quarter_end": " ends",
+            "current_score": "Current score:",
+            "game_start": " starts"
+        },
+        "regular_end": {
+            "time_up": "Regulation time is up",
+            "tied_prefix": "The score is tied at ",
+            "tied_suffix": "",
+            "overtime_start": "Overtime starts"
+        },
+        "game_end": {
+            "full_time": "Game over",
+            "final_score": "Final score:",
+            "congratulations": "Congratulations to ",
+            "win_by": " for defeating ",
+            "points_advantage": " by ",
+            "defeat": " points",
+            "quarter_details": "Score by quarters"
+        },
+        "player_status": {
+            "currently": "Currently ",
+            "fg_made": " for ",
+            "fg_total": " with ",
+            "points_suffix": " points!"
+        },
+        "player_stats": {
+            "points": " Pts",
+            "rebounds": " Reb",
+            "assists": " Ast",
+            "steals": " Stl",
+            "blocks": " Blk",
+            "turnovers": " TO",
+            "fouls": " PF",
+            "fieldgoals": "FG ",
+            "threepointers": "3PT ",
+            "freethrows": "FT ",
+            "playing_time": " Playing time",
+            "minutes": "m",
+            "seconds": "s",
+            "dnp": "************************** Did Not Play **************************"
+        },
+        "team_stats": {
+            "header": " Player Statistics",
+            "total": " Team Statistics"
+        }
+    },
+    "recap": {
+        "header": "Game Recap",
+        "series_result": "Series Result:",
+        "series_mvp": "Series MVP:",
+        "series_context": "Series",
+        "champion": "Championship",
+        "advance": "Advance",
+        "final_summary": "📋 Play-In Tournament Final Results",
+        "avg_stats": "Avg"
+    },
+    "leaderboard": {
+        "player_ppg": "Points Per Game Leaders",
+        "player_rpg": "Rebounds Per Game Leaders",
+        "player_apg": "Assists Per Game Leaders",
+        "player_spg": "Steals Per Game Leaders",
+        "player_bpg": "Blocks Per Game Leaders",
+        "player_ftmpg": "Free Throws Made Per Game Leaders",
+        "player_3pmpg": "Three-Pointers Made Per Game Leaders",
+        "team_ppg": "Team Points Per Game Leaders",
+        "team_papg": "Team Points Allowed Per Game Leaders",
+        "team_fgmpg": "Team Field Goals Made Per Game Leaders",
+        "team_fgpct": "Team Field Goal Percentage Leaders",
+        "team_3ppct": "Team Three-Point Percentage Leaders"
+    }
+}

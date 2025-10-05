@@ -6,6 +6,55 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 public class Utilities {
+    
+    /**
+     * Result enum for judgeLoseBall method
+     */
+    public enum LoseBallResult {
+        NO_LOSE_BALL,           // 0 - continue with possession
+        LOSE_BALL_NO_SCORE,     // 1 - turnover, steal without fast break, jump ball loss
+        LOSE_BALL_AND_SCORE,    // 2 - steal with successful fast break
+        JUMP_BALL_WIN           // 3 - win the jump ball, keep possession
+    }
+    
+    /**
+     * Result enum for judgeBlock method
+     */
+    public enum BlockResult {
+        NO_BLOCK,               // 0 - no block occurred
+        BLOCK_OFFENSIVE_REBOUND, // 1 - blocked but offense gets rebound or out of bounds
+        BLOCK_DEFENSIVE_REBOUND  // 2 - blocked and defense gets rebound
+    }
+    
+    /**
+     * Result enum for judgeNormalFoul method
+     */
+    public enum FoulResult {
+        NO_FOUL,                // 0 - no foul occurred
+        OFFENSIVE_FOUL,         // 1 - offensive foul (turnover)
+        DEFENSIVE_FOUL          // 2 - defensive foul (free throws if in bonus)
+    }
+    
+    /**
+     * Result enum for judgeMakeShot method
+     */
+    public enum ShotResult {
+        MADE_SHOT,              // 1 - made the shot (or made last free throw)
+        OFFENSIVE_REBOUND,      // 2 - missed shot, offense gets rebound
+        DEFENSIVE_REBOUND,      // 3 - missed shot, defense gets rebound (or successful challenge)
+        OUT_OF_BOUNDS           // 4 - shot went out of bounds
+    }
+    
+    /**
+     * Result enum for makeFreeThrow method
+     */
+    public enum FreeThrowResult {
+        ERROR,                  // 0 - should never happen
+        MADE_LAST_FREE_THROW,   // 1 - made the last free throw
+        OFFENSIVE_REBOUND,      // 2 - missed last free throw, offense gets rebound (or flagrant foul continuation)
+        DEFENSIVE_REBOUND       // 3 - missed last free throw, defense gets rebound
+    }
+    
     /**
      * Generate a random number from range [min, max].
      * 
@@ -15,7 +64,8 @@ public class Utilities {
      * @return A random number
      */
     public static int generateRandomNum(Random random, int min, int max) {
-        return random.nextInt(max) % (max - min + 1) + min;
+        if (min == max) return min;
+        return random.nextInt(max - min + 1) + min;
     }
 
     /**
@@ -128,7 +178,7 @@ public class Utilities {
         }
         double avgRating = totalRating * 1.0 / 5;
 
-        double[] poss = new double[4];
+        double[] poss = new double[5];
         String[] positions = {"C", "PF", "SF", "SG", "PG"};
 
         double poss1, poss2, poss3, poss4 = 0;
@@ -143,7 +193,7 @@ public class Utilities {
                 highestRating = Math.max(highestRating, p.rating);
 
             for (Player p : TeamOnCourt.values()) {
-                if (highestRating - p.rating <= Constants.RATING_RANGE && p.playerType != 2)
+                if (highestRating - p.rating <= Constants.RATING_RANGE && p.playerType != Player.PlayerType.INSIDER)
                     selectedPlayerList.offer(p);
             }
             
@@ -169,7 +219,7 @@ public class Utilities {
 
                 // clutch time, give star players with top-highest rating
                 if (currentQuarter >= 4 && quarterTime <= Constants.TIME_LEFT_CLUTCH
-                    && Math.abs(offenseTeam.totalScore - defenseTeam.totalScore) <= Constants.CLUTCH_DIFF) {
+                    && Math.abs(offenseTeam.totalScore - defenseTeam.totalScore) <= Constants.CLOSE_GAME_DIFF) {
                     if (generateRandomNum(random) <= Constants.CLUTCH_PERCENT && selectedPlayer.isStar) {
                         return selectedPlayer;
                     }
@@ -184,29 +234,50 @@ public class Utilities {
 
             for (int i = 0; i < poss.length; i++) {
                 String currentPos = positions[i];
-                poss[i] = (10 * (basePoss + major*TeamOnCourt.get(currentPos).rating + 
-                                minor*Math.max(TeamOnCourt.get(currentPos).insideRating, TeamOnCourt.get(currentPos).layupRating) +
-                                minor*Math.max(TeamOnCourt.get(currentPos).midRating, TeamOnCourt.get(currentPos).threeRating) +
-                                minor*TeamOnCourt.get(currentPos).offConst - avgRating ));
+                Player player = TeamOnCourt.get(currentPos);
+                if (player == null) {
+                    System.err.println("Warning: Missing player at position " + currentPos);
+                    poss[i] = 0;
+                    continue;
+                }
+                poss[i] = (10 * (basePoss + major*player.rating + 
+                                minor*Math.max(player.insideRating, player.layupRating) +
+                                minor*Math.max(player.midRating, player.threeRating) +
+                                minor*player.offConst - avgRating ));
             }
         } else {
             for (int i = 0; i < poss.length; i++) {
                 String currentPos = positions[i];
+                Player player = TeamOnCourt.get(currentPos);
+                if (player == null) {
+                    System.err.println("Warning: Missing player at position " + currentPos);
+                    poss[i] = 0;
+                    continue;
+                }
 
                 if (attr.equals("orb"))
-                    poss[i] = Math.max( (1000 * (Constants.REB_AST_SCALE * TeamOnCourt.get(currentPos).orbRating - avgRating) / totalRating), 0);
+                    poss[i] = Math.max( (1000 * (Constants.REB_AST_SCALE * player.orbRating - avgRating) / totalRating), 0);
                 else if (attr.equals("drb"))
-                    poss[i] = Math.max( (1000 * (Constants.REB_AST_SCALE * TeamOnCourt.get(currentPos).drbRating - avgRating) / totalRating), 0);
+                    poss[i] = Math.max( (1000 * (Constants.REB_AST_SCALE * player.drbRating - avgRating) / totalRating), 0);
                 else
-                    poss[i] = Math.max( (1000 * (Constants.REB_AST_SCALE * TeamOnCourt.get(currentPos).astRating - avgRating) / totalRating), 0);
+                    poss[i] = Math.max( (1000 * (Constants.REB_AST_SCALE * player.astRating - avgRating) / totalRating), 0);
             }
         }
         int pick = generateRandomNum(random, 1, 1000);
-        if (pick <= poss[0]) return TeamOnCourt.get("C");
-        else if (pick <= poss[0] + poss[1]) return TeamOnCourt.get("PF");
-        else if (pick <= poss[0] + poss[1] + poss[2]) return TeamOnCourt.get("SF");
-        else if (pick <= poss[0] + poss[1] + poss[2] + poss[3]) return TeamOnCourt.get("SG");
-        else return TeamOnCourt.get("PG");
+        if (pick <= poss[0] && TeamOnCourt.get("C") != null) return TeamOnCourt.get("C");
+        else if (pick <= poss[0] + poss[1] && TeamOnCourt.get("PF") != null) return TeamOnCourt.get("PF");
+        else if (pick <= poss[0] + poss[1] + poss[2] && TeamOnCourt.get("SF") != null) return TeamOnCourt.get("SF");
+        else if (pick <= poss[0] + poss[1] + poss[2] + poss[3] && TeamOnCourt.get("SG") != null) return TeamOnCourt.get("SG");
+        else if (TeamOnCourt.get("PG") != null) return TeamOnCourt.get("PG");
+        
+        // Fallback: return any non-null player
+        for (Player p : TeamOnCourt.values()) {
+            if (p != null) return p;
+        }
+        
+        // This should never happen, but return null as last resort
+        System.err.println("ERROR: No players found in TeamOnCourt map!");
+        return null;
     }
 
     /**
@@ -237,9 +308,9 @@ public class Utilities {
      * @param offensePlayer Offense player
      * @param defensePlayer Defense player
      * @param defenseTeamOnCourt Current defense players on the court
-     * @return 0 - no lose ball, 1 - lose ball but no score, 2 - loss ball and score, 3 - jump ball win
+     * @return LoseBallResult indicating the outcome
      */
-    public static int judgeLoseBall(Random random, Team defenseTeam, Map<String, Player> defenseTeamOnCourt, Player offensePlayer, Player defensePlayer) {
+    public static LoseBallResult judgeLoseBall(Random random, Team defenseTeam, Map<String, Player> defenseTeamOnCourt, Player offensePlayer, Player defensePlayer) {
         double range = 60 * Constants.STEAL_BASE + Constants.STEAL_RATING_SCALE * defensePlayer.stlRating
                         + Constants.STEAL_DEFENSE_SCALE * Math.max(defensePlayer.interiorDefense, defensePlayer.perimeterDefense)
                         + defensePlayer.athleticism;
@@ -255,29 +326,29 @@ public class Utilities {
         // chance to jump ball
         if (poss <= 1) {
             if (generateRandomNum(random) <= Constants.JUMP_BALL_PLAY) {
-                String winPlayer = jumpBall(random, offensePlayer.name, defensePlayer.name);
-                return winPlayer.equals(offensePlayer.name) ? 3 : 1;
+                String winPlayer = jumpBall(random, offensePlayer.getDisplayName(), defensePlayer.getDisplayName());
+                return winPlayer.equals(offensePlayer.getDisplayName()) ? LoseBallResult.JUMP_BALL_WIN : LoseBallResult.LOSE_BALL_NO_SCORE;
             }
         }
 
         // chance to turnover
         else if (poss <= 1 + Constants.TURNOVER) {
             offensePlayer.turnover++;
-            Comments.getTurnoverComment(offensePlayer.name);
-            return 1;
+            Comments.getTurnoverComment(offensePlayer.getDisplayName());
+            return LoseBallResult.LOSE_BALL_NO_SCORE;
         }
 
         // steal 
         else if (60 * poss <= 60 * (1 + Constants.TURNOVER) + range) {
             offensePlayer.turnover++;
             defensePlayer.steal++;
-            Comments.getStealComment(offensePlayer.name, defensePlayer.name);
+            Comments.getStealComment(offensePlayer.getDisplayName(), defensePlayer.getDisplayName());
 
             // low chance to start a non-fast-break play, high chance to start a fast break
             int fastBreak = generateRandomNum(random);
             if (fastBreak <= Constants.NON_FASTBREAK) {
-                Comments.getNonFastBreak(defenseTeam.name);
-                return 1;
+                Comments.getNonFastBreak(Constants.getLocalizedTeamName(defenseTeam.name));
+                return LoseBallResult.LOSE_BALL_NO_SCORE;
             } else {
                 int fastBreakTemp = generateRandomNum(random);
                 
@@ -295,15 +366,15 @@ public class Utilities {
                     else finisher = defenseTeamOnCourt.get( otherTeammate.get(3) );
                 }
 
-                Comments.getFastBreak(defenseTeam.name, finisher.name);
+                Comments.getFastBreak(Constants.getLocalizedTeamName(defenseTeam.name), finisher.getDisplayName());
                 defenseTeam.totalScore += 2;
                 finisher.score += 2;
                 finisher.shotMade++;
                 finisher.shotAttempted++;
             }
-            return 2;
+            return LoseBallResult.LOSE_BALL_AND_SCORE;
         }
-        return 0;
+        return LoseBallResult.NO_LOSE_BALL;
     }
 
     /**
@@ -314,9 +385,9 @@ public class Utilities {
      * @param defensePlayer Defense player
      * @param offenseTeamOnCourt Current offense players on the court
      * @param defenseTeamOnCourt Current defense players on the court
-     * @return 0 - no block  1 - block and offensive rebound  2 - block and defensive rebound
+     * @return BlockResult indicating the outcome
      */
-    public static int judgeBlock(Random random, int distance, Map<String, Player> offenseTeamOnCourt, Map<String, Player> defenseTeamOnCourt,
+    public static BlockResult judgeBlock(Random random, int distance, Map<String, Player> offenseTeamOnCourt, Map<String, Player> defenseTeamOnCourt,
                                  Player offensePlayer, Player defensePlayer) {
         double range = Constants.BLOCK_RATING_SCALE * defensePlayer.blkRating +
                         Math.max(defensePlayer.interiorDefense, defensePlayer.perimeterDefense) + defensePlayer.athleticism;
@@ -336,19 +407,19 @@ public class Utilities {
             offensePlayer.shotAttempted++;
             if (distance >= Constants.MIN_THREE_SHOT) offensePlayer.threeAttempted++;
             defensePlayer.block++;
-            Comments.getBlockComment(defensePlayer.name);
+            Comments.getBlockComment(defensePlayer.getDisplayName());
 
             // low chance to out of bound, high chance to go to rebound juding
             int outOfBound = generateRandomNum(random);
             if (outOfBound <= Constants.BLOCK_OUT_OF_BOUND) {
-                Comments.getOutOfBound(defensePlayer.name);
-                return 1;
+                Comments.getOutOfBound(defensePlayer.getDisplayName());
+                return BlockResult.BLOCK_OFFENSIVE_REBOUND;
             } else {
                 boolean stillOffense = judgeRebound(random, offenseTeamOnCourt, defenseTeamOnCourt);
-                return stillOffense ? 1 : 2;
+                return stillOffense ? BlockResult.BLOCK_OFFENSIVE_REBOUND : BlockResult.BLOCK_DEFENSIVE_REBOUND;
             }
         }
-        return 0;
+        return BlockResult.NO_BLOCK;
     }
 
     /**
@@ -383,7 +454,7 @@ public class Utilities {
                 rebounder = choosePlayerBasedOnRating(random, offenseTeamOnCourt, "orb");
             }
 
-            Comments.getReboundComment(rebounder.name, true);
+            Comments.getReboundComment(rebounder.getDisplayName(), true);
             rebounder.rebound++;
             return true;
         } else {
@@ -399,7 +470,7 @@ public class Utilities {
                 rebounder = choosePlayerBasedOnRating(random, defenseTeamOnCourt, "drb");
             }
 
-            Comments.getReboundComment(rebounder.name, false);
+            Comments.getReboundComment(rebounder.getDisplayName(), false);
             rebounder.rebound++;
             return false;
         }
@@ -415,12 +486,12 @@ public class Utilities {
      */
     public static void judgeFoulOut(Player previousPlayer, Team team, Map<String, Player> teamOnCourt) {
         if (previousPlayer.foul == 6 || previousPlayer.flagFoul == 2) {
-            Comments.getFoulOutComment(previousPlayer.name, previousPlayer.foul == 6 ? true : false);
+            Comments.getFoulOutComment(previousPlayer.getDisplayName(), previousPlayer.foul == 6 ? true : false);
             previousPlayer.canOnCourt = false;
 
             Player currentPlayer = findSubPlayer(previousPlayer, team);
             teamOnCourt.put(previousPlayer.position, currentPlayer);
-            Comments.getSubstituteComment(currentPlayer.name, previousPlayer.name);
+            Comments.getSubstituteComment(currentPlayer.getDisplayName(), previousPlayer.getDisplayName());
         }
     }
 
@@ -433,15 +504,21 @@ public class Utilities {
      * @param currentQuarter Current quarter number
      */
     public static void foulProtect(Player previousPlayer, Team team, Map<String, Player> teamOnCourt, int currentQuarter) {
-        if (previousPlayer.rotationType == 1 && 
+        if (previousPlayer.rotationType == Player.RotationType.STARTER && 
             ((currentQuarter == 1 && previousPlayer.foul == Constants.QUARTER1_PROTECT) ||
              (currentQuarter == 2 && previousPlayer.foul == Constants.QUARTER2_PROTECT) ||
              (currentQuarter == 3 && previousPlayer.foul == Constants.QUARTER3_PROTECT))) {
-            Comments.getFoulProtectComment(previousPlayer.name);
+            Comments.getFoulProtectComment(previousPlayer.getDisplayName());
 
             Player currentPlayer = findSubPlayer(previousPlayer, team);
+            
+            // Update on-court status
+            previousPlayer.isOnCourt = false;
+            currentPlayer.isOnCourt = true;
+            currentPlayer.currentStintSeconds = 0;
+            
             teamOnCourt.put(previousPlayer.position, currentPlayer);
-            Comments.getSubstituteComment(currentPlayer.name, previousPlayer.name);
+            Comments.getSubstituteComment(currentPlayer.getDisplayName(), previousPlayer.getDisplayName());
         }
     }
 
@@ -457,9 +534,9 @@ public class Utilities {
      * @param defenseTeamOnCourt Current defense players on the court
      * @param currentQuarter Current quarter number
      * @param quarterTime Times left in current quarter
-     * @return 0 - no foul, 1 - offensive foul, 2 - defensive foul
+     * @return FoulResult indicating the outcome
      */
-    public static int judgeNormalFoul(Random random, Map<String, Player> offenseTeamOnCourt, Map<String, Player> defenseTeamOnCourt,
+    public static FoulResult judgeNormalFoul(Random random, Map<String, Player> offenseTeamOnCourt, Map<String, Player> defenseTeamOnCourt,
                                       Player offensePlayer, Player defensePlayer, Team offenseTeam, Team defenseTeam, int currentQuarter,
                                       int quarterTime, Team team1, Team team2) {
         int poss = generateRandomNum(random);
@@ -471,7 +548,7 @@ public class Utilities {
             // high chance to foul on offensePlayer, small chance on teammates
             if (foulTemp <= Constants.SAME_POS) {
                 fouler = offensePlayer;
-                Comments.getOffensiveFoul(fouler.name, 1);
+                Comments.getOffensiveFoul(fouler.getDisplayName(), 1);
             } else {
                 List<String> otherTeammate = new ArrayList<>();
                 for (String pos : offenseTeamOnCourt.keySet()) 
@@ -481,30 +558,30 @@ public class Utilities {
                 else if (foulTemp <= Constants.SAME_POS + 2 * Constants.OTHER_POS) fouler = offenseTeamOnCourt.get( otherTeammate.get(1) );
                 else if (foulTemp <= Constants.SAME_POS + 3 * Constants.OTHER_POS) fouler = offenseTeamOnCourt.get( otherTeammate.get(2) );
                 else fouler = offenseTeamOnCourt.get( otherTeammate.get(3) );
-                Comments.getOffensiveFoul(fouler.name, 2);
+                Comments.getOffensiveFoul(fouler.getDisplayName(), 2);
             }
 
             // challenge the foul
             if (currentQuarter >= Constants.CHALLENGE_START_QUARTER && offenseTeam.canChallenge &&
                 generateRandomNum(random) <= Constants.FOUL_CHALLENGE) {
-                boolean isSuccessful = Comments.getChallengeComment(offenseTeam.name);
+                boolean isSuccessful = Comments.getChallengeComment(Constants.getLocalizedTeamName(offenseTeam.name));
                 offenseTeam.canChallenge = false;
                 
-                if (isSuccessful) return 0;
+                if (isSuccessful) return FoulResult.NO_FOUL;
             }
 
             fouler.turnover++;
             fouler.foul++;
             judgeFoulOut(fouler, offenseTeam, offenseTeamOnCourt);
             foulProtect(fouler, offenseTeam, offenseTeamOnCourt, currentQuarter);
-            return 1;
+            return FoulResult.OFFENSIVE_FOUL;
         } else if (poss <= Constants.OFF_FOUL + Constants.DEF_FOUL) {
             Player fouler;
 
             // high chance to foul on offensePlayer, small chance on teammates
             if (foulTemp <= Constants.SAME_POS) {
                 fouler = defensePlayer;
-                Comments.getDefensiveFoul(fouler.name, 1);
+                Comments.getDefensiveFoul(fouler.getDisplayName(), 1);
             } else {
                 List<String> otherTeammate = new ArrayList<>();
                 for (String pos : defenseTeamOnCourt.keySet()) 
@@ -514,16 +591,16 @@ public class Utilities {
                 else if (poss <= Constants.SAME_POS + 2 * Constants.OTHER_POS) fouler = defenseTeamOnCourt.get( otherTeammate.get(1) );
                 else if (poss <= Constants.SAME_POS + 3 * Constants.OTHER_POS) fouler = defenseTeamOnCourt.get( otherTeammate.get(2) );
                 else fouler = defenseTeamOnCourt.get( otherTeammate.get(3) );
-                Comments.getDefensiveFoul(fouler.name, 2);
+                Comments.getDefensiveFoul(fouler.getDisplayName(), 2);
             }
 
             // challenge the foul
             if (currentQuarter >= Constants.CHALLENGE_START_QUARTER && defenseTeam.canChallenge &&
                 generateRandomNum(random) <= Constants.FOUL_CHALLENGE) {
-                boolean isSuccessful = Comments.getChallengeComment(defenseTeam.name);
+                boolean isSuccessful = Comments.getChallengeComment(Constants.getLocalizedTeamName(defenseTeam.name));
                 defenseTeam.canChallenge = false;
                 
-                if (isSuccessful) return 0;
+                if (isSuccessful) return FoulResult.NO_FOUL;
             }
 
             fouler.foul++;
@@ -532,14 +609,14 @@ public class Utilities {
 
             defenseTeam.quarterFoul++;
             if (defenseTeam.quarterFoul >= 5) {
-                Comments.getReachFoulTimes(offenseTeam.name, defenseTeam.name);
+                Comments.getReachFoulTimes(Constants.getLocalizedTeamName(offenseTeam.name), Constants.getLocalizedTeamName(defenseTeam.name));
 
                 makeFreeThrow(random, offensePlayer, offenseTeamOnCourt, defenseTeamOnCourt, offenseTeam,
                               2, quarterTime, currentQuarter, team1, team2, false);
             }
-            return 2;
+            return FoulResult.DEFENSIVE_FOUL;
         }
-        return 0;
+        return FoulResult.NO_FOUL;
     }
 
     /**
@@ -572,24 +649,35 @@ public class Utilities {
      */
     public static Player findSubPlayer(Player previousPlayer, Team team) {
         Player currentPlayer = null;
+        Random random = new Random();
 
-        if (previousPlayer.rotationType == 1) {
+        if (previousPlayer.rotationType == Player.RotationType.STARTER) {
             if (team.benches.get( previousPlayer.position ).get(0).canOnCourt)
                 currentPlayer = team.benches.get( previousPlayer.position ).get(0);
 
             if (currentPlayer == null && team.rareBenches.containsKey(previousPlayer.position)) {
-                if (team.rareBenches.get( previousPlayer.position ).get(0).canOnCourt)
-                    currentPlayer = team.rareBenches.get( previousPlayer.position ).get(0);
+                List<Player> availableDeepBench = new ArrayList<>();
+                for (Player p : team.rareBenches.get(previousPlayer.position)) {
+                    if (p.canOnCourt) availableDeepBench.add(p);
+                }
+                if (!availableDeepBench.isEmpty()) {
+                    currentPlayer = availableDeepBench.get(generateRandomNum(random, 0, availableDeepBench.size() - 1));
+                }
             }
-        } else if (previousPlayer.rotationType == 2) {
+        } else if (previousPlayer.rotationType == Player.RotationType.BENCH) {
             if (team.starters.get( previousPlayer.position ).canOnCourt)
                 currentPlayer = team.starters.get( previousPlayer.position );
 
             if (currentPlayer == null && team.rareBenches.containsKey(previousPlayer.position)) {
-                if (team.rareBenches.get( previousPlayer.position ).get(0).canOnCourt)
-                    currentPlayer = team.rareBenches.get( previousPlayer.position ).get(0);
+                List<Player> availableDeepBench = new ArrayList<>();
+                for (Player p : team.rareBenches.get(previousPlayer.position)) {
+                    if (p.canOnCourt) availableDeepBench.add(p);
+                }
+                if (!availableDeepBench.isEmpty()) {
+                    currentPlayer = availableDeepBench.get(generateRandomNum(random, 0, availableDeepBench.size() - 1));
+                }
             }
-        } else if (previousPlayer.rotationType == 3) {
+        } else if (previousPlayer.rotationType == Player.RotationType.DEEP_BENCH) {
             if (team.starters.get( previousPlayer.position ).canOnCourt)
                 currentPlayer = team.starters.get( previousPlayer.position );
 
@@ -606,23 +694,36 @@ public class Utilities {
      * 
      * @param subBench Whether substitution is starter -> bench or bench -> starter
      * @param garbageFlag Whether rareBenches have been substituted
-     * @param teameOnCourt Team players on the court
+     * @param teamOnCourt Team players on the court
      */
     public static void makeSubstitutions(Team team, boolean subBench, boolean garbageFlag, Map<String, Player> teamOnCourt) {
+        Random random = new Random();
+        
         for (String pos : team.benches.keySet()) {
             Player previousPlayer = teamOnCourt.get(pos);
             Player currentPlayer = null;
 
             // subBench True: starter -> bench, False: bench -> starter
             if (subBench) {
-                if (garbageFlag && team.rareBenches.containsKey(pos) && team.rareBenches.get(pos).get(0).canOnCourt)
-                    currentPlayer = team.rareBenches.get(pos).get(0);
-                else currentPlayer = team.benches.get(pos).get(0);
+                if (garbageFlag && team.rareBenches.containsKey(pos)) {
+                    // Randomly select from available deep bench players
+                    List<Player> availableDeepBench = new ArrayList<>();
+                    for (Player p : team.rareBenches.get(pos)) {
+                        if (p.canOnCourt) availableDeepBench.add(p);
+                    }
+                    if (!availableDeepBench.isEmpty()) {
+                        currentPlayer = availableDeepBench.get(generateRandomNum(random, 0, availableDeepBench.size() - 1));
+                    } else {
+                        currentPlayer = team.benches.get(pos).get(0);
+                    }
+                } else {
+                    currentPlayer = team.benches.get(pos).get(0);
+                }
             } else {
                 currentPlayer = findSubPlayer(previousPlayer, team);
             }
 
-            Comments.getSubstituteComment(currentPlayer.name, previousPlayer.name);
+            Comments.getSubstituteComment(currentPlayer.getDisplayName(), previousPlayer.getDisplayName());
             teamOnCourt.put(pos, currentPlayer);
             currentPlayer.hasBeenOnCourt = true;
         }
@@ -640,8 +741,16 @@ public class Utilities {
                                   Map<String, Player> teamOneOnCourt, Map<String, Player> teamTwoOnCourt) {
         String currentPossess = team1.hasBall ? team1.name : team2.name;
         Comments.getTimeOutComment(currentPossess);
-        makeSubstitutions(team1, subBench, garbageFlag, teamOneOnCourt);
-        makeSubstitutions(team2, subBench, garbageFlag, teamTwoOnCourt);
+        
+        // Randomize substitution order to avoid identical playing times
+        Random random = new Random();
+        if (random.nextBoolean()) {
+            makeSubstitutions(team1, subBench, garbageFlag, teamOneOnCourt);
+            makeSubstitutions(team2, subBench, garbageFlag, teamTwoOnCourt);
+        } else {
+            makeSubstitutions(team2, subBench, garbageFlag, teamTwoOnCourt);
+            makeSubstitutions(team1, subBench, garbageFlag, teamOneOnCourt);
+        }
     }
 
     /**
@@ -654,25 +763,25 @@ public class Utilities {
         int distance = 0;
         int shotChoice = generateRandomNum(random);
         switch (offensePlayer.playerType) {
-            case 1:
+            case ALL_ROUNDED:
                 distance = generateRandomNum(random, Constants.MIN_CLOSE_SHOT, Constants.MAX_THREE_SHOT);
                 break;
-            case 2:
+            case INSIDER:
                 distance = generateRandomNum(random, Constants.MIN_CLOSE_SHOT, Constants.MAX_CLOSE_SHOT);
                 break;
-            case 3:
+            case MID_RANGE:
                 distance = generateRandomNum(random, Constants.MIN_CLOSE_SHOT, Constants.MID_THREE_SHOT);
                 if (distance >= Constants.MIN_MID_SHOT && generateRandomNum(random) <= Constants.TYPE3_PERCENT) 
                     distance -= (Constants.MIN_MID_SHOT - Constants.MIN_CLOSE_SHOT);
                 break;
-            case 4:
+            case INSIDE_OUTSIDE:
                 if (shotChoice <= Constants.TYPE4_CLOSE_SHOT)
                     distance = generateRandomNum(random, Constants.MIN_CLOSE_SHOT, Constants.MAX_CLOSE_SHOT);
                 else if (shotChoice <= Constants.TYPE4_CLOSE_SHOT + Constants.TYPE4_MID_SHOT)
                     distance = generateRandomNum(random, Constants.MIN_MID_SHOT, Constants.MIN_MID_SHOT);
                 else distance = generateRandomNum(random, Constants.MIN_THREE_SHOT, Constants.MAX_THREE_SHOT);
                 break;
-            case 5:
+            case OUTSIDER:
                 if (shotChoice <= Constants.TYPE5_CLOSE_SHOT)
                     distance = generateRandomNum(random, Constants.MIN_CLOSE_SHOT, Constants.MAX_CLOSE_SHOT);
                 else if (shotChoice <= Constants.TYPE5_CLOSE_SHOT + Constants.TYPE5_MID_SHOT)
@@ -711,8 +820,8 @@ public class Utilities {
                           + Constants.INIT_THREE_SHOT_INTCP;
 
         // based on shot choice, adjust percentage
-        if (movement.contains("扣")) percentage *= Constants.DUNK_SCALE;
-        else if (movement.contains("篮")) percentage += Constants.SHOT_COFF * offensePlayer.layupRating;
+        if (movement.contains(LocalizedStrings.get("commentary.shot.dunk_marker"))) percentage *= Constants.DUNK_SCALE;
+        else if (movement.contains(LocalizedStrings.get("commentary.shot.layup_marker"))) percentage += Constants.SHOT_COFF * offensePlayer.layupRating;
         else {
             if (distance <= Constants.MAX_CLOSE_SHOT) percentage += Constants.SHOT_COFF * (offensePlayer.insideRating - Constants.OFFENSE_BASE);
             else if (distance <= Constants.MAX_MID_SHOT) percentage += Constants.SHOT_COFF * (offensePlayer.midRating - Constants.OFFENSE_BASE);
@@ -737,10 +846,16 @@ public class Utilities {
         // athleticism
         percentage += Constants.ATHLETIC_COFF * (offensePlayer.athleticism - defensePlayer.athleticism);
 
-        // clutch time
-        if (!offensePlayer.isMrClutch && currentQuarter >= 4
-            && Math.abs(team1.totalScore - team2.totalScore) <= Constants.CLUTCH_DIFF && quarterTime <= Constants.TIME_LEFT_CLUTCH) 
-                percentage *= Constants.CLUTCH_SHOT_COFF;
+        // clutch time penalty with linear decay based on offensive consistency
+        // Higher offConst = less penalty (closer to 1.0), lower offConst = more penalty (closer to CLUTCH_SHOT_COFF)
+        if (currentQuarter >= 4
+            && Math.abs(team1.totalScore - team2.totalScore) <= Constants.CLOSE_GAME_DIFF && quarterTime <= Constants.TIME_LEFT_CLUTCH) {
+            // Linear interpolation: at offConst=25, use full penalty (0.6); at offConst=99, use minimal penalty (1.0)
+            // Formula: penalty = CLUTCH_SHOT_COFF + (1.0 - CLUTCH_SHOT_COFF) * (offConst - 25) / (99 - 25)
+            double clutchPenalty = Constants.CLUTCH_SHOT_COFF + 
+                                  (1.0 - Constants.CLUTCH_SHOT_COFF) * (offensePlayer.offConst - 25) / 74.0;
+            percentage *= clutchPenalty;
+        }
         
         return percentage;
     }
@@ -759,9 +874,9 @@ public class Utilities {
      * @param quarterTime Times left in current quarter
      * @param movement Shot choice string
      * @param percentage Shot goal percentage
-     * @return 1 - make the shot or make the last free throw  2 - offensive rebound  3 - defensive rebound  4 - out of bound
+     * @return ShotResult indicating the outcome
      */
-    public static int judgeMakeShot(Random random, int distance, Player offensePlayer, Player defensePlayer, Team offenseTeam, 
+    public static ShotResult judgeMakeShot(Random random, int distance, Player offensePlayer, Player defensePlayer, Team offenseTeam, 
                                     Team defenseTeam, Map<String, Player> offenseTeamOnCourt, Map<String, Player> defenseTeamOnCourt,
                                     double percentage, int quarterTime, int currentQuarter, Team team1, Team team2, String movement) {
         int judgeShot = generateRandomNum(random, 1, 10000);
@@ -782,7 +897,7 @@ public class Utilities {
                 offenseTeam.totalScore += 2;
             }
 
-            Comments.getMakeShotsComment(offensePlayer.name, defensePlayer.name, distance, movement);
+            Comments.getMakeShotsComment(offensePlayer.getDisplayName(), defensePlayer.getDisplayName(), distance, movement);
             if (generateRandomNum(random) <= Constants.STATUS_COMMENT_PERCENT) Comments.getStatusComment(offensePlayer, true);
             Comments.getTimeAndScore(quarterTime, currentQuarter, team1, team2);
 
@@ -835,14 +950,15 @@ public class Utilities {
 
             if (andOneTemp <= drawFoulPercent) {
                 defensePlayer.foul++;
-                Comments.getAndOneComment(offensePlayer.name);
+                Comments.getAndOneComment(offensePlayer.getDisplayName());
                 judgeFoulOut(defensePlayer, defenseTeam, defenseTeamOnCourt);
                 foulProtect(defensePlayer, defenseTeam, defenseTeamOnCourt, currentQuarter);
-                int andOneResult = makeFreeThrow(random, offensePlayer, offenseTeamOnCourt, defenseTeamOnCourt, offenseTeam, 1,
+                FreeThrowResult andOneResult = makeFreeThrow(random, offensePlayer, offenseTeamOnCourt, defenseTeamOnCourt, offenseTeam, 1,
                                                  quarterTime, currentQuarter, team1, team2, false);
-                return andOneResult;
+                // Convert FreeThrowResult to ShotResult
+                return convertFreeThrowToShotResult(andOneResult);
             }
-            return 1;
+            return ShotResult.MADE_SHOT;
         }
 
         // miss the shot
@@ -855,23 +971,24 @@ public class Utilities {
                 // flagrant foul
                 if (generateRandomNum(random) <= Constants.FLAG_FOUL) {
                     defensePlayer.flagFoul++;
-                    Comments.getFlagFoulComment(offensePlayer.name, defensePlayer.name);
+                    Comments.getFlagFoulComment(offensePlayer.getDisplayName(), defensePlayer.getDisplayName());
                     judgeFoulOut(defensePlayer, defenseTeam, defenseTeamOnCourt);
 
                     // two free throws, one shot
-                    return makeFreeThrow(random, offensePlayer, offenseTeamOnCourt, defenseTeamOnCourt,
+                    FreeThrowResult flagrantResult = makeFreeThrow(random, offensePlayer, offenseTeamOnCourt, defenseTeamOnCourt,
                                          offenseTeam, 2, quarterTime, currentQuarter, team1, team2, true);
+                    return convertFreeThrowToShotResult(flagrantResult);
                 }
 
-                Comments.getFoulComment(offensePlayer.name, defensePlayer.name);
+                Comments.getFoulComment(offensePlayer.getDisplayName(), defensePlayer.getDisplayName());
 
                 // challenge the foul
                 if (currentQuarter >= Constants.CHALLENGE_START_QUARTER && defenseTeam.canChallenge &&
                     generateRandomNum(random) <= Constants.FOUL_CHALLENGE) {
-                    boolean isSuccessful = Comments.getChallengeComment(defenseTeam.name);
+                    boolean isSuccessful = Comments.getChallengeComment(Constants.getLocalizedTeamName(defenseTeam.name));
                     defenseTeam.canChallenge = false;
                     
-                    if (isSuccessful) return 3;
+                    if (isSuccessful) return ShotResult.DEFENSIVE_REBOUND;
                 }
 
                 defensePlayer.foul++;
@@ -880,28 +997,44 @@ public class Utilities {
                 judgeFoulOut(defensePlayer, defenseTeam, defenseTeamOnCourt);
                 foulProtect(defensePlayer, defenseTeam, defenseTeamOnCourt, currentQuarter);
 
-                int freeThrowResult = 0;
+                FreeThrowResult freeThrowResult;
                 if (distance <= Constants.MAX_MID_SHOT) 
                     freeThrowResult = makeFreeThrow(random, offensePlayer, offenseTeamOnCourt, defenseTeamOnCourt,
                                                     offenseTeam, 2, quarterTime, currentQuarter, team1, team2, false);
                 else freeThrowResult = makeFreeThrow(random, offensePlayer, offenseTeamOnCourt, defenseTeamOnCourt,
                                                      offenseTeam, 3, quarterTime, currentQuarter, team1, team2, false);
 
-                return freeThrowResult;
+                return convertFreeThrowToShotResult(freeThrowResult);
             }
 
             offensePlayer.shotAttempted++;
             if (distance >= 23) offensePlayer.threeAttempted++;
-            Comments.getMissShotsComment(movement, offensePlayer.name);
+            Comments.getMissShotsComment(movement, offensePlayer.getDisplayName());
             if (generateRandomNum(random) <= Constants.STATUS_COMMENT_PERCENT) Comments.getStatusComment(offensePlayer, false);
 
             // shot out of bound
             if (generateRandomNum(random) <= Constants.SHOT_OUT_OF_BOUND) {
-                Comments.shotOutOfBound(offensePlayer.name);
-                return 4;
+                Comments.shotOutOfBound(offensePlayer.getDisplayName());
+                return ShotResult.OUT_OF_BOUNDS;
             }
 
-            return judgeRebound(random, offenseTeamOnCourt, defenseTeamOnCourt) ? 2 : 3;
+            return judgeRebound(random, offenseTeamOnCourt, defenseTeamOnCourt) ? ShotResult.OFFENSIVE_REBOUND : ShotResult.DEFENSIVE_REBOUND;
+        }
+    }
+    
+    /**
+     * Helper method to convert FreeThrowResult to ShotResult
+     */
+    private static ShotResult convertFreeThrowToShotResult(FreeThrowResult freeThrowResult) {
+        switch (freeThrowResult) {
+            case MADE_LAST_FREE_THROW:
+                return ShotResult.MADE_SHOT;
+            case OFFENSIVE_REBOUND:
+                return ShotResult.OFFENSIVE_REBOUND;
+            case DEFENSIVE_REBOUND:
+                return ShotResult.DEFENSIVE_REBOUND;
+            default:
+                return ShotResult.DEFENSIVE_REBOUND; // Fallback
         }
     }
 
@@ -949,15 +1082,15 @@ public class Utilities {
      * @param quarterTime Times left in current quarter
      * @param times Total free throw times
      * @param isFlagFoul Whether current foul is flagrant foul or not
-     * @return 1 - make the last free throw  2 - offensive rebound  3 - defensive rebound
+     * @return FreeThrowResult indicating the outcome
      */
-    public static int makeFreeThrow(Random random, Player player, Map<String, Player> offenseTeamOnCourt, Map<String, Player> defenseTeamOnCourt,
+    public static FreeThrowResult makeFreeThrow(Random random, Player player, Map<String, Player> offenseTeamOnCourt, Map<String, Player> defenseTeamOnCourt,
                                     Team offenseTeam, int times, int quarterTime, int currentQuarter, Team team1, Team team2, boolean isFlagFoul) {
         int timesLeft = times;
         boolean onlyOneShot = timesLeft == 1 ? true : false;
         int count = 0;
 
-        Comments.getFreeThrowPrepareComment(player.name);
+        Comments.getFreeThrowPrepareComment(player.getDisplayName());
 
         while (timesLeft > 0) {
             timesLeft--;
@@ -971,17 +1104,17 @@ public class Utilities {
                 Comments.getMakeFreeThrowComment(count, onlyOneShot);
                 Comments.getTimeAndScore(quarterTime, currentQuarter, team1, team2);
 
-                if (timesLeft == 0) return isFlagFoul ? 2 : 1;
+                if (timesLeft == 0) return isFlagFoul ? FreeThrowResult.OFFENSIVE_REBOUND : FreeThrowResult.MADE_LAST_FREE_THROW;
             } else {
                 player.freeThrowAttempted++;
                 Comments.getMissFreeThrowComment(count, onlyOneShot);
 
                 if (timesLeft == 0) 
-                    return isFlagFoul ? 2
-                                      : judgeRebound(random, offenseTeamOnCourt, defenseTeamOnCourt) ? 2 : 3;
+                    return isFlagFoul ? FreeThrowResult.OFFENSIVE_REBOUND
+                                      : judgeRebound(random, offenseTeamOnCourt, defenseTeamOnCourt) ? FreeThrowResult.OFFENSIVE_REBOUND : FreeThrowResult.DEFENSIVE_REBOUND;
             }
         }
-        return 0;
+        return FreeThrowResult.ERROR;
     }
 
     /**
@@ -996,10 +1129,11 @@ public class Utilities {
             if (generateRandomNum(random, 1, 1000000) <= 200 - teamOnCourt.get(pos).durability) {
                 Player previousPlayer = teamOnCourt.get(pos);
                 Player currentPlayer = findSubPlayer(previousPlayer, team);
+                
                 previousPlayer.canOnCourt = false;
                 teamOnCourt.put(previousPlayer.position, currentPlayer);
-                Comments.getInjuryComment(previousPlayer.name);
-                Comments.getSubstituteComment(currentPlayer.name, previousPlayer.name);
+                Comments.getInjuryComment(previousPlayer.getDisplayName());
+                Comments.getSubstituteComment(currentPlayer.getDisplayName(), previousPlayer.getDisplayName());
                 return true;
             }
         }
@@ -1031,5 +1165,387 @@ public class Utilities {
     public static void updateQuarterScores(List<Integer> team1Scores, List<Integer> team2Scores, int totalScore1, int totalScore2) {
         team1Scores.add(totalScore1);
         team2Scores.add(totalScore2);
+    }
+    
+    /**
+     * Intelligent substitution system that evaluates multiple factors
+     * 
+     * @param team Team to check for substitutions
+     * @param teamOnCourt Current players on court
+     * @param currentQuarter Current quarter (1-4 for regulation, 5+ for OT)
+     * @param quarterTime Seconds remaining in quarter
+     * @param gameTime Total seconds elapsed in game (for fatigue tracking)
+     * @param team1 Team 1 reference (for score differential)
+     * @param team2 Team 2 reference (for score differential)
+     * @param isGarbageTime Whether the game is in garbage time
+     * @return true if substitutions were made, false otherwise
+     */
+    public static boolean checkIntelligentSubstitutions(Random random, Team team, Map<String, Player> teamOnCourt,
+                                                       int currentQuarter, int quarterTime, int gameTime,
+                                                       Team team1, Team team2, boolean isGarbageTime) {
+        // Garbage time: prioritize giving deep bench players minutes
+        if (isGarbageTime) {
+            return checkGarbageTimeSubstitutions(random, team, teamOnCourt);
+        }
+        
+        // Q1 first 6 minutes: Keep all starters in (unless fouled out or injured)
+        if (currentQuarter == 1 && quarterTime > 360) {
+            return false; // No substitutions in first 6 minutes of Q1
+        }
+        
+        // Overtime: only play starters unless injured/fouled out
+        if (currentQuarter >= 5) {
+            return checkOvertimeSubstitutions(team, teamOnCourt);
+        }
+        
+        boolean madeSubs = false;
+        int scoreDiff = Math.abs(team1.totalScore - team2.totalScore);
+        boolean isClutchTime = currentQuarter == 4 && quarterTime <= Constants.TIME_LEFT_CLUTCH && scoreDiff <= 8;
+        boolean isCloseGame = scoreDiff <= Constants.CLOSE_GAME_DIFF;
+        
+        // Clutch time: keep best players in
+        if (isClutchTime) {
+            return ensureStartersInClutch(team, teamOnCourt);
+        }
+        
+        // Proactively check if rested starters with safe foul situation can return (25% chance)
+        // This ensures foul-protected starters don't sit too long
+        if (generateRandomNum(random, 1, 100) < 25) {
+            for (String pos : team.starters.keySet()) {
+                Player starter = team.starters.get(pos);
+                Player currentPlayer = teamOnCourt.get(pos);
+                
+                if (starter != null && starter.canOnCourt && !starter.isOnCourt && 
+                    currentPlayer.rotationType != Player.RotationType.STARTER) {
+                    
+                    int restTime = gameTime - starter.lastSubbedOutTime;
+                    int minRest = isCloseGame ? 60 : Constants.MIN_REST_TIME;
+                    int targetMinutes = getTargetMinutes(starter);
+                    
+                    // If starter has rested enough, is under target minutes, AND foul situation is safe
+                    if (restTime >= minRest && starter.secondsPlayed < targetMinutes && isFoulSituationSafe(starter, currentQuarter)) {
+                        teamOnCourt.put(pos, starter);
+                        currentPlayer.isOnCourt = false;
+                        currentPlayer.lastSubbedOutTime = gameTime;
+                        currentPlayer.currentStintSeconds = 0;
+                        
+                        starter.isOnCourt = true;
+                        starter.hasBeenOnCourt = true;
+                        starter.currentStintSeconds = 0;
+                        
+                        Comments.getSubstituteComment(starter.getDisplayName(), currentPlayer.getDisplayName());
+                        return true; // Successfully brought back a starter
+                    }
+                }
+            }
+        }
+        
+        // Random chance to check for substitutions (15% chance per possession)
+        // This spreads out substitutions naturally instead of clustering them
+        if (generateRandomNum(random, 1, 100) >= 15) {
+            return false; // Skip this substitution check
+        }
+        
+        // Find ONE player who most needs to be subbed
+        String posToSub = null;
+        int highestPriority = 0;
+        
+        for (String pos : teamOnCourt.keySet()) {
+            Player currentPlayer = teamOnCourt.get(pos);
+            int priority = 0;
+            
+            // Critical: foul trouble (highest priority)
+            if (shouldSubForFoulTrouble(currentPlayer, currentQuarter)) {
+                priority = 100;
+            }
+            // High: fatigue
+            else if (shouldSubForFatigue(currentPlayer, isCloseGame)) {
+                priority = 50 + (int)(currentPlayer.currentStintSeconds / 60); // More tired = higher priority
+            }
+            // High: minutes cap - dynamic based on durability for starters
+            else if (currentPlayer.secondsPlayed >= getTargetMinutes(currentPlayer)) {
+                priority = 80;
+            }
+            // Medium: performance (cold shooter - only if not close game)
+            else if (!isCloseGame && shouldSubForPerformance(currentPlayer)) {
+                priority = 30;
+            }
+            
+            if (priority > highestPriority) {
+                highestPriority = priority;
+                posToSub = pos;
+            }
+        }
+        
+        // Make ONE substitution if needed
+        if (posToSub != null && highestPriority > 0) {
+            Player currentPlayer = teamOnCourt.get(posToSub);
+            Player newPlayer = findBestSubstitute(team, currentPlayer, gameTime, isCloseGame, currentQuarter);
+            
+            if (newPlayer != null && newPlayer != currentPlayer) {
+                teamOnCourt.put(posToSub, newPlayer);
+                currentPlayer.isOnCourt = false;
+                currentPlayer.lastSubbedOutTime = gameTime;
+                currentPlayer.currentStintSeconds = 0;
+                
+                newPlayer.isOnCourt = true;
+                newPlayer.hasBeenOnCourt = true;
+                newPlayer.currentStintSeconds = 0;
+                
+                Comments.getSubstituteComment(newPlayer.getDisplayName(), currentPlayer.getDisplayName());
+                madeSubs = true;
+            }
+        }
+        
+        return madeSubs;
+    }
+    
+    /**
+     * Check if player should be subbed due to foul trouble
+     */
+    private static boolean shouldSubForFoulTrouble(Player player, int currentQuarter) {
+        if (currentQuarter == 1 && player.foul >= Constants.QUARTER1_PROTECT) return true;
+        if (currentQuarter == 2 && player.foul >= Constants.QUARTER2_PROTECT) return true;
+        if (currentQuarter >= 3 && player.foul >= Constants.QUARTER3_PROTECT) return true;
+        return false;
+    }
+    
+    /**
+     * Check if player's foul situation is safe for the current quarter
+     * (opposite of shouldSubForFoulTrouble - checks if it's safe to bring them back)
+     */
+    private static boolean isFoulSituationSafe(Player player, int currentQuarter) {
+        // In Q1, safe if less than 2 fouls
+        if (currentQuarter == 1) return player.foul < Constants.QUARTER1_PROTECT;
+        // In Q2, safe if less than 4 fouls (player with 2-3 fouls can come back)
+        if (currentQuarter == 2) return player.foul < Constants.QUARTER2_PROTECT;
+        // In Q3+, safe if less than 5 fouls (player with 2-4 fouls can come back)
+        if (currentQuarter >= 3) return player.foul < Constants.QUARTER3_PROTECT;
+        return true;
+    }
+    
+    /**
+     * Calculate target minutes for a starter based on durability
+     * High durability (90-99): ~32 minutes
+     * Medium durability (80-89): ~30 minutes  
+     * Low durability (70-79): ~28 minutes
+     * Very low durability (<70): ~26 minutes
+     */
+    private static int getTargetMinutes(Player player) {
+        if (player.rotationType != Player.RotationType.STARTER) {
+            return 39 * 60; // Bench players use default high limit
+        }
+        
+        int durability = player.durability;
+        if (durability >= 90) return 32 * 60;      // 1920 seconds
+        else if (durability >= 80) return 30 * 60; // 1800 seconds
+        else if (durability >= 70) return 28 * 60; // 1680 seconds
+        else return 26 * 60;                       // 1560 seconds
+    }
+    
+    /**
+     * Check if player should be subbed due to fatigue
+     */
+    private static boolean shouldSubForFatigue(Player player, boolean isCloseGame) {
+        // Starters: rest after 5-6 minute stints (to control total minutes)
+        if (player.rotationType == Player.RotationType.STARTER) {
+            int maxStint = isCloseGame ? 6 * 60 : 5 * 60;  // Shorter stints to control total minutes
+            return player.currentStintSeconds >= maxStint;
+        }
+        // Bench: rest after 5 minute stints
+        else if (player.rotationType == Player.RotationType.BENCH) {
+            return player.currentStintSeconds >= Constants.MAX_BENCH_STINT;
+        }
+        return false;
+    }
+    
+    /**
+     * Check if player should be subbed due to poor performance (cold shooting)
+     */
+    private static boolean shouldSubForPerformance(Player player) {
+        // Only sub if player has taken enough shots and is shooting poorly
+        if (player.shotAttempted >= Constants.MIN_SHOTS_FOR_HOT) {
+            double shotPct = (double) player.shotMade / player.shotAttempted;
+            // Keep hot shooters in (70%+), sub cold shooters out (<30%)
+            if (shotPct < 0.3) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Find best available substitute for a player
+     */
+    private static Player findBestSubstitute(Team team, Player currentPlayer, int gameTime, boolean isCloseGame, int currentQuarter) {
+        String pos = currentPlayer.position;
+        Player.RotationType currentRotation = currentPlayer.rotationType;
+        
+        // Priority 1: Bring back starters if they've rested enough AND foul situation is safe
+        if (currentRotation == Player.RotationType.BENCH || currentRotation == Player.RotationType.DEEP_BENCH) {
+            Player starter = team.starters.get(pos);
+            if (starter != null && starter.canOnCourt && !starter.isOnCourt) {
+                int restTime = gameTime - starter.lastSubbedOutTime;
+                int minRest = isCloseGame ? 60 : Constants.MIN_REST_TIME;  // Shorter rest in close games
+                
+                // Check if starter has rested enough, is under minutes cap, AND foul situation is safe
+                if (restTime >= minRest && starter.secondsPlayed < 2340 && isFoulSituationSafe(starter, currentQuarter)) {
+                    return starter;
+                }
+            }
+        }
+        
+        // Priority 2: Rotate to bench if starter needs rest
+        if (currentRotation == Player.RotationType.STARTER) {
+            if (team.benches.containsKey(pos)) {
+                for (Player benchPlayer : team.benches.get(pos)) {
+                    if (benchPlayer.canOnCourt && !benchPlayer.isOnCourt) {
+                        // Check if bench player hasn't played too much
+                        int targetMinutes = Constants.BENCH_TARGET_MINUTES;
+                        if (benchPlayer.secondsPlayed < targetMinutes + 300) {  // +5 min buffer
+                            return benchPlayer;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Priority 3: Use deep bench if regular bench is tired
+        if (currentRotation == Player.RotationType.BENCH) {
+            if (team.rareBenches.containsKey(pos)) {
+                // Randomly select from available deep bench players
+                List<Player> availableDeepBench = new ArrayList<>();
+                for (Player deepBench : team.rareBenches.get(pos)) {
+                    if (deepBench.canOnCourt && !deepBench.isOnCourt) {
+                        availableDeepBench.add(deepBench);
+                    }
+                }
+                if (!availableDeepBench.isEmpty()) {
+                    Random random = new Random();
+                    return availableDeepBench.get(generateRandomNum(random, 0, availableDeepBench.size() - 1));
+                }
+            }
+        }
+        
+        // No substitute found, keep current player
+        return currentPlayer;
+    }
+    
+    /**
+     * Ensure starters are in during clutch time
+     */
+    private static boolean ensureStartersInClutch(Team team, Map<String, Player> teamOnCourt) {
+        // Find ONE non-starter to replace with a starter
+        for (String pos : team.starters.keySet()) {
+            Player starter = team.starters.get(pos);
+            Player currentPlayer = teamOnCourt.get(pos);
+            
+            // If starter is available and not on court, put them in
+            if (starter.canOnCourt && !starter.isOnCourt && currentPlayer != starter) {
+                teamOnCourt.put(pos, starter);
+                currentPlayer.isOnCourt = false;
+                starter.isOnCourt = true;
+                starter.hasBeenOnCourt = true;
+                
+                Comments.getSubstituteComment(starter.getDisplayName(), currentPlayer.getDisplayName());
+                return true; // Only sub ONE player per call
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Handle garbage time substitutions - give deep bench players minutes
+     * More aggressive substitution rate to ensure all deep bench get playing time
+     */
+    private static boolean checkGarbageTimeSubstitutions(Random random, Team team, Map<String, Player> teamOnCourt) {
+        // Higher chance (50%) to check for substitutions in garbage time
+        if (generateRandomNum(random, 1, 100) >= 50) {
+            return false;
+        }
+        
+        // Find starters or regular bench players still on court
+        for (String pos : teamOnCourt.keySet()) {
+            Player currentPlayer = teamOnCourt.get(pos);
+            
+            // If there's a starter or regular bench on court, try to sub them with deep bench
+            if (currentPlayer.rotationType == Player.RotationType.STARTER || 
+                currentPlayer.rotationType == Player.RotationType.BENCH) {
+                
+                // Try to find an available deep bench player
+                if (team.rareBenches.containsKey(pos)) {
+                    List<Player> availableDeepBench = new ArrayList<>();
+                    for (Player deepBench : team.rareBenches.get(pos)) {
+                        if (deepBench.canOnCourt && !deepBench.isOnCourt) {
+                            availableDeepBench.add(deepBench);
+                        }
+                    }
+                    
+                    if (!availableDeepBench.isEmpty()) {
+                        Player newPlayer = availableDeepBench.get(generateRandomNum(random, 0, availableDeepBench.size() - 1));
+                        
+                        teamOnCourt.put(pos, newPlayer);
+                        currentPlayer.isOnCourt = false;
+                        newPlayer.isOnCourt = true;
+                        newPlayer.hasBeenOnCourt = true;
+                        newPlayer.currentStintSeconds = 0;
+                        
+                        Comments.getSubstituteComment(newPlayer.getDisplayName(), currentPlayer.getDisplayName());
+                        return true; // Only sub ONE player per call
+                    }
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Handle overtime substitutions - only starters play unless injured/fouled out
+     */
+    private static boolean checkOvertimeSubstitutions(Team team, Map<String, Player> teamOnCourt) {
+        // Find ONE non-starter to replace or ONE injured player to replace
+        for (String pos : teamOnCourt.keySet()) {
+            Player currentPlayer = teamOnCourt.get(pos);
+            Player starter = team.starters.get(pos);
+            
+            // Put starter in if they're available and not already in
+            if (starter != null && starter.canOnCourt && !starter.isOnCourt && currentPlayer != starter) {
+                teamOnCourt.put(pos, starter);
+                currentPlayer.isOnCourt = false;
+                starter.isOnCourt = true;
+                starter.hasBeenOnCourt = true;
+                
+                Comments.getSubstituteComment(starter.getDisplayName(), currentPlayer.getDisplayName());
+                return true; // Only sub ONE player per call
+            }
+            // If starter can't play, find next best available
+            else if (!currentPlayer.canOnCourt) {
+                Player replacement = findSubPlayer(currentPlayer, team);
+                if (replacement != currentPlayer) {
+                    teamOnCourt.put(pos, replacement);
+                    replacement.isOnCourt = true;
+                    replacement.hasBeenOnCourt = true;
+                    
+                    Comments.getSubstituteComment(replacement.getDisplayName(), currentPlayer.getDisplayName());
+                    return true; // Only sub ONE player per call
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Update player minutes after each play
+     */
+    public static void updatePlayerMinutes(Map<String, Player> teamOnCourt, int playTime) {
+        for (Player p : teamOnCourt.values()) {
+            if (p != null) {
+                p.secondsPlayed += playTime;
+                p.currentStintSeconds += playTime;
+            }
+        }
     }
 }
