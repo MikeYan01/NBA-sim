@@ -130,6 +130,8 @@ public class Player {
     // Game stats
     public int score;
     public int rebound;
+    public int offensiveRebound;  // Offensive rebounds
+    public int defensiveRebound;  // Defensive rebounds
     public int assist;
     public int steal;
     public int block;
@@ -237,6 +239,8 @@ public class Player {
 
         this.score = 0;
         this.rebound = 0;
+        this.offensiveRebound = 0;
+        this.defensiveRebound = 0;
         this.assist = 0;
         this.steal = 0;
         this.block = 0;

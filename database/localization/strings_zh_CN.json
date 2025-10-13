@@ -6,7 +6,15 @@
         },
         "rebounds": {
             "short": "板",
-            "long": "篮板"
+            "long": "篮板",
+            "offensive": {
+                "short": "前板",
+                "long": "前场篮板"
+            },
+            "defensive": {
+                "short": "后板",
+                "long": "后场篮板"
+            }
         },
         "assists": {
             "short": "助",

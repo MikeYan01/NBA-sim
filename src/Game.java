@@ -82,13 +82,22 @@ public class Game {
         public int points;
         public int rebounds;
         public int assists;
+        public int steals;
+        public int blocks;
+        public int fgMade;
+        public int fgAttempted;
         public String marker; // Special markers like ⭐, 💯
 
-        public PlayerRecapData(String name, int points, int rebounds, int assists, String marker) {
+        public PlayerRecapData(String name, int points, int rebounds, int assists, int steals, int blocks, 
+                             int fgMade, int fgAttempted, String marker) {
             this.name = name;
             this.points = points;
             this.rebounds = rebounds;
             this.assists = assists;
+            this.steals = steals;
+            this.blocks = blocks;
+            this.fgMade = fgMade;
+            this.fgAttempted = fgAttempted;
             this.marker = marker;
         }
     }
@@ -470,21 +479,40 @@ public class Game {
             if (p.steal >= 8) nearDoubleStats++;
             if (p.block >= 8) nearDoubleStats++;
             
+            // Calculate shooting efficiency
+            double fgPct = p.shotAttempted > 0 ? (p.shotMade * 100.0 / p.shotAttempted) : 0.0;
+            boolean efficientScoring = p.score >= 20 && fgPct >= 60.0;
+            
             // Add special markers for exceptional performances (priority order)
             if (p.score >= 50) {
                 marker = "🌟 ";  // 50+ points
+            } else if (doubleDigitStats >= 4) {
+                marker = "👑 ";  // Quadruple-double (4 stats >= 10)
             } else if (p.score >= 40) {
                 marker = "⭐ ";  // 40+ points
             } else if (doubleDigitStats >= 3) {
                 marker = "🔥 ";  // Triple double
+            } else if (p.steal >= 5 && p.block >= 5) {
+                marker = "🛡️ ";  // Defensive monster (5+ steals AND 5+ blocks)
+            } else if (p.steal >= 6 || p.block >= 6) {
+                marker = "🔒 ";  // Elite defense (6+ steals OR 6+ blocks)
+            } else if (p.assist >= 15 && p.score >= 10) {
+                marker = "🎯 ";  // Playmaker (15+ assists with 10+ points)
+            } else if (p.rebound >= 20) {
+                marker = "🏀 ";  // Rebound machine (20+ rebounds)
             } else if ((p.score >= 15 && p.rebound >= 15) || (p.score >= 15 && p.assist >= 15) || 
                        (p.rebound >= 15 && p.assist >= 15)) {
                 marker = "💯 ";  // Big double-double (15+15)
+            } else if (efficientScoring) {
+                marker = "🎪 ";  // Efficient scorer (20+ points on 60%+ shooting)
             } else if (nearDoubleStats >= 3) {
                 marker = "💪 ";  // Near triple double (3 stats >= 8)
+            } else if (p.steal >= 4 || p.block >= 4) {
+                marker = "🔐 ";  // Strong defense (4+ steals OR 4+ blocks)
             }
             
-            topPlayers.add(new PlayerRecapData(p.getDisplayName(), p.score, p.rebound, p.assist, marker));
+            topPlayers.add(new PlayerRecapData(p.getDisplayName(), p.score, p.rebound, p.assist, p.steal, p.block, 
+                                             p.shotMade, p.shotAttempted, marker));
         }
 
         return topPlayers;
@@ -564,20 +592,66 @@ public class Game {
         String awayLabel = LocalizedStrings.get("game.away");
         System.out.println("  " + awayTeamDisplay + " (" + awayLabel + "):");
         for (PlayerRecapData player : game.awayTopPlayers) {
-            System.out.println("    " + player.marker + player.name + " - " + 
-                             player.points + LocalizedStrings.get("stat.points.short") + " " +
-                             player.rebounds + LocalizedStrings.get("stat.rebounds.short") + " " +
-                             player.assists + LocalizedStrings.get("stat.assists.short"));
+            // Build player stats line with pts/reb/ast
+            StringBuilder statsLine = new StringBuilder();
+            statsLine.append("    ").append(player.marker).append(player.name).append(" - ")
+                     .append(player.points).append(LocalizedStrings.get("stat.points.short")).append(" ")
+                     .append(player.rebounds).append(LocalizedStrings.get("stat.rebounds.short")).append(" ")
+                     .append(player.assists).append(LocalizedStrings.get("stat.assists.short"));
+            
+            // Add steals if outstanding
+            if (player.steals >= Constants.MIN_OUTSTANDING_STEALS) {
+                statsLine.append(" ").append(player.steals).append(LocalizedStrings.get("stat.steals.short"));
+            }
+            
+            // Add blocks if outstanding
+            if (player.blocks >= Constants.MIN_OUTSTANDING_BLOCKS) {
+                statsLine.append(" ").append(player.blocks).append(LocalizedStrings.get("stat.blocks.short"));
+            }
+            
+            // Add field goal stats if player has high FG% (>= 70%)
+            if (player.fgAttempted > 0) {
+                double fgPct = (player.fgMade * 100.0 / player.fgAttempted);
+                if (fgPct >= 70.0) {
+                    statsLine.append(" ").append(player.fgMade).append("/").append(player.fgAttempted)
+                             .append(" (").append(String.format("%.1f", fgPct)).append("%) FG");
+                }
+            }
+            
+            System.out.println(statsLine.toString());
         }
         
         // Home team top players
         String homeLabel = LocalizedStrings.get("game.home");
         System.out.println("  " + homeTeamDisplay + " (" + homeLabel + "):");
         for (PlayerRecapData player : game.homeTopPlayers) {
-            System.out.println("    " + player.marker + player.name + " - " + 
-                             player.points + LocalizedStrings.get("stat.points.short") + " " +
-                             player.rebounds + LocalizedStrings.get("stat.rebounds.short") + " " +
-                             player.assists + LocalizedStrings.get("stat.assists.short"));
+            // Build player stats line with pts/reb/ast
+            StringBuilder statsLine = new StringBuilder();
+            statsLine.append("    ").append(player.marker).append(player.name).append(" - ")
+                     .append(player.points).append(LocalizedStrings.get("stat.points.short")).append(" ")
+                     .append(player.rebounds).append(LocalizedStrings.get("stat.rebounds.short")).append(" ")
+                     .append(player.assists).append(LocalizedStrings.get("stat.assists.short"));
+            
+            // Add steals if outstanding
+            if (player.steals >= Constants.MIN_OUTSTANDING_STEALS) {
+                statsLine.append(" ").append(player.steals).append(LocalizedStrings.get("stat.steals.short"));
+            }
+            
+            // Add blocks if outstanding
+            if (player.blocks >= Constants.MIN_OUTSTANDING_BLOCKS) {
+                statsLine.append(" ").append(player.blocks).append(LocalizedStrings.get("stat.blocks.short"));
+            }
+            
+            // Add field goal stats if player has high FG% (>= 70%)
+            if (player.fgAttempted > 0) {
+                double fgPct = (player.fgMade * 100.0 / player.fgAttempted);
+                if (fgPct >= 70.0) {
+                    statsLine.append(" ").append(player.fgMade).append("/").append(player.fgAttempted)
+                             .append(" (").append(String.format("%.1f", fgPct)).append("%) FG");
+                }
+            }
+            
+            System.out.println(statsLine.toString());
         }
         
         System.out.println();

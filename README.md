@@ -158,17 +158,8 @@ Before the start of each play:
 
 1. Determine the time remaining in the current quarter and decide whether to go to the next quarter or end the game
   
-2. Determine whether both teams need to make substitutions
-    - **Intelligent substitution system** evaluates multiple factors:
-      - **Foul trouble**: Players with 3+ fouls in Q1, 4+ in Q2, or 5+ anytime are subbed out
-      - **Fatigue management**: Starters rest after 12-minute stints, bench after 5 minutes
-      - **Minutes distribution**: Target ~36 minutes for all starters (equal treatment), ~12 minutes for bench
-      - **Performance-based**: Hot shooters (70%+) stay in, cold shooters may be subbed
-      - **Close game awareness**: When within 12 points, starters return faster and play more
-      - **Clutch time**: Last 6 minutes with ≤8 point difference, best players stay on court
-    - Substitutions happen in waves of 2-3 players at natural break points (6:00, 2:30 marks)
-    - **Injury protection**: 39-minute cap prevents overuse, all starters treated equally
-    - Overtime played by starters unless injured or fouled out
+2. Determine whether both teams need to make substitutions. Intelligent substitution system evaluates multiple factors including fould trouble, fatigue management, minutes distribution and current performance.
+
 
 Every play should have the following process:
 

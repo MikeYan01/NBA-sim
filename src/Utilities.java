@@ -120,22 +120,59 @@ public class Utilities {
     }
 
     /**
-     * Generate current play's time from range [4, time] in seconds.
+     * Generate current play's time based on NBA-realistic distributions.
+     * Uses a weighted probability system to simulate realistic possession times:
+     * - 24s shot clock: Average 15-17s (bell curve centered around 16s)
+     * - 14s shot clock: Average 8-10s (bell curve centered around 9s)
      * 
-     * @param time Maximum time of current play
-     * @return current play's time
+     * @param time Maximum time of current play (24 for full possession, 14 for offensive rebound)
+     * @return current play's time in seconds
      */
     public static int generateRandomPlayTime(Random random, int time) {
-        int currentPlayTime = generateRandomNum(random, Constants.MIN_PLAY_TIME, time);
-        
         if (time == 24) {
-            if (currentPlayTime <= Constants.TIME_MIN_THLD && generateRandomNum(random) <= Constants.ADD_TIME_PERCENT)
-                currentPlayTime += Constants.ADD_TIME;
-            if (currentPlayTime >= Constants.TIME_MAX_THLD && generateRandomNum(random) <= Constants.SUB_TIME_PERCENT)
-                currentPlayTime -= Constants.SUB_TIME;
+            // Distribution: 5% very quick (4-7s), 80% normal (8-18s), 15% slow (19-24s)
+            int roll = generateRandomNum(random, 1, 100);
+            
+            if (roll <= 5) {
+                // Very quick play: 4-7 seconds
+                return generateRandomNum(random, 4, 7);
+            } else if (roll <= 85) {
+                // Use triangle distribution for more realistic clustering
+                int r1 = generateRandomNum(random, 8, 18);
+                int r2 = generateRandomNum(random, 8, 18);
+                return (r1 + r2) / 2; // Averages toward middle values (12-14)
+            } else {
+                // Slow, deliberate play: 19-24 seconds
+                return generateRandomNum(random, 19, 24);
+            }
+            
+        } else if (time == 14) {
+            // Offensive rebound / reset possession (14 seconds)
+            // Real NBA average: ~8-10 seconds
+            // Distribution: 50% quick putback (4-6s), 40% normal reset (7-11s), 10% full reset (12-14s)
+            
+            int roll = generateRandomNum(random, 1, 100);
+            
+            if (roll <= 50) {
+                // Quick putback or tip-in: 4-6 seconds
+                return generateRandomNum(random, 4, 6);
+            } else if (roll <= 90) {
+                // Normal reset play: 7-11 seconds (bell curve around 9)
+                int r1 = generateRandomNum(random, 7, 11);
+                int r2 = generateRandomNum(random, 7, 11);
+                return (r1 + r2) / 2; // Averages toward 9 seconds
+            } else {
+                // Full reset to perimeter: 12-14 seconds
+                return generateRandomNum(random, 12, 14);
+            }
+            
+        } else {
+            // Fallback for other shot clock times (e.g., end of quarter situations)
+            // Use proportional scaling based on 24-second distribution
+            int scaledMin = Math.max(4, time / 6);
+            int scaledMax = time;
+            return generateRandomNum(random, scaledMin, scaledMax);
         }
-        
-        return currentPlayTime;
     }
 
     /**
@@ -224,12 +261,6 @@ public class Utilities {
                         return selectedPlayer;
                     }
                 }
-
-                // not clutch time, give players with top-highest rating
-                int star_pos = highestRating > Constants.GENERAL_THLD ? Constants.SINGLE_STAR_PERCENT_1 : Constants.SINGLE_STAR_PERCENT_2;
-                if (generateRandomNum(random) <= star_pos * selectedPlayerList.size()) {
-                    return selectedPlayer;
-                }
             }
 
             for (int i = 0; i < poss.length; i++) {
@@ -255,14 +286,34 @@ public class Utilities {
                     continue;
                 }
 
-                if (attr.equals("orb"))
-                    poss[i] = Math.max( (1000 * (Constants.REB_AST_SCALE * player.orbRating - avgRating) / totalRating), 0);
-                else if (attr.equals("drb"))
-                    poss[i] = Math.max( (1000 * (Constants.REB_AST_SCALE * player.drbRating - avgRating) / totalRating), 0);
-                else
-                    poss[i] = Math.max( (1000 * (Constants.REB_AST_SCALE * player.astRating - avgRating) / totalRating), 0);
+                if (attr.equals("orb")) {
+                    // Use power scaling for rebounds to create NBA-realistic distribution
+                    // REBOUND_POWER_SCALE controls the advantage elite rebounders get
+                    // Higher values (closer to 1.0) = more advantage for elite rebounders
+                    double normalizedRating = Math.pow(Math.max(player.orbRating, 1), Constants.REBOUND_POWER_SCALE);
+                    poss[i] = normalizedRating * 100;
+                } else if (attr.equals("drb")) {
+                    double normalizedRating = Math.pow(Math.max(player.drbRating, 1), Constants.REBOUND_POWER_SCALE);
+                    poss[i] = normalizedRating * 100;
+                } else {
+                    poss[i] = Math.max( (1000 * (Constants.AST_SCALE * player.astRating - avgRating) / totalRating), 0);
+                }
             }
         }
+        
+        // For rebounds, normalize probabilities to sum to 1000 for proper distribution
+        if (attr.equals("orb") || attr.equals("drb")) {
+            double totalPoss = 0;
+            for (int i = 0; i < poss.length; i++) {
+                totalPoss += poss[i];
+            }
+            if (totalPoss > 0) {
+                for (int i = 0; i < poss.length; i++) {
+                    poss[i] = (poss[i] / totalPoss) * 1000;
+                }
+            }
+        }
+        
         int pick = generateRandomNum(random, 1, 1000);
         if (pick <= poss[0] && TeamOnCourt.get("C") != null) return TeamOnCourt.get("C");
         else if (pick <= poss[0] + poss[1] && TeamOnCourt.get("PF") != null) return TeamOnCourt.get("PF");
@@ -485,8 +536,8 @@ public class Utilities {
      * @return 0 - no lose ball, 1 - lose ball but no score, 2 - loss ball and score
      */
     public static void judgeFoulOut(Player previousPlayer, Team team, Map<String, Player> teamOnCourt) {
-        if (previousPlayer.foul == 6 || previousPlayer.flagFoul == 2) {
-            Comments.getFoulOutComment(previousPlayer.getDisplayName(), previousPlayer.foul == 6 ? true : false);
+        if (previousPlayer.foul == Constants.FOULS_TO_FOUL_OUT || previousPlayer.flagFoul == Constants.FLAGRANT_FOULS_TO_EJECT) {
+            Comments.getFoulOutComment(previousPlayer.getDisplayName(), previousPlayer.foul == Constants.FOULS_TO_FOUL_OUT ? true : false);
             previousPlayer.canOnCourt = false;
 
             Player currentPlayer = findSubPlayer(previousPlayer, team);
@@ -608,7 +659,7 @@ public class Utilities {
             foulProtect(fouler, defenseTeam, defenseTeamOnCourt, currentQuarter);
 
             defenseTeam.quarterFoul++;
-            if (defenseTeam.quarterFoul >= 5) {
+            if (defenseTeam.quarterFoul >= Constants.BONUS_FOUL_THRESHOLD) {
                 Comments.getReachFoulTimes(Constants.getLocalizedTeamName(offenseTeam.name), Constants.getLocalizedTeamName(defenseTeam.name));
 
                 makeFreeThrow(random, offensePlayer, offenseTeamOnCourt, defenseTeamOnCourt, offenseTeam,
@@ -623,7 +674,7 @@ public class Utilities {
      * Generates actions when two teams jumping ball before the game starts.
      */
     public static void jumpBall(Random random, Team team1, Team team2) {
-        Team winTeam = Utilities.generateRandomNum(random) <= 50 ? team1 : team2;
+        Team winTeam = Utilities.generateRandomNum(random) <= Constants.JUMP_BALL_FIFTY_FIFTY ? team1 : team2;
         winTeam.hasBall = true;
         Comments.getJumpBallComments(team1, team2, winTeam);
     }
@@ -635,7 +686,7 @@ public class Utilities {
      * @return The player that wins the jumpball 
      */
     public static String jumpBall(Random random, String offensePlayer, String defensePlayer) {
-        String winPlayer = Utilities.generateRandomNum(random) <= 50 ? offensePlayer : defensePlayer;
+        String winPlayer = Utilities.generateRandomNum(random) <= Constants.JUMP_BALL_FIFTY_FIFTY ? offensePlayer : defensePlayer;
         Comments.getJumpBallComments(offensePlayer, defensePlayer, winPlayer);
         return winPlayer;
     }
@@ -1008,7 +1059,7 @@ public class Utilities {
             }
 
             offensePlayer.shotAttempted++;
-            if (distance >= 23) offensePlayer.threeAttempted++;
+            if (distance >= Constants.THREE_POINT_LINE_DISTANCE) offensePlayer.threeAttempted++;
             Comments.getMissShotsComment(movement, offensePlayer.getDisplayName());
             if (generateRandomNum(random) <= Constants.STATUS_COMMENT_PERCENT) Comments.getStatusComment(offensePlayer, false);
 
@@ -1126,7 +1177,7 @@ public class Utilities {
      */
     public static boolean handleInjury(Random random, Map<String, Player> teamOnCourt, Team team) {
         for (String pos : teamOnCourt.keySet()) {
-            if (generateRandomNum(random, 1, 1000000) <= 200 - teamOnCourt.get(pos).durability) {
+            if (generateRandomNum(random, 1, Constants.INJURY_PROBABILITY_DIVISOR) <= Constants.INJURY_BASE_PROBABILITY - teamOnCourt.get(pos).durability) {
                 Player previousPlayer = teamOnCourt.get(pos);
                 Player currentPlayer = findSubPlayer(previousPlayer, team);
                 
@@ -1189,18 +1240,18 @@ public class Utilities {
         }
         
         // Q1 first 6 minutes: Keep all starters in (unless fouled out or injured)
-        if (currentQuarter == 1 && quarterTime > 360) {
+        if (currentQuarter == Constants.QUARTER_1 && quarterTime > Constants.Q1_NO_SUB_TIME) {
             return false; // No substitutions in first 6 minutes of Q1
         }
         
         // Overtime: only play starters unless injured/fouled out
-        if (currentQuarter >= 5) {
+        if (currentQuarter >= Constants.OVERTIME_QUARTER) {
             return checkOvertimeSubstitutions(team, teamOnCourt);
         }
         
         boolean madeSubs = false;
         int scoreDiff = Math.abs(team1.totalScore - team2.totalScore);
-        boolean isClutchTime = currentQuarter == 4 && quarterTime <= Constants.TIME_LEFT_CLUTCH && scoreDiff <= 8;
+        boolean isClutchTime = currentQuarter == Constants.CLUTCH_QUARTER && quarterTime <= Constants.TIME_LEFT_CLUTCH && scoreDiff <= Constants.CLOSE_GAME_DIFF;
         boolean isCloseGame = scoreDiff <= Constants.CLOSE_GAME_DIFF;
         
         // Clutch time: keep best players in
@@ -1208,9 +1259,9 @@ public class Utilities {
             return ensureStartersInClutch(team, teamOnCourt);
         }
         
-        // Proactively check if rested starters with safe foul situation can return (25% chance)
+        // Proactively check if rested starters with safe foul situation can return
         // This ensures foul-protected starters don't sit too long
-        if (generateRandomNum(random, 1, 100) < 25) {
+        if (generateRandomNum(random, 1, 100) < Constants.SUB_CHECK_PROBABILITY) {
             for (String pos : team.starters.keySet()) {
                 Player starter = team.starters.get(pos);
                 Player currentPlayer = teamOnCourt.get(pos);
@@ -1219,7 +1270,7 @@ public class Utilities {
                     currentPlayer.rotationType != Player.RotationType.STARTER) {
                     
                     int restTime = gameTime - starter.lastSubbedOutTime;
-                    int minRest = isCloseGame ? 60 : Constants.MIN_REST_TIME;
+                    int minRest = isCloseGame ? Constants.MIN_REST_TIME_CLOSE_GAME : Constants.MIN_REST_TIME;
                     int targetMinutes = getTargetMinutes(starter);
                     
                     // If starter has rested enough, is under target minutes, AND foul situation is safe
@@ -1240,9 +1291,9 @@ public class Utilities {
             }
         }
         
-        // Random chance to check for substitutions (15% chance per possession)
+        // Random chance to check for substitutions
         // This spreads out substitutions naturally instead of clustering them
-        if (generateRandomNum(random, 1, 100) >= 15) {
+        if (generateRandomNum(random, 1, 100) >= Constants.SUB_DECISION_PROBABILITY) {
             return false; // Skip this substitution check
         }
         
@@ -1256,19 +1307,19 @@ public class Utilities {
             
             // Critical: foul trouble (highest priority)
             if (shouldSubForFoulTrouble(currentPlayer, currentQuarter)) {
-                priority = 100;
+                priority = Constants.FOUL_TROUBLE_PRIORITY;
             }
             // High: fatigue
             else if (shouldSubForFatigue(currentPlayer, isCloseGame)) {
-                priority = 50 + (int)(currentPlayer.currentStintSeconds / 60); // More tired = higher priority
+                priority = Constants.FATIGUE_BASE_PRIORITY + (int)(currentPlayer.currentStintSeconds / Constants.FATIGUE_SECONDS_TO_PRIORITY); // More tired = higher priority
             }
             // High: minutes cap - dynamic based on durability for starters
             else if (currentPlayer.secondsPlayed >= getTargetMinutes(currentPlayer)) {
-                priority = 80;
+                priority = Constants.MINUTES_CAP_PRIORITY;
             }
             // Medium: performance (cold shooter - only if not close game)
             else if (!isCloseGame && shouldSubForPerformance(currentPlayer)) {
-                priority = 30;
+                priority = Constants.PERFORMANCE_PRIORITY;
             }
             
             if (priority > highestPriority) {
@@ -1304,9 +1355,9 @@ public class Utilities {
      * Check if player should be subbed due to foul trouble
      */
     private static boolean shouldSubForFoulTrouble(Player player, int currentQuarter) {
-        if (currentQuarter == 1 && player.foul >= Constants.QUARTER1_PROTECT) return true;
-        if (currentQuarter == 2 && player.foul >= Constants.QUARTER2_PROTECT) return true;
-        if (currentQuarter >= 3 && player.foul >= Constants.QUARTER3_PROTECT) return true;
+        if (currentQuarter == Constants.QUARTER_1 && player.foul >= Constants.QUARTER1_PROTECT) return true;
+        if (currentQuarter == Constants.QUARTER_2 && player.foul >= Constants.QUARTER2_PROTECT) return true;
+        if (currentQuarter >= Constants.QUARTER_3 && player.foul >= Constants.QUARTER3_PROTECT) return true;
         return false;
     }
     
@@ -1316,40 +1367,36 @@ public class Utilities {
      */
     private static boolean isFoulSituationSafe(Player player, int currentQuarter) {
         // In Q1, safe if less than 2 fouls
-        if (currentQuarter == 1) return player.foul < Constants.QUARTER1_PROTECT;
+        if (currentQuarter == Constants.QUARTER_1) return player.foul < Constants.QUARTER1_PROTECT;
         // In Q2, safe if less than 4 fouls (player with 2-3 fouls can come back)
-        if (currentQuarter == 2) return player.foul < Constants.QUARTER2_PROTECT;
+        if (currentQuarter == Constants.QUARTER_2) return player.foul < Constants.QUARTER2_PROTECT;
         // In Q3+, safe if less than 5 fouls (player with 2-4 fouls can come back)
-        if (currentQuarter >= 3) return player.foul < Constants.QUARTER3_PROTECT;
+        if (currentQuarter >= Constants.QUARTER_3) return player.foul < Constants.QUARTER3_PROTECT;
         return true;
     }
     
     /**
      * Calculate target minutes for a starter based on durability
-     * High durability (90-99): ~32 minutes
-     * Medium durability (80-89): ~30 minutes  
-     * Low durability (70-79): ~28 minutes
-     * Very low durability (<70): ~26 minutes
      */
     private static int getTargetMinutes(Player player) {
         if (player.rotationType != Player.RotationType.STARTER) {
-            return 39 * 60; // Bench players use default high limit
+            return Constants.NON_STARTER_MAX_MINUTES; // Bench players use default high limit
         }
         
         int durability = player.durability;
-        if (durability >= 90) return 32 * 60;      // 1920 seconds
-        else if (durability >= 80) return 30 * 60; // 1800 seconds
-        else if (durability >= 70) return 28 * 60; // 1680 seconds
-        else return 26 * 60;                       // 1560 seconds
+        if (durability >= Constants.HIGH_DURABILITY_THRESHOLD) return Constants.HIGH_DURABILITY_MINUTES;
+        else if (durability >= Constants.MEDIUM_DURABILITY_THRESHOLD) return Constants.MEDIUM_DURABILITY_MINUTES;
+        else if (durability >= Constants.LOW_DURABILITY_THRESHOLD) return Constants.LOW_DURABILITY_MINUTES;
+        else return Constants.VERY_LOW_DURABILITY_MINUTES;
     }
     
     /**
      * Check if player should be subbed due to fatigue
      */
     private static boolean shouldSubForFatigue(Player player, boolean isCloseGame) {
-        // Starters: rest after 5-6 minute stints (to control total minutes)
+        // Starters: rest after stints (to control total minutes)
         if (player.rotationType == Player.RotationType.STARTER) {
-            int maxStint = isCloseGame ? 6 * 60 : 5 * 60;  // Shorter stints to control total minutes
+            int maxStint = isCloseGame ? Constants.MAX_STARTER_STINT_CLOSE_GAME : Constants.MAX_STARTER_STINT_NORMAL_GAME;
             return player.currentStintSeconds >= maxStint;
         }
         // Bench: rest after 5 minute stints
@@ -1366,8 +1413,8 @@ public class Utilities {
         // Only sub if player has taken enough shots and is shooting poorly
         if (player.shotAttempted >= Constants.MIN_SHOTS_FOR_HOT) {
             double shotPct = (double) player.shotMade / player.shotAttempted;
-            // Keep hot shooters in (70%+), sub cold shooters out (<30%)
-            if (shotPct < 0.3) {
+            // Keep sub cold shooters out (<30%)
+            if (shotPct < Constants.COLD_SHOOTER_THRESHOLD) {
                 return true;
             }
         }
@@ -1402,7 +1449,7 @@ public class Utilities {
                     if (benchPlayer.canOnCourt && !benchPlayer.isOnCourt) {
                         // Check if bench player hasn't played too much
                         int targetMinutes = Constants.BENCH_TARGET_MINUTES;
-                        if (benchPlayer.secondsPlayed < targetMinutes + 300) {  // +5 min buffer
+                        if (benchPlayer.secondsPlayed < targetMinutes + Constants.BENCH_MINUTES_BUFFER) {  // +5 min buffer
                             return benchPlayer;
                         }
                     }
@@ -1461,7 +1508,7 @@ public class Utilities {
      */
     private static boolean checkGarbageTimeSubstitutions(Random random, Team team, Map<String, Player> teamOnCourt) {
         // Higher chance (50%) to check for substitutions in garbage time
-        if (generateRandomNum(random, 1, 100) >= 50) {
+        if (generateRandomNum(random, 1, 100) >= Constants.GARBAGE_TIME_SUB_PROBABILITY) {
             return false;
         }
         

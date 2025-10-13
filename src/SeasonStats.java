@@ -7,6 +7,8 @@ public class SeasonStats {
     public final Map<String, Integer> playerTotalGames;
     public final Map<String, Integer> playerTotalScores;
     public final Map<String, Integer> playerTotalRebs;
+    public final Map<String, Integer> playerTotalOffensiveRebs;
+    public final Map<String, Integer> playerTotalDefensiveRebs;
     public final Map<String, Integer> playerTotalAsts;
     public final Map<String, Integer> playerTotalStls;
     public final Map<String, Integer> playerTotalBlks;
@@ -18,6 +20,8 @@ public class SeasonStats {
     // player per-game stats table
     public final Map<String, Double> playerPerScores;
     public final Map<String, Double> playerPerRebs;
+    public final Map<String, Double> playerPerOffensiveRebs;
+    public final Map<String, Double> playerPerDefensiveRebs;
     public final Map<String, Double> playerPerAsts;
     public final Map<String, Double> playerPerStls;
     public final Map<String, Double> playerPerBlks;
@@ -59,6 +63,8 @@ public class SeasonStats {
         playerTotalGames = new HashMap<>();
         playerTotalScores = new HashMap<>();
         playerTotalRebs = new HashMap<>();
+        playerTotalOffensiveRebs = new HashMap<>();
+        playerTotalDefensiveRebs = new HashMap<>();
         playerTotalAsts = new HashMap<>();
         playerTotalStls = new HashMap<>();
         playerTotalBlks = new HashMap<>();
@@ -69,6 +75,8 @@ public class SeasonStats {
 
         playerPerScores = new HashMap<>();
         playerPerRebs = new HashMap<>();
+        playerPerOffensiveRebs = new HashMap<>();
+        playerPerDefensiveRebs = new HashMap<>();
         playerPerAsts = new HashMap<>();
         playerPerStls = new HashMap<>();
         playerPerBlks = new HashMap<>();
@@ -110,6 +118,8 @@ public class SeasonStats {
         String name = p.name;
         int score = p.score;
         int reb = p.rebound;
+        int oreb = p.offensiveRebound;
+        int dreb = p.defensiveRebound;
         int ast = p.assist;
         int stl = p.steal;
         int blk = p.block;
@@ -130,6 +140,8 @@ public class SeasonStats {
             playerTotalGames.put(name, playerTotalGames.getOrDefault(name, 0) + 1);
             playerTotalScores.put(name, playerTotalScores.getOrDefault(name, 0) + score);
             playerTotalRebs.put(name, playerTotalRebs.getOrDefault(name, 0) + reb);
+            playerTotalOffensiveRebs.put(name, playerTotalOffensiveRebs.getOrDefault(name, 0) + oreb);
+            playerTotalDefensiveRebs.put(name, playerTotalDefensiveRebs.getOrDefault(name, 0) + dreb);
             playerTotalAsts.put(name, playerTotalAsts.getOrDefault(name, 0) + ast);
             playerTotalStls.put(name, playerTotalStls.getOrDefault(name, 0) + stl);
             playerTotalBlks.put(name, playerTotalBlks.getOrDefault(name, 0) + blk);
@@ -144,6 +156,8 @@ public class SeasonStats {
             // update per-game stats
             playerPerScores.put(name, Utilities.roundDouble(playerTotalScores.get(name) * 1.0 / playerTotalGames.get(name)));
             playerPerRebs.put(name, Utilities.roundDouble(playerTotalRebs.get(name) * 1.0 / playerTotalGames.get(name)));
+            playerPerOffensiveRebs.put(name, Utilities.roundDouble(playerTotalOffensiveRebs.get(name) * 1.0 / playerTotalGames.get(name)));
+            playerPerDefensiveRebs.put(name, Utilities.roundDouble(playerTotalDefensiveRebs.get(name) * 1.0 / playerTotalGames.get(name)));
             playerPerAsts.put(name, Utilities.roundDouble(playerTotalAsts.get(name) * 1.0 / playerTotalGames.get(name)));
             playerPerStls.put(name, Utilities.roundDouble(playerTotalStls.get(name) * 1.0 / playerTotalGames.get(name)));
             playerPerBlks.put(name, Utilities.roundDouble(playerTotalBlks.get(name) * 1.0 / playerTotalGames.get(name)));
@@ -238,6 +252,8 @@ public class SeasonStats {
                 teamName = playerTeamMap.getOrDefault(name, "");
                 score = playerPerScores.get(name);
                 reb = playerPerRebs.get(name);
+                double oreb = playerPerOffensiveRebs.getOrDefault(name, 0.0);
+                double dreb = playerPerDefensiveRebs.getOrDefault(name, 0.0);
                 ast = playerPerAsts.get(name);
                 stl = playerPerStls.get(name);
                 blk = playerPerBlks.get(name);
@@ -271,7 +287,18 @@ public class SeasonStats {
                 sb.append(displayName).append(" ");
                 
                 sb.append(score).append(LocalizedStrings.get("stat.points.short")).append(" ");
-                sb.append(reb).append(LocalizedStrings.get("stat.rebounds.short")).append(" ");
+                
+                // Rebound stats with ORB/DRB breakdown
+                sb.append(reb).append(LocalizedStrings.get("stat.rebounds.short"));
+                if (oreb > 0 || dreb > 0) {
+                    sb.append("(")
+                      .append(oreb).append(LocalizedStrings.get("stat.rebounds.offensive.short"))
+                      .append("+")
+                      .append(dreb).append(LocalizedStrings.get("stat.rebounds.defensive.short"))
+                      .append(")");
+                }
+                sb.append(" ");
+                
                 sb.append(ast).append(LocalizedStrings.get("stat.assists.short")).append(" ");
                 sb.append(stl).append(LocalizedStrings.get("stat.steals.short")).append(" ");
                 sb.append(blk).append(LocalizedStrings.get("stat.blocks.short")).append("  ");
@@ -309,9 +336,7 @@ public class SeasonStats {
                 
                 // Minutes played (at the end)
                 sb.append(LocalizedStrings.get("stat.minutes.long"))
-                  .append(String.format("%.1f", perMinutes))
-                  .append(" ")  // Add space before unit
-                  .append(LocalizedStrings.get("stat.minutes.short"));
+                  .append(String.format("%.1f", perMinutes));
 
                 System.out.println(sb.toString());
             } else {
