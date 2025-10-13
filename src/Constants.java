@@ -55,6 +55,10 @@ public class Constants {
     public final static int MIN_SHOT_ATTEMPTED = 7;
     public final static double MAX_BAD_SHOT_PERCENT = 0.2;
 
+    /** Outstanding defensive stats threshold for recap display */
+    public final static int MIN_OUTSTANDING_STEALS = 3;
+    public final static int MIN_OUTSTANDING_BLOCKS = 3;
+
     /** Current year and next year's prefix */
     public final static String CURRENT_YEAR = Year.now().getValue() + "-";
     public final static String NEXT_YEAR = (Year.now().getValue() + 1) + "-";
@@ -74,10 +78,6 @@ public class Constants {
     public final static String PLAYIN_RECAP_NAME = "playin-recap.txt";
     public final static String RESULT_EXTENSION = ".txt";
 
-    /** Time left in quarters to substitute */
-    public final static int ODD_QUARTERS_TIME_LEFT = 180;
-    public final static int EVEN_QUARTERS_TIME_LEFT = 510;
-
     /** Score difference to enter garbage time */
     public final static int DIFF1 = 30;
     public final static int TIME_LEFT1 = 720;
@@ -92,37 +92,63 @@ public class Constants {
 
     /** Intelligent substitution system */
     // Target minutes for different rotation types (in seconds)
-    public final static int STARTER_TARGET_MINUTES = 36 * 60;  // ~36 minutes
-    public final static int BENCH_TARGET_MINUTES = 12 * 60;    // ~12 minutes
-    public final static int DEEP_BENCH_TARGET_MINUTES = 6 * 60; // ~6 minutes
+    public final static int BENCH_TARGET_MINUTES = 18 * 60;    // ~18 minutes
+    
+    // Durability-based target minutes for starters (in seconds)
+    public final static int HIGH_DURABILITY_THRESHOLD = 90;
+    public final static int HIGH_DURABILITY_MINUTES = 30 * 60;     // 1800 seconds
+    public final static int MEDIUM_DURABILITY_THRESHOLD = 80;
+    public final static int MEDIUM_DURABILITY_MINUTES = 28 * 60;   // 1680 seconds
+    public final static int LOW_DURABILITY_THRESHOLD = 70;
+    public final static int LOW_DURABILITY_MINUTES = 24 * 60;      // 1440 seconds
+    public final static int VERY_LOW_DURABILITY_MINUTES = 20 * 60; // 1200 seconds
+    public final static int NON_STARTER_MAX_MINUTES = 35 * 60;     // Bench players use high limit
     
     // Maximum continuous stint duration before rest needed (in seconds)
     public final static int MAX_STARTER_STINT = 10 * 60;  // 10 minutes 
-    public final static int MAX_BENCH_STINT = 5 * 60;     // 5 minutes
+    public final static int MAX_STARTER_STINT_CLOSE_GAME = 8 * 60;  // 6 minutes in close games
+    public final static int MAX_STARTER_STINT_NORMAL_GAME = 6 * 60;  // 6 minutes in normal games
+    public final static int MAX_BENCH_STINT = 6 * 60;     // 6 minutes
     
     // Minimum rest time between stints (in seconds)
     public final static int MIN_REST_TIME = 2 * 60;  // 2 minutes (shorter rest OK)
+    public final static int MIN_REST_TIME_CLOSE_GAME = 1 * 60;  // 1 minute in close games
     
-    // Foul-based substitution thresholds
-    public final static int EARLY_FOUL_TROUBLE_Q1 = 3;  // 3 fouls in Q1 (was too aggressive at 2)
-    public final static int EARLY_FOUL_TROUBLE_Q2 = 4;  // 4 fouls in Q2 (was too aggressive at 3)
-    public final static int LATE_FOUL_TROUBLE = 5;      // 5 fouls anytime
+    // Bench player limits
+    public final static int BENCH_MINUTES_BUFFER = 5 * 60;  // 5 minute buffer for bench players
     
     // Performance-based thresholds
-    public final static int HOT_HAND_THRESHOLD = 4;     // Made 4+ consecutive shots
-    public final static double HOT_HAND_PERCENTAGE = 0.7; // Shooting 70%+
     public final static int MIN_SHOTS_FOR_HOT = 4;      // Need at least 4 shots
+    public final static double COLD_SHOOTER_THRESHOLD = 0.3;  // Sub if shooting < 30%
     
-    // Substitution timing windows (seconds into quarter)
-    public final static int[] Q1_SUB_WINDOWS = {360, 180};  // 6:00, 3:00
-    public final static int[] Q2_SUB_WINDOWS = {360, 180};  // 6:00, 3:00
-    public final static int[] Q3_SUB_WINDOWS = {360, 180};  // 6:00, 3:00
-    public final static int[] Q4_SUB_WINDOWS = {480, 300};  // 8:00, 5:00 (more cautious in Q4)
+    // Injury probability constants
+    public final static int INJURY_BASE_PROBABILITY = 200;  // Base injury chance (out of 1,000,000)
+    public final static int INJURY_PROBABILITY_DIVISOR = 1000000;
     
-    // Number of players to substitute at once
-    public final static int NORMAL_SUB_COUNT = 2;       // Usually sub 2-3 players
-    public final static int MAX_SUB_COUNT = 3;          // Max 3 at once
-    public final static int MIN_STARTERS_ON_COURT = 2;  // Always keep 2+ starters
+    // Substitution probabilities and priorities
+    public final static int SUB_CHECK_PROBABILITY = 40;
+    public final static int SUB_DECISION_PROBABILITY = 20;
+    public final static int GARBAGE_TIME_SUB_PROBABILITY = 100;
+    public final static int FOUL_TROUBLE_PRIORITY = 100;
+    public final static int MINUTES_CAP_PRIORITY = 80;
+    public final static int FATIGUE_BASE_PRIORITY = 50;
+    public final static int PERFORMANCE_PRIORITY = 30;
+    public final static int FATIGUE_SECONDS_TO_PRIORITY = 60;  // Divide stint seconds by this for priority
+    
+    // Quarter-specific settings
+    public final static int QUARTER_1 = 1;
+    public final static int QUARTER_2 = 2;
+    public final static int QUARTER_3 = 3;
+    public final static int Q1_NO_SUB_TIME = 360;  // No subs in first 6 minutes of Q1 (in seconds)
+    public final static int OVERTIME_QUARTER = 5;  // Overtime starts at quarter 5
+    public final static int CLUTCH_QUARTER = 4;    // Clutch time in Q4
+    
+    // Game constants
+    public final static int FOULS_TO_FOUL_OUT = 6;
+    public final static int FLAGRANT_FOULS_TO_EJECT = 2;
+    public final static int BONUS_FOUL_THRESHOLD = 5;  // Team in bonus at 5 fouls
+    public final static int JUMP_BALL_FIFTY_FIFTY = 50;  // 50% chance for jump ball
+    public final static int THREE_POINT_LINE_DISTANCE = 23;
 
     /** Team names for display - Chinese */
     public final static String[] EAST_TEAMS_ZH = {"76人", "公牛", "凯尔特人", "奇才", "黄蜂",
@@ -144,15 +170,6 @@ public class Constants {
     public static String[] EAST_TEAMS = EAST_TEAMS_ZH;
     public static String[] WEST_TEAMS = WEST_TEAMS_ZH;
 
-    /** Play time */
-    public final static int MIN_PLAY_TIME = 4;
-    public final static int TIME_MIN_THLD = 10;
-    public final static int TIME_MAX_THLD = 17;
-    public final static int ADD_TIME_PERCENT = 80;
-    public final static int ADD_TIME = 8;
-    public final static int SUB_TIME_PERCENT = 60;
-    public final static int SUB_TIME = 6;
-
     /** Choose offense player based on ratings and time */
     public final static double MAJOR_SCORE_FACTOR = 0.55;
     public final static double MINOR_SCORE_FACTOR = 0.15;
@@ -162,7 +179,10 @@ public class Constants {
     public final static int GENERAL_THLD = 90;
     public final static int CLUTCH_PERCENT = 50;
     public final static int RATING_RANGE = 10;
-    public final static int REB_AST_SCALE = 2;
+    public final static int AST_SCALE = 2;
+    
+    /** Rebound distribution power scaling exponent */
+    public final static double REBOUND_POWER_SCALE = 0.8;
 
     /** Choose same position player or other position player */
     public final static int SAME_POS = 52;
@@ -201,7 +221,7 @@ public class Constants {
     /** Rebound */
     public final static int ORB_WITH_BONUS = 15;
     public final static int ORB_WITHOUT_BONUS = 10;
-    public final static int REBOUND_RATING_BONUS = 88;
+    public final static int REBOUND_RATING_BONUS = 90;
     public final static int REBOUND_RATING_BONUS_PERCENT = 10;
 
     /** Foul protect */
@@ -259,13 +279,13 @@ public class Constants {
     public final static double AST_RATING_BONUS3 = 1;
 
     /** Defense players affect percent */
-    public final static double DEFENSE_COFF = 0.2;
+    public final static double DEFENSE_COFF = 0.1;
     public final static int DEFENSE_BASE = 41;
 
     /** Defense density percent */
-    public final static int DEFENSE_EASY = 15;
-    public final static int DEFENSE_HARD = 30;
-    public final static int DEFENSE_BUFF = 10;
+    public final static int DEFENSE_EASY = 10;
+    public final static int DEFENSE_HARD = 50;
+    public final static int DEFENSE_BUFF = 12;
 
     /** Offense and defense consistency */
     public final static double CONSISTENCY_COFF = 0.4;
@@ -285,9 +305,9 @@ public class Constants {
     public final static int EXTRA_COMMENT = 15;
 
     /** Assist allocation */
-    public final static int HIGH_BOTH_RATING = 40;
-    public final static int HIGH_BOTH_RATING_THLD = 86;
-    public final static int HIGHEST_RATING_PERCENT = 18;
+    public final static int HIGH_BOTH_RATING = 25;
+    public final static int HIGH_BOTH_RATING_THLD = 88;
+    public final static int HIGHEST_RATING_PERCENT = 10;
     public final static int STAR_PLAYER_AST = 70;
     public final static int NON_STAR_PLAYER_AST = 95;
 

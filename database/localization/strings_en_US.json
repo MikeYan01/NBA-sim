@@ -6,7 +6,15 @@
         },
         "rebounds": {
             "short": " Reb",
-            "long": "Rebounds"
+            "long": "Rebounds",
+            "offensive": {
+                "short": " orb",
+                "long": "Offensive Rebounds"
+            },
+            "defensive": {
+                "short": " drb",
+                "long": "Defensive Rebounds"
+            }
         },
         "assists": {
             "short": " Ast",
@@ -22,7 +30,7 @@
         },
         "minutes": {
             "short": " Min",
-            "long": "Minutes Played"
+            "long": "Minutes Played "
         },
         "fieldgoal": {
             "label": "FG ",
