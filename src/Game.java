@@ -30,8 +30,47 @@ public class Game {
     private Team lastPlayoffTeam1;
     private Team lastPlayoffTeam2;
     
+    // Store last game's flow insights for recap collection
+    private GameFlowInsights lastGameFlowInsights;
+    
     // Store current season standings for recap W/L records
     private Map<String, List<Integer>> currentStanding;
+
+    /**
+     * Inner class to store score differential data point
+     */
+    public static class ScoreDifferentialPoint {
+        public int quarter;
+        public int timeRemaining;
+        public int differential; // positive = team1 ahead, negative = team2 ahead
+        
+        public ScoreDifferentialPoint(int quarter, int timeRemaining, int differential) {
+            this.quarter = quarter;
+            this.timeRemaining = timeRemaining;
+            this.differential = differential;
+        }
+    }
+
+    /**
+     * Inner class to store game flow insights
+     */
+    public static class GameFlowInsights {
+        public int team1LargestLead;
+        public int team2LargestLead;
+        public int leadChanges;
+        public int timesTied;
+        public String team1MaxLeadTime;  // When team1 had their largest lead
+        public String team2MaxLeadTime;  // When team2 had their largest lead
+        
+        public GameFlowInsights() {
+            this.team1LargestLead = 0;
+            this.team2LargestLead = 0;
+            this.leadChanges = 0;
+            this.timesTied = 1; // Start at 1 because game begins 0-0
+            this.team1MaxLeadTime = "";
+            this.team2MaxLeadTime = "";
+        }
+    }
 
     /**
      * Inner class to store game recap data
@@ -53,6 +92,8 @@ public class Game {
         public int awayLosses;
         public int homeWins;
         public int homeLosses;
+        // Game flow insights
+        public GameFlowInsights flowInsights;
 
         public GameRecapData(String date, String awayTeam, String homeTeam, int awayScore, int homeScore,
                            double awayFgPct, double homeFgPct, double away3pPct, double home3pPct) {
@@ -71,6 +112,7 @@ public class Game {
             this.awayLosses = 0;
             this.homeWins = 0;
             this.homeLosses = 0;
+            this.flowInsights = null; // Will be set separately
         }
     }
 
@@ -205,6 +247,15 @@ public class Game {
 
         List<Integer> team1Scores = new LinkedList<>();
         List<Integer> team2Scores = new LinkedList<>();
+        
+        // Track score differential throughout the game
+        List<ScoreDifferentialPoint> scoreDifferentials = new ArrayList<>();
+        // Track which minutes we've already recorded for this quarter
+        boolean[] minutesRecorded = new boolean[13]; // 0-12 minutes
+        
+        // Track game flow insights
+        GameFlowInsights gameFlow = new GameFlowInsights();
+        int previousDifferential = 0;  // Track previous differential for lead changes
 
         // Print game header for playoff and play-in games showing home/away
         if (gameMode.equals("playoffs") || gameMode.equals("playin")) {
@@ -227,6 +278,10 @@ public class Game {
         
         // Track total game time for minutes management
         int totalGameTime = 0;
+        
+        // Record score at the start of Q1 (12:00, both teams at 0-0)
+        scoreDifferentials.add(new ScoreDifferentialPoint(1, 720, 0));
+        minutesRecorded[12] = true;
 
         // Play-by-play simulation
         while (quarterTime >= 0) {
@@ -244,8 +299,33 @@ public class Game {
             Utilities.updatePlayerMinutes(teamTwoOnCourt, currentPlayTime);
             totalGameTime += currentPlayTime;
             
+            // Track score differential at minute boundaries
+            // Record score BEFORE decrementing quarterTime, at the moment we first reach each minute
+            int beforeMinute = quarterTime / 60;  // Which minute we're currently in
+            int afterMinute = (quarterTime - currentPlayTime) / 60;  // Which minute we'll be in after this play
+            
+            // Record score for each minute we're entering for the first time
+            for (int minute = beforeMinute - 1; minute >= afterMinute; minute--) {
+                if (minute >= 0 && minute <= 12 && !minutesRecorded[minute]) {
+                    int timeAtMinute = minute * 60;
+                    int differential = team1.totalScore - team2.totalScore;
+                    scoreDifferentials.add(new ScoreDifferentialPoint(currentQuarter, timeAtMinute, differential));
+                    minutesRecorded[minute] = true;
+                    
+                    // Update game flow insights
+                    updateGameFlowInsights(gameFlow, differential, previousDifferential, currentQuarter, timeAtMinute);
+                    previousDifferential = differential;
+                }
+            }
+            
             // after each quarter, update two teams' quarter scores
-            if (quarterTime == 0) Utilities.updateQuarterScores(team1Scores, team2Scores, team1.totalScore, team2.totalScore);
+            if (quarterTime == 0) {
+                Utilities.updateQuarterScores(team1Scores, team2Scores, team1.totalScore, team2.totalScore);
+                // Reset minutes tracking for next quarter
+                for (int i = 0; i < minutesRecorded.length; i++) {
+                    minutesRecorded[i] = false;
+                }
+            }
             
             // quarters end or games end
             if (quarterTime == 0 && currentQuarter <= 3) {
@@ -254,11 +334,42 @@ public class Game {
                 currentQuarter += 1;
                 team1.quarterFoul = 0;
                 team2.quarterFoul = 0;
-                hasSubstituted = false; 
+                hasSubstituted = false;
+                
+                // Record score at the start of the new quarter (12:00)
+                int differential = team1.totalScore - team2.totalScore;
+                scoreDifferentials.add(new ScoreDifferentialPoint(currentQuarter, 720, differential));
+                minutesRecorded[12] = true;
             } else if (quarterTime == 0 && currentQuarter >= 4 && team1.totalScore != team2.totalScore) {
                 Comments.gameEnd(team1, team2, team1Scores, team2Scores);
                 team1.totalScoreAllowed = team2.totalScore;
                 team2.totalScoreAllowed = team1.totalScore;
+                
+                // Add final score differential at 0:00 with the actual final score
+                int finalDifferential = team1.totalScore - team2.totalScore;
+                // Check if we already have a 0:00 entry for this quarter, update it if so
+                boolean updated = false;
+                for (int i = scoreDifferentials.size() - 1; i >= 0; i--) {
+                    ScoreDifferentialPoint point = scoreDifferentials.get(i);
+                    if (point.quarter == currentQuarter && point.timeRemaining == 0) {
+                        scoreDifferentials.set(i, new ScoreDifferentialPoint(currentQuarter, 0, finalDifferential));
+                        updated = true;
+                        break;
+                    }
+                }
+                if (!updated) {
+                    scoreDifferentials.add(new ScoreDifferentialPoint(currentQuarter, 0, finalDifferential));
+                }
+                
+                // Update game flow insights with final score
+                updateGameFlowInsights(gameFlow, finalDifferential, previousDifferential, currentQuarter, 0);
+                
+                // Display game flow insights
+                displayGameFlowInsights(gameFlow, team1, team2);
+                
+                // Display score differential diagram
+                displayScoreDifferentialDiagram(scoreDifferentials, team1, team2);
+                
                 break;
             } else if (quarterTime == 0 && currentQuarter >= 4 && team1.totalScore == team2.totalScore) {
                 quarterTime = 300;
@@ -380,19 +491,20 @@ public class Game {
             stat.updateTeamStats(team1);
             stat.updateTeamStats(team2);
             
-            // Collect recap data
-            collectGameRecap(team1, team2, info);
+            // Collect recap data with game flow insights
+            collectGameRecap(team1, team2, info, gameFlow);
         }
         
         // for play-in games, collect recap data
         if (gameMode.equals("playin")) {
-            collectPlayInGameData(team1, team2, info);
+            collectPlayInGameData(team1, team2, info, gameFlow);
         }
         
         // for playoff games, store the teams for series recap collection
         if (gameMode.equals("playoffs")) {
             lastPlayoffTeam1 = team1;
             lastPlayoffTeam2 = team2;
+            lastGameFlowInsights = gameFlow;
         }
 
         return team1.totalScore > team2.totalScore ? team1Name : team2Name;
@@ -428,7 +540,7 @@ public class Game {
     /**
      * Collect game recap data from a completed game
      */
-    private void collectGameRecap(Team team1, Team team2, String date) {
+    private void collectGameRecap(Team team1, Team team2, String date, GameFlowInsights gameFlow) {
         // Calculate team shooting percentages
         double team1FgPct = team1.totalShotMade > 0 ? (team1.totalShotMade * 100.0 / team1.totalShotAttempted) : 0.0;
         double team2FgPct = team2.totalShotMade > 0 ? (team2.totalShotMade * 100.0 / team2.totalShotAttempted) : 0.0;
@@ -442,10 +554,175 @@ public class Game {
         recap.awayTopPlayers = getTopPlayers(team1);
         recap.homeTopPlayers = getTopPlayers(team2);
         
+        // Store game flow insights
+        recap.flowInsights = gameFlow;
+        
         // W/L records will be updated after the game in hostSeason()
         // Don't read from currentStanding here as it hasn't been updated yet
 
         seasonRecaps.add(recap);
+    }
+
+    /**
+     * Display score differential diagram showing point differential throughout the game
+     */
+    private void displayScoreDifferentialDiagram(List<ScoreDifferentialPoint> scoreDifferentials, 
+                                                  Team team1, Team team2) {
+        if (scoreDifferentials.isEmpty()) {
+            return;
+        }
+        
+        System.out.println("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        System.out.println(LocalizedStrings.get("game.score_differential_title"));
+        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        
+        String team1Display = Constants.getLocalizedTeamName(team1.name);
+        String team2Display = Constants.getLocalizedTeamName(team2.name);
+        
+        // Find max differential to scale the diagram
+        int maxDiff = 0;
+        for (ScoreDifferentialPoint point : scoreDifferentials) {
+            maxDiff = Math.max(maxDiff, Math.abs(point.differential));
+        }
+        
+        // Set scale: each character represents scale points
+        int scale = Math.max(1, (maxDiff + 19) / 20); // Diagram width will be ~20 chars max per side
+        
+        // Build separator line
+        StringBuilder separator = new StringBuilder();
+        separator.append(team1Display).append(" ").append(LocalizedStrings.get("game.score_differential_leading"))
+                 .append(" ←");
+        for (int i = 0; i < 15; i++) separator.append("─");
+        separator.append(" 0 ");
+        for (int i = 0; i < 15; i++) separator.append("─");
+        separator.append("→ ").append(team2Display).append(" ")
+                 .append(LocalizedStrings.get("game.score_differential_leading"));
+        System.out.println(separator.toString());
+        System.out.println();
+        
+        int lastQuarter = 0;
+        for (ScoreDifferentialPoint point : scoreDifferentials) {
+            // Print quarter separator
+            if (point.quarter != lastQuarter) {
+                if (lastQuarter > 0) System.out.println();
+                if (point.quarter <= 4) {
+                    System.out.println(LocalizedStrings.get("commentary.time.quarter_prefix") + 
+                                     point.quarter + 
+                                     LocalizedStrings.get("commentary.time.quarter_suffix") + ":");
+                } else {
+                    System.out.println(LocalizedStrings.get("commentary.time.overtime_prefix") + 
+                                     (point.quarter - 4) + ":");
+                }
+                lastQuarter = point.quarter;
+            }
+            
+            // Format time with consistent width (5 characters: MM:SS)
+            int minutes = point.timeRemaining / 60;
+            int seconds = point.timeRemaining % 60;
+            String timeStr = String.format("%2d:%02d", minutes, seconds);
+            
+            // Create the bar with proper alignment
+            StringBuilder line = new StringBuilder();
+            line.append(timeStr).append("  "); // Time + 2 spaces
+            
+            int barLength = Math.abs(point.differential) / scale;
+            if (barLength == 0 && point.differential != 0) barLength = 1; // Show at least 1 char
+            
+            if (point.differential > 0) {
+                // Team1 (away/left) leading - bar goes to the LEFT of center
+                for (int i = 0; i < 15 - barLength; i++) line.append(" ");
+                for (int i = 0; i < barLength; i++) line.append("█");
+                line.append("│ ").append(point.differential);
+            } else if (point.differential < 0) {
+                // Team2 (home/right) leading - bar goes to the RIGHT of center
+                for (int i = 0; i < 15; i++) line.append(" ");
+                line.append("│");
+                for (int i = 0; i < barLength; i++) line.append("█");
+                line.append(" ").append(Math.abs(point.differential));
+            } else {
+                // Tied - just the center line
+                for (int i = 0; i < 15; i++) line.append(" ");
+                line.append("│ ").append(LocalizedStrings.get("game.score_differential_tied"));
+            }
+            
+            System.out.println(line.toString());
+        }
+        
+        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+    }
+
+    /**
+     * Update game flow insights based on current differential
+     */
+    private void updateGameFlowInsights(GameFlowInsights gameFlow, int currentDiff, int previousDiff, 
+                                       int quarter, int timeRemaining) {
+        // Track largest leads
+        if (currentDiff > gameFlow.team1LargestLead) {
+            gameFlow.team1LargestLead = currentDiff;
+            int minutes = timeRemaining / 60;
+            int seconds = timeRemaining % 60;
+            String quarterStr = quarter <= 4 ? 
+                LocalizedStrings.get("commentary.time.quarter_prefix") + quarter + 
+                LocalizedStrings.get("commentary.time.quarter_suffix") :
+                LocalizedStrings.get("commentary.time.overtime_prefix") + (quarter - 4);
+            gameFlow.team1MaxLeadTime = quarterStr + " " + minutes + ":" + 
+                                        String.format("%02d", seconds);
+        }
+        if (currentDiff < 0 && Math.abs(currentDiff) > gameFlow.team2LargestLead) {
+            gameFlow.team2LargestLead = Math.abs(currentDiff);
+            int minutes = timeRemaining / 60;
+            int seconds = timeRemaining % 60;
+            String quarterStr = quarter <= 4 ? 
+                LocalizedStrings.get("commentary.time.quarter_prefix") + quarter + 
+                LocalizedStrings.get("commentary.time.quarter_suffix") :
+                LocalizedStrings.get("commentary.time.overtime_prefix") + (quarter - 4);
+            gameFlow.team2MaxLeadTime = quarterStr + " " + minutes + ":" + 
+                                        String.format("%02d", seconds);
+        }
+        
+        // Track lead changes (when differential changes sign, excluding ties)
+        if (previousDiff > 0 && currentDiff < 0) {
+            gameFlow.leadChanges++;
+        } else if (previousDiff < 0 && currentDiff > 0) {
+            gameFlow.leadChanges++;
+        }
+        
+        // Track times tied
+        if (currentDiff == 0 && previousDiff != 0) {
+            gameFlow.timesTied++;
+        }
+    }
+
+    /**
+     * Display game flow insights
+     */
+    private void displayGameFlowInsights(GameFlowInsights gameFlow, Team team1, Team team2) {
+        System.out.println("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        System.out.println(LocalizedStrings.get("game.flow_insights_title"));
+        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        
+        String team1Display = Constants.getLocalizedTeamName(team1.name);
+        String team2Display = Constants.getLocalizedTeamName(team2.name);
+        
+        // Largest leads
+        if (gameFlow.team1LargestLead > 0) {
+            System.out.println(LocalizedStrings.get("game.flow_largest_lead") + ": " + 
+                             team1Display + " " + gameFlow.team1LargestLead + " " +
+                             LocalizedStrings.get("game.flow_points") + " (" + 
+                             gameFlow.team1MaxLeadTime + ")");
+        }
+        if (gameFlow.team2LargestLead > 0) {
+            System.out.println(LocalizedStrings.get("game.flow_largest_lead") + ": " + 
+                             team2Display + " " + gameFlow.team2LargestLead + " " +
+                             LocalizedStrings.get("game.flow_points") + " (" + 
+                             gameFlow.team2MaxLeadTime + ")");
+        }
+        
+        // Lead changes and times tied
+        System.out.println(LocalizedStrings.get("game.flow_lead_changes") + ": " + gameFlow.leadChanges);
+        System.out.println(LocalizedStrings.get("game.flow_times_tied") + ": " + gameFlow.timesTied);
+        
+        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
     }
 
     /**
@@ -654,7 +931,41 @@ public class Game {
             System.out.println(statsLine.toString());
         }
         
+        // Display game flow insights if available
+        if (game.flowInsights != null) {
+            System.out.println();
+            writeGameFlowInsights(game.flowInsights, game.awayTeam, game.homeTeam);
+        }
+        
         System.out.println();
+    }
+
+    /**
+     * Write game flow insights to recap
+     */
+    private void writeGameFlowInsights(GameFlowInsights gameFlow, String team1Name, String team2Name) {
+        String team1Display = LocalizedStrings.getCurrentLanguage() == LocalizedStrings.Language.CHINESE ?
+                             Constants.translateToChinese(team1Name) : team1Name;
+        String team2Display = LocalizedStrings.getCurrentLanguage() == LocalizedStrings.Language.CHINESE ?
+                             Constants.translateToChinese(team2Name) : team2Name;
+        
+        // Largest leads
+        if (gameFlow.team1LargestLead > 0) {
+            System.out.println(LocalizedStrings.get("game.flow_largest_lead") + ": " + 
+                             team1Display + " " + gameFlow.team1LargestLead + " " +
+                             LocalizedStrings.get("game.flow_points") + 
+                             (gameFlow.team1MaxLeadTime.isEmpty() ? "" : " (" + gameFlow.team1MaxLeadTime + ")"));
+        }
+        if (gameFlow.team2LargestLead > 0) {
+            System.out.println(LocalizedStrings.get("game.flow_largest_lead") + ": " + 
+                             team2Display + " " + gameFlow.team2LargestLead + " " +
+                             LocalizedStrings.get("game.flow_points") + 
+                             (gameFlow.team2MaxLeadTime.isEmpty() ? "" : " (" + gameFlow.team2MaxLeadTime + ")"));
+        }
+        
+        // Lead changes and times tied
+        System.out.println(LocalizedStrings.get("game.flow_lead_changes") + ": " + gameFlow.leadChanges);
+        System.out.println(LocalizedStrings.get("game.flow_times_tied") + ": " + gameFlow.timesTied);
     }
 
     /**
@@ -1033,7 +1344,7 @@ public class Game {
     /**
      * Collect play-in game data right after the game ends
      */
-    private void collectPlayInGameData(Team team1, Team team2, String roundName) {
+    private void collectPlayInGameData(Team team1, Team team2, String roundName, GameFlowInsights gameFlow) {
         // Calculate team shooting percentages
         double team1FgPct = team1.totalShotMade > 0 ? (team1.totalShotMade * 100.0 / team1.totalShotAttempted) : 0.0;
         double team2FgPct = team2.totalShotMade > 0 ? (team2.totalShotMade * 100.0 / team2.totalShotAttempted) : 0.0;
@@ -1046,6 +1357,9 @@ public class Game {
         // Get top 3 players from each team
         gameData.awayTopPlayers = getTopPlayers(team1);
         gameData.homeTopPlayers = getTopPlayers(team2);
+        
+        // Store game flow insights
+        gameData.flowInsights = gameFlow;
         
         // Store with roundName for later status assignment
         PlayInRecapData recap = new PlayInRecapData(roundName, gameData, "", "");
@@ -1348,6 +1662,9 @@ public class Game {
         // Get top 3 players from each team (team1 = away, team2 = home)
         gameData.awayTopPlayers = getTopPlayers(team1);
         gameData.homeTopPlayers = getTopPlayers(team2);
+        
+        // Store game flow insights
+        gameData.flowInsights = lastGameFlowInsights;
 
         // Update series stats for all players who played
         for (Player p : team1.players) {
@@ -1527,6 +1844,43 @@ public class Game {
         String FINAL_PREFIX = LocalizedStrings.get("playoff.round.championship");
         String westChamp = getConferenceChamp(westSeeds, true);
         String eastChamp = getConferenceChamp(eastSeeds, false);
+        
+        // For NBA Finals, determine home court advantage based on regular season record
+        // The team with better regular season record gets home court (lower seed number)
+        if (currentStanding != null) {
+            List<Integer> westRecord = currentStanding.get(westChamp);
+            List<Integer> eastRecord = currentStanding.get(eastChamp);
+            
+            if (westRecord != null && eastRecord != null) {
+                int westWins = westRecord.get(0);
+                int westLosses = westRecord.get(1);
+                int eastWins = eastRecord.get(0);
+                int eastLosses = eastRecord.get(1);
+                
+                // Calculate win percentages
+                double westWinPct = westWins * 100.0 / (westWins + westLosses);
+                double eastWinPct = eastWins * 100.0 / (eastWins + eastLosses);
+                
+                // Team with better record gets seed 1 (home court), other gets seed 2
+                if (westWinPct > eastWinPct) {
+                    teamSeedMap.put(westChamp, 1); // West has better record
+                    teamSeedMap.put(eastChamp, 2);
+                } else if (eastWinPct > westWinPct) {
+                    teamSeedMap.put(eastChamp, 1); // East has better record
+                    teamSeedMap.put(westChamp, 2);
+                } else {
+                    // Same win percentage, team with fewer losses gets home court
+                    if (westLosses < eastLosses) {
+                        teamSeedMap.put(westChamp, 1);
+                        teamSeedMap.put(eastChamp, 2);
+                    } else {
+                        teamSeedMap.put(eastChamp, 1);
+                        teamSeedMap.put(westChamp, 2);
+                    }
+                }
+            }
+        }
+        
         hostSeries(westChamp, eastChamp, FINAL_PREFIX);
         
         // Write playoff recap after all playoff games complete

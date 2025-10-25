@@ -104,6 +104,22 @@ public class Constants {
     public final static int VERY_LOW_DURABILITY_MINUTES = 20 * 60; // 1200 seconds
     public final static int NON_STARTER_MAX_MINUTES = 35 * 60;     // Bench players use high limit
     
+    // Athleticism-based target minutes adjustment for starters (in seconds)
+    public final static int ATHLETICISM_ELITE_THRESHOLD = 90;
+    public final static int ATHLETICISM_ELITE_BONUS = 2 * 60;      // +2 minutes
+    public final static int ATHLETICISM_HIGH_THRESHOLD = 85;
+    public final static int ATHLETICISM_HIGH_BONUS = 1 * 60;       // +1 minute
+    public final static int ATHLETICISM_ABOVE_AVG_THRESHOLD = 80;
+    public final static int ATHLETICISM_ABOVE_AVG_PENALTY = -2 * 60;  // -2 minutes
+    public final static int ATHLETICISM_AVG_THRESHOLD = 75;
+    public final static int ATHLETICISM_AVG_PENALTY = -3 * 60;     // -3 minutes
+    public final static int ATHLETICISM_BELOW_AVG_THRESHOLD = 70;
+    public final static int ATHLETICISM_BELOW_AVG_PENALTY = -4 * 60;  // -4 minutes
+    public final static int ATHLETICISM_LOW_THRESHOLD = 65;
+    public final static int ATHLETICISM_LOW_PENALTY = -5 * 60;     // -5 minutes
+    public final static int ATHLETICISM_VERY_LOW_PENALTY = -6 * 60;   // -6 minutes
+    public final static int MIN_STARTER_MINUTES = 18 * 60;         // Minimum 18 minutes for any starter
+    
     // Maximum continuous stint duration before rest needed (in seconds)
     public final static int MAX_STARTER_STINT = 10 * 60;  // 10 minutes 
     public final static int MAX_STARTER_STINT_CLOSE_GAME = 8 * 60;  // 6 minutes in close games
