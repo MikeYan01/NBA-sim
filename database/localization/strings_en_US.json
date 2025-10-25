@@ -56,7 +56,17 @@
         "finalscore": "Final Score",
         "overtime": {
             "suffix": "OT"
-        }
+        },
+        "score_differential_title": "Score Differential Chart",
+        "score_differential_leading": "Leading",
+        "score_differential_tied": "Tied",
+        "score_differential_scale": "Scale",
+        "score_differential_points": "pts",
+        "flow_insights_title": "Game Flow Insights",
+        "flow_largest_lead": "Largest Lead",
+        "flow_points": "pts",
+        "flow_lead_changes": "Lead Changes",
+        "flow_times_tied": "Times Tied"
     },
     "playoff": {
         "round": {

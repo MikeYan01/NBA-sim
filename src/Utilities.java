@@ -894,8 +894,13 @@ public class Utilities {
         else if (consistencyDiff < -Constants.CONSISTENCY_MAX_BONUS) percentage -= Constants.CONSISTENCY_MAX_BONUS;
         else percentage += consistencyDiff;
 
-        // athleticism
-        percentage += Constants.ATHLETIC_COFF * (offensePlayer.athleticism - defensePlayer.athleticism);
+        // athleticism - uses sigmoid function with distance-dependent weighting
+        // Close shots (drives, dunks): athleticism matters more (higher weight)
+        // Mid-range: moderate athleticism impact
+        // Three-pointers: minimal athleticism impact (shooting touch > athleticism)
+        double athleticismDiff = offensePlayer.athleticism - defensePlayer.athleticism;
+        double athleticismImpact = calculateAthleticismImpact(athleticismDiff, distance);
+        percentage += athleticismImpact;
 
         // clutch time penalty with linear decay based on offensive consistency
         // Higher offConst = less penalty (closer to 1.0), lower offConst = more penalty (closer to CLUTCH_SHOT_COFF)
@@ -1376,18 +1381,45 @@ public class Utilities {
     }
     
     /**
-     * Calculate target minutes for a starter based on durability
+     * Calculate target minutes for a starter based on durability and athleticism.
+     * 
+     * @param player The player to calculate target minutes for
+     * @return Target minutes in seconds
      */
     private static int getTargetMinutes(Player player) {
         if (player.rotationType != Player.RotationType.STARTER) {
             return Constants.NON_STARTER_MAX_MINUTES; // Bench players use default high limit
         }
         
+        // Base minutes determined by durability (major factor)
+        int baseMinutes;
         int durability = player.durability;
-        if (durability >= Constants.HIGH_DURABILITY_THRESHOLD) return Constants.HIGH_DURABILITY_MINUTES;
-        else if (durability >= Constants.MEDIUM_DURABILITY_THRESHOLD) return Constants.MEDIUM_DURABILITY_MINUTES;
-        else if (durability >= Constants.LOW_DURABILITY_THRESHOLD) return Constants.LOW_DURABILITY_MINUTES;
-        else return Constants.VERY_LOW_DURABILITY_MINUTES;
+        if (durability >= Constants.HIGH_DURABILITY_THRESHOLD) baseMinutes = Constants.HIGH_DURABILITY_MINUTES;
+        else if (durability >= Constants.MEDIUM_DURABILITY_THRESHOLD) baseMinutes = Constants.MEDIUM_DURABILITY_MINUTES;
+        else if (durability >= Constants.LOW_DURABILITY_THRESHOLD) baseMinutes = Constants.LOW_DURABILITY_MINUTES;
+        else baseMinutes = Constants.VERY_LOW_DURABILITY_MINUTES;
+        
+        int athleticismAdjustment;
+        int athleticism = player.athleticism;
+        if (athleticism >= Constants.ATHLETICISM_ELITE_THRESHOLD) {
+            athleticismAdjustment = Constants.ATHLETICISM_ELITE_BONUS;
+        } else if (athleticism >= Constants.ATHLETICISM_HIGH_THRESHOLD) {
+            athleticismAdjustment = Constants.ATHLETICISM_HIGH_BONUS;
+        } else if (athleticism >= Constants.ATHLETICISM_ABOVE_AVG_THRESHOLD) {
+            athleticismAdjustment = Constants.ATHLETICISM_ABOVE_AVG_PENALTY;
+        } else if (athleticism >= Constants.ATHLETICISM_AVG_THRESHOLD) {
+            athleticismAdjustment = Constants.ATHLETICISM_AVG_PENALTY;
+        } else if (athleticism >= Constants.ATHLETICISM_BELOW_AVG_THRESHOLD) {
+            athleticismAdjustment = Constants.ATHLETICISM_BELOW_AVG_PENALTY;
+        } else if (athleticism >= Constants.ATHLETICISM_LOW_THRESHOLD) {
+            athleticismAdjustment = Constants.ATHLETICISM_LOW_PENALTY;
+        } else {
+            athleticismAdjustment = Constants.ATHLETICISM_VERY_LOW_PENALTY;
+        }
+        
+        // Apply adjustment, ensure minimum of 18 minutes for any starter
+        int targetMinutes = baseMinutes + athleticismAdjustment;
+        return Math.max(targetMinutes, Constants.MIN_STARTER_MINUTES); // Minimum 18 minutes for starters
     }
     
     /**
@@ -1582,6 +1614,52 @@ public class Utilities {
         }
         
         return false;
+    }
+    
+    /**
+     * Calculate athleticism impact on shooting percentage using sigmoid function.
+     * Uses distance-dependent weighting: athleticism matters more on close shots.
+     * 
+     * Mathematical model:
+     * 1. Sigmoid function: f(x) = k * (2 / (1 + e^(-x/scale)) - 1)
+     *    - Maps any difference to range [-k, +k] with smooth diminishing returns
+     *    - scale controls how quickly the curve saturates (higher = more gradual)
+     * 
+     * 2. Distance-based weight:
+     *    - Close shots (≤12ft): 100% weight (athleticism critical for drives/dunks)
+     *    - Mid-range (13-22ft): 60% weight (athleticism helps but less critical)
+     *    - Three-point (≥23ft): 30% weight (shooting touch > athleticism)
+     * 
+     * @param athleticismDiff Difference in athleticism (offense - defense)
+     * @param distance Shot distance in feet
+     * @return Percentage adjustment based on athleticism
+     */
+    private static double calculateAthleticismImpact(double athleticismDiff, int distance) {
+        // Sigmoid parameters
+        final double MAX_IMPACT = 4.0;  // Maximum percentage boost/penalty at extreme differences
+        final double SIGMOID_SCALE = 15.0;  // Controls curve steepness (higher = more gradual)
+        
+        // Calculate sigmoid value: maps (-∞, +∞) to (-1, +1)
+        // At diff=0: impact=0
+        // At diff=15: impact ≈ 0.63 * MAX_IMPACT (63% of max)
+        // At diff=30: impact ≈ 0.86 * MAX_IMPACT (86% of max)
+        // At diff=50: impact ≈ 0.96 * MAX_IMPACT (96% of max, nearly saturated)
+        double sigmoidValue = 2.0 / (1.0 + Math.exp(-athleticismDiff / SIGMOID_SCALE)) - 1.0;
+        
+        // Distance-based weight factor
+        double distanceWeight;
+        if (distance <= Constants.MAX_CLOSE_SHOT) {
+            // Close shots: full athleticism impact
+            distanceWeight = 1.0;
+        } else if (distance <= Constants.MAX_MID_SHOT) {
+            // Mid-range: moderate athleticism impact
+            distanceWeight = 0.6;
+        } else {
+            // Three-pointers: minimal athleticism impact
+            distanceWeight = 0.3;
+        }
+        
+        return MAX_IMPACT * sigmoidValue * distanceWeight;
     }
     
     /**

@@ -56,7 +56,17 @@
         "finalscore": "最终比分",
         "overtime": {
             "suffix": "加时"
-        }
+        },
+        "score_differential_title": "分差走势图",
+        "score_differential_leading": "领先",
+        "score_differential_tied": "平局",
+        "score_differential_scale": "比例",
+        "score_differential_points": "分",
+        "flow_insights_title": "比赛流程分析",
+        "flow_largest_lead": "最大领先优势",
+        "flow_points": "分",
+        "flow_lead_changes": "领先易手次数",
+        "flow_times_tied": "平局次数"
     },
     "playoff": {
         "round": {
