@@ -33,6 +33,9 @@ public class Game {
     // Store last game's flow insights for recap collection
     private GameFlowInsights lastGameFlowInsights;
     
+    // Store last playoff game's final quarter for overtime tracking
+    private int lastPlayoffFinalQuarter;
+    
     // Store current season standings for recap W/L records
     private Map<String, List<Integer>> currentStanding;
 
@@ -94,6 +97,8 @@ public class Game {
         public int homeLosses;
         // Game flow insights
         public GameFlowInsights flowInsights;
+        // Overtime tracking (4 = regulation, 5 = 1OT, 6 = 2OT, etc.)
+        public int finalQuarter;
 
         public GameRecapData(String date, String awayTeam, String homeTeam, int awayScore, int homeScore,
                            double awayFgPct, double homeFgPct, double away3pPct, double home3pPct) {
@@ -113,6 +118,7 @@ public class Game {
             this.homeWins = 0;
             this.homeLosses = 0;
             this.flowInsights = null; // Will be set separately
+            this.finalQuarter = 4; // Default to regulation
         }
     }
 
@@ -491,13 +497,13 @@ public class Game {
             stat.updateTeamStats(team1);
             stat.updateTeamStats(team2);
             
-            // Collect recap data with game flow insights
-            collectGameRecap(team1, team2, info, gameFlow);
+            // Collect recap data with game flow insights and overtime info
+            collectGameRecap(team1, team2, info, gameFlow, currentQuarter);
         }
         
         // for play-in games, collect recap data
         if (gameMode.equals("playin")) {
-            collectPlayInGameData(team1, team2, info, gameFlow);
+            collectPlayInGameData(team1, team2, info, gameFlow, currentQuarter);
         }
         
         // for playoff games, store the teams for series recap collection
@@ -505,6 +511,7 @@ public class Game {
             lastPlayoffTeam1 = team1;
             lastPlayoffTeam2 = team2;
             lastGameFlowInsights = gameFlow;
+            lastPlayoffFinalQuarter = currentQuarter;
         }
 
         return team1.totalScore > team2.totalScore ? team1Name : team2Name;
@@ -540,7 +547,7 @@ public class Game {
     /**
      * Collect game recap data from a completed game
      */
-    private void collectGameRecap(Team team1, Team team2, String date, GameFlowInsights gameFlow) {
+    private void collectGameRecap(Team team1, Team team2, String date, GameFlowInsights gameFlow, int finalQuarter) {
         // Calculate team shooting percentages
         double team1FgPct = team1.totalShotMade > 0 ? (team1.totalShotMade * 100.0 / team1.totalShotAttempted) : 0.0;
         double team2FgPct = team2.totalShotMade > 0 ? (team2.totalShotMade * 100.0 / team2.totalShotAttempted) : 0.0;
@@ -556,6 +563,9 @@ public class Game {
         
         // Store game flow insights
         recap.flowInsights = gameFlow;
+        
+        // Store overtime info
+        recap.finalQuarter = finalQuarter;
         
         // W/L records will be updated after the game in hostSeason()
         // Don't read from currentStanding here as it hasn't been updated yet
@@ -855,9 +865,32 @@ public class Game {
             homeRecord = " (" + game.homeWins + "-" + game.homeLosses + ")";
         }
         
-        // Final score line with W/L records
+        // Build overtime suffix if applicable
+        String overtimeSuffix = "";
+        if (game.finalQuarter > 4) {
+            int overtimeCount = game.finalQuarter - 4;
+            String otLabel = LocalizedStrings.get("game.overtime.suffix");
+            
+            if (LocalizedStrings.getCurrentLanguage() == LocalizedStrings.Language.CHINESE) {
+                // Chinese: (加时) for 1 OT, (2加时) for 2 OT, etc.
+                if (overtimeCount == 1) {
+                    overtimeSuffix = " (" + otLabel + ")";
+                } else {
+                    overtimeSuffix = " (" + overtimeCount + otLabel + ")";
+                }
+            } else {
+                // English: (OT) for 1 OT, (2OT) for 2 OT, etc.
+                if (overtimeCount == 1) {
+                    overtimeSuffix = " (" + otLabel + ")";
+                } else {
+                    overtimeSuffix = " (" + overtimeCount + otLabel + ")";
+                }
+            }
+        }
+        
+        // Final score line with W/L records and overtime suffix
         System.out.println(LocalizedStrings.get("game.finalscore") + ": " + awayRecord + awayTeamDisplay + " " + game.awayScore + 
-                          " " + LocalizedStrings.get("game.at") + " " + homeTeamDisplay + " " + game.homeScore + homeRecord);
+                          " " + LocalizedStrings.get("game.at") + " " + homeTeamDisplay + " " + game.homeScore + homeRecord + overtimeSuffix);
         
         // Shooting percentages line
         System.out.println(LocalizedStrings.get("stat.fieldgoal.pct") + ": " + 
@@ -1344,7 +1377,7 @@ public class Game {
     /**
      * Collect play-in game data right after the game ends
      */
-    private void collectPlayInGameData(Team team1, Team team2, String roundName, GameFlowInsights gameFlow) {
+    private void collectPlayInGameData(Team team1, Team team2, String roundName, GameFlowInsights gameFlow, int finalQuarter) {
         // Calculate team shooting percentages
         double team1FgPct = team1.totalShotMade > 0 ? (team1.totalShotMade * 100.0 / team1.totalShotAttempted) : 0.0;
         double team2FgPct = team2.totalShotMade > 0 ? (team2.totalShotMade * 100.0 / team2.totalShotAttempted) : 0.0;
@@ -1360,6 +1393,9 @@ public class Game {
         
         // Store game flow insights
         gameData.flowInsights = gameFlow;
+        
+        // Store overtime info
+        gameData.finalQuarter = finalQuarter;
         
         // Store with roundName for later status assignment
         PlayInRecapData recap = new PlayInRecapData(roundName, gameData, "", "");
@@ -1618,7 +1654,7 @@ public class Game {
                 // Pass team1 and team2 names to maintain series order consistency
                 collectPlayoffGameData(lastPlayoffTeam1, lastPlayoffTeam2, seriesRecap, gameCount, 
                                       team1Win, team2Win, playerSeriesStats, playerEnglishNames, playerTeamMap,
-                                      team1, team2);
+                                      team1, team2, lastPlayoffFinalQuarter);
                 
                 gameCount++;
 
@@ -1647,7 +1683,7 @@ public class Game {
     private void collectPlayoffGameData(Team team1, Team team2, SeriesRecap seriesRecap, int gameCount,
                                        int team1Wins, int team2Wins, Map<String, int[]> playerSeriesStats,
                                        Map<String, String> playerEnglishNames, Map<String, String> playerTeamMap,
-                                       String seriesTeam1Name, String seriesTeam2Name) {
+                                       String seriesTeam1Name, String seriesTeam2Name, int finalQuarter) {
         // team1 and team2 here are in away/home order from the actual game
         // We need to store them in away/home order for display, but track series wins correctly
         
@@ -1665,6 +1701,9 @@ public class Game {
         
         // Store game flow insights
         gameData.flowInsights = lastGameFlowInsights;
+        
+        // Store overtime info
+        gameData.finalQuarter = finalQuarter;
 
         // Update series stats for all players who played
         for (Player p : team1.players) {
