@@ -1132,6 +1132,12 @@ public class Game {
             System.out.println("\n" + LocalizedStrings.get("leaderboard.team_fgmpg"));
             stat.printTeamRank(stat.teamPerShotsMade);
 
+            System.out.println("\n" + LocalizedStrings.get("leaderboard.team_3pmpg"));
+            stat.printTeamRank(stat.teamPerThreeMade);
+
+            System.out.println("\n" + LocalizedStrings.get("leaderboard.team_ftmpg"));
+            stat.printTeamRank(stat.teamPerFreeMade);
+
             System.out.println("\n" + LocalizedStrings.get("leaderboard.team_fgpct"));
             stat.printTeamRank(stat.teamPerShotsPercent);
 

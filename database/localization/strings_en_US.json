@@ -210,6 +210,8 @@
         "team_ppg": "Team Points Per Game Leaders",
         "team_papg": "Team Points Allowed Per Game Leaders",
         "team_fgmpg": "Team Field Goals Made Per Game Leaders",
+        "team_3pmpg": "Team Three-Pointers Made Per Game Leaders",
+        "team_ftmpg": "Team Free Throws Made Per Game Leaders",
         "team_fgpct": "Team Field Goal Percentage Leaders",
         "team_3ppct": "Team Three-Point Percentage Leaders"
     }
