@@ -46,6 +46,7 @@ public class SeasonStats {
     public final Map<String, Integer> teamTotalScoresAllowed;
     public final Map<String, Integer> teamTotalShotsMade;
     public final Map<String, Integer> teamTotalThreeMade;
+    public final Map<String, Integer> teamTotalFreeMade;
     public final Map<String, Integer> teamTotalShotsAttempted;
     public final Map<String, Integer> teamTotalThreeAttempted;
 
@@ -53,6 +54,8 @@ public class SeasonStats {
     public final Map<String, Double> teamPerScores;
     public final Map<String, Double> teamPerScoresAllowed;
     public final Map<String, Double> teamPerShotsMade;
+    public final Map<String, Double> teamPerThreeMade;
+    public final Map<String, Double> teamPerFreeMade;
     public final Map<String, Double> teamPerShotsPercent;
     public final Map<String, Double> teamPerThreePercent;
 
@@ -99,12 +102,15 @@ public class SeasonStats {
         teamTotalScoresAllowed = new HashMap<>();
         teamTotalShotsMade = new HashMap<>();
         teamTotalThreeMade = new HashMap<>();
+        teamTotalFreeMade = new HashMap<>();
         teamTotalShotsAttempted = new HashMap<>();
         teamTotalThreeAttempted = new HashMap<>();
 
         teamPerScores = new HashMap<>();
         teamPerScoresAllowed = new HashMap<>();
         teamPerShotsMade = new HashMap<>();
+        teamPerThreeMade = new HashMap<>();
+        teamPerFreeMade = new HashMap<>();
         teamPerShotsPercent = new HashMap<>();
         teamPerThreePercent = new HashMap<>();
     }
@@ -185,6 +191,7 @@ public class SeasonStats {
         int scoreAllowed = t.totalScoreAllowed;
         int shotsMade = t.totalShotMade;
         int threeMade = t.total3Made;
+        int freeMade = t.totalFreeMade;
         int shotsAttempted = t.totalShotAttempted;
         int threeAttempted = t.total3Attempted;
 
@@ -194,6 +201,7 @@ public class SeasonStats {
         teamTotalScoresAllowed.put(name, teamTotalScoresAllowed.getOrDefault(name, 0) + scoreAllowed);
         teamTotalShotsMade.put(name, teamTotalShotsMade.getOrDefault(name, 0) + shotsMade);
         teamTotalThreeMade.put(name, teamTotalThreeMade.getOrDefault(name, 0) + threeMade);
+        teamTotalFreeMade.put(name, teamTotalFreeMade.getOrDefault(name, 0) + freeMade);
         teamTotalShotsAttempted.put(name, teamTotalShotsAttempted.getOrDefault(name, 0) + shotsAttempted);
         teamTotalThreeAttempted.put(name, teamTotalThreeAttempted.getOrDefault(name, 0) + threeAttempted);
 
@@ -201,6 +209,8 @@ public class SeasonStats {
         teamPerScores.put(name, Utilities.roundDouble(teamTotalScores.get(name) * 1.0 / teamTotalGames.get(name)));
         teamPerScoresAllowed.put(name, Utilities.roundDouble(teamTotalScoresAllowed.get(name) * 1.0 / teamTotalGames.get(name)));
         teamPerShotsMade.put(name, Utilities.roundDouble(teamTotalShotsMade.get(name) * 1.0 / teamTotalGames.get(name)));
+        teamPerThreeMade.put(name, Utilities.roundDouble(teamTotalThreeMade.get(name) * 1.0 / teamTotalGames.get(name)));
+        teamPerFreeMade.put(name, Utilities.roundDouble(teamTotalFreeMade.get(name) * 1.0 / teamTotalGames.get(name)));
         teamPerShotsPercent.put(name, Utilities.roundDouble(teamTotalShotsMade.get(name) * 1.0 / teamTotalShotsAttempted.get(name), 3));
         teamPerThreePercent.put(name, Utilities.roundDouble(teamTotalThreeMade.get(name) * 1.0 / teamTotalThreeAttempted.get(name), 3));
     }

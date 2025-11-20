@@ -96,12 +96,12 @@ public class Constants {
     
     // Durability-based target minutes for starters (in seconds)
     public final static int HIGH_DURABILITY_THRESHOLD = 90;
-    public final static int HIGH_DURABILITY_MINUTES = 30 * 60;     // 1800 seconds
+    public final static int HIGH_DURABILITY_MINUTES = 32 * 60;     // 1920 seconds
     public final static int MEDIUM_DURABILITY_THRESHOLD = 80;
-    public final static int MEDIUM_DURABILITY_MINUTES = 28 * 60;   // 1680 seconds
+    public final static int MEDIUM_DURABILITY_MINUTES = 30 * 60;   // 1800 seconds
     public final static int LOW_DURABILITY_THRESHOLD = 70;
-    public final static int LOW_DURABILITY_MINUTES = 24 * 60;      // 1440 seconds
-    public final static int VERY_LOW_DURABILITY_MINUTES = 20 * 60; // 1200 seconds
+    public final static int LOW_DURABILITY_MINUTES = 26 * 60;      // 1560 seconds
+    public final static int VERY_LOW_DURABILITY_MINUTES = 22 * 60; // 1320 seconds
     public final static int NON_STARTER_MAX_MINUTES = 35 * 60;     // Bench players use high limit
     
     // Athleticism-based target minutes adjustment for starters (in seconds)
@@ -338,9 +338,9 @@ public class Constants {
     /** Foul ratings and scales */
     public final static int FOUL_RATING_THLD1 = 94;
     public final static int FOUL_RATING_THLD2 = 85;
-    public final static double FOUL_COFF1 = 2.8;
-    public final static double FOUL_COFF2 = 2.3;
-    public final static double FOUL_COFF3 = 2.1;
+    public final static double FOUL_COFF1 = 4;
+    public final static double FOUL_COFF2 = 3.4;
+    public final static double FOUL_COFF3 = 2.8;
     public final static double STAR_FOUL_SCALE = 1.3;
 
     /** Flagrant foul */
