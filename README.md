@@ -105,6 +105,15 @@ Make sure you are under **the program root directory**:
 
 To re-run the program, just type the command again in the CLI. The program will delete the last simulation result and generate new result files. 
 
+### Championship Prediction Mode
+
+You can simulate the season multiple times to predict the championship probability for each team. This mode runs much faster as it suppresses detailed game outputs.
+
+- **Run 100 simulations (default)**: `./run.sh predict`
+- **Run N simulations**: `./run.sh predict N` (e.g., `./run.sh predict 1000`)
+- **English mode**: `./run.sh en predict`
+
+The results will be saved to `output/championship_prediction.txt`.
 
 ## Result Files
 

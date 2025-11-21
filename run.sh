@@ -7,6 +7,8 @@
 #   ./run.sh zh                 # Run full season in Chinese
 #   ./run.sh en Team1 Team2     # Single game in English
 #   ./run.sh zh Team1 Team2     # Single game in Chinese
+#   ./run.sh predict [N]        # Run championship prediction (N times, default 100)
+#   ./run.sh en predict [N]     # Run prediction in English
 
 echo "Compiling source code..."
 javac -encoding UTF-8 src/*.java
@@ -22,6 +24,28 @@ echo "Simulating the result..."
 LANG_ARG=""
 TEAM1=""
 TEAM2=""
+
+# Check for predict mode
+if [ "$1" = "predict" ]; then
+    if [ -n "$2" ]; then
+        java src/Main --predict=$2
+    else
+        java src/Main --predict=100
+    fi
+    echo "Finished!"
+    exit 0
+fi
+
+# Check for language + predict
+if [[ "$1" == "en" || "$1" == "zh" ]] && [[ "$2" == "predict" ]]; then
+    if [ -n "$3" ]; then
+        java src/Main --lang=$1 --predict=$3
+    else
+        java src/Main --lang=$1 --predict=100
+    fi
+    echo "Finished!"
+    exit 0
+fi
 
 if [ $# -eq 0 ]; then
     # No arguments - default Chinese, full season

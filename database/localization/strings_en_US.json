@@ -214,5 +214,9 @@
         "team_ftmpg": "Team Free Throws Made Per Game Leaders",
         "team_fgpct": "Team Field Goal Percentage Leaders",
         "team_3ppct": "Team Three-Point Percentage Leaders"
+    },
+    "prediction": {
+        "title": "Championship Prediction Results (%d simulations)",
+        "wins": "wins"
     }
 }

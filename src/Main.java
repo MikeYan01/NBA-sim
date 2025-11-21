@@ -1,5 +1,8 @@
 package src;
 
+import java.util.*;
+import java.io.*;
+
 public class Main {
 
     /**
@@ -7,6 +10,7 @@ public class Main {
      * 
      * @param args Command line arguments:
      *             --lang=en or --lang=zh : Set language (English or Chinese)
+     *             --predict=100 : Run championship prediction simulation (100 times)
      *             team1 team2 : Host a single game between two teams
      *             (no args) : Run full season simulation
      */
@@ -18,16 +22,104 @@ public class Main {
         // Parse arguments for language setting
         String[] gameArgs = parseLanguageAndGetGameArgs(args);
         
+        // Check for prediction mode
+        int predictionCount = 0;
+        List<String> remainingArgsList = new ArrayList<>();
+        for (String arg : gameArgs) {
+            if (arg.startsWith("--predict")) {
+                if (arg.contains("=")) {
+                    try {
+                        predictionCount = Integer.parseInt(arg.split("=")[1]);
+                    } catch (NumberFormatException e) {
+                        predictionCount = 100; // Default
+                    }
+                } else {
+                    predictionCount = 100; // Default
+                }
+            } else {
+                remainingArgsList.add(arg);
+            }
+        }
+        gameArgs = remainingArgsList.toArray(new String[0]);
+        
         Game game = new Game();
 
         // Host single game or host a season based on arguments length
-        if (gameArgs.length >= 2) {
+        if (predictionCount > 0) {
+            PrintStream console = System.out;
+            System.out.println("Running championship prediction simulation (" + predictionCount + " seasons)...");
+            
+            Map<String, Integer> championCounts = new HashMap<>();
+            
+            long startTime = System.currentTimeMillis();
+            
+            for (int i = 0; i < predictionCount; i++) {
+                // Print progress every 5 seasons
+                if ((i + 1) % 5 == 0) {
+                    console.println("Simulated " + (i + 1) + "/" + predictionCount + " seasons...");
+                }
+                
+                // Create new game instance for each simulation to ensure clean state
+                game = new Game();
+                game.silentMode = true;
+                
+                String champion = game.hostSeason();
+                if (champion != null && !champion.isEmpty()) {
+                    championCounts.put(champion, championCounts.getOrDefault(champion, 0) + 1);
+                }
+            }
+            
+            // Restore console output
+            System.setOut(console);
+            
+            System.out.println("\nSimulation complete!");
+            long endTime = System.currentTimeMillis();
+            System.out.println("Time taken: " + (endTime - startTime) / 1000.0 + " seconds");
+            
+            // Output results
+            outputPredictionResults(championCounts, predictionCount);
+            
+        } else if (gameArgs.length >= 2) {
             game.hostGame(gameArgs[0], gameArgs[1]);
         } else {
             game.hostSeason();
         } 
 
         return;
+    }
+    
+    /**
+     * Output prediction results to file and console.
+     */
+    private static void outputPredictionResults(Map<String, Integer> championCounts, int totalSimulations) {
+        String outputPath = "output/championship_prediction.txt";
+        try (PrintStream ps = new PrintStream(outputPath)) {
+            ps.println(LocalizedStrings.format("prediction.title", totalSimulations));
+            ps.println("==================================================");
+            
+            // Sort by win count
+            List<Map.Entry<String, Integer>> sortedList = new ArrayList<>(championCounts.entrySet());
+            sortedList.sort((e1, e2) -> e2.getValue().compareTo(e1.getValue()));
+            
+            int rank = 1;
+            for (Map.Entry<String, Integer> entry : sortedList) {
+                String teamName = entry.getKey();
+                int wins = entry.getValue();
+                double probability = (double) wins / totalSimulations * 100.0;
+                
+                // Translate team name if needed
+                String displayName = LocalizedStrings.getCurrentLanguage() == LocalizedStrings.Language.CHINESE ?
+                                     Constants.translateToChinese(teamName) : teamName;
+                
+                ps.printf("%d. %s: %d %s (%.1f%%)\n", rank, displayName, wins, LocalizedStrings.get("prediction.wins"), probability);
+                rank++;
+            }
+            
+            System.out.println("Results saved to " + outputPath);
+            
+        } catch (FileNotFoundException e) {
+            System.err.println("Error writing prediction results: " + e.getMessage());
+        }
     }
     
     /**
