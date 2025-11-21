@@ -23,6 +23,15 @@ public class Game {
     // PrintStream for result output
     PrintStream ps;
 
+    // Silent mode for simulation
+    public boolean silentMode = false;
+    
+    public static class NullOutputStream extends OutputStream {
+        @Override
+        public void write(int b) throws IOException {
+        }
+    }
+
     // List to store game recaps for the season
     private List<GameRecapData> seasonRecaps;
     
@@ -217,7 +226,11 @@ public class Game {
             filePath = singleResultsPath + team1FileName + team2FileName + Constants.RESULT_EXTENSION;
         }
                                     
-        ps = new PrintStream(filePath);
+        if (silentMode) {
+            ps = new PrintStream(new NullOutputStream());
+        } else {
+            ps = new PrintStream(filePath);
+        }
         System.setOut(ps);
 
         Team team1 = new Team(team1Name);
@@ -491,7 +504,7 @@ public class Game {
         }
         
         // for regular season games, update season stat and collect recap data
-        if (gameMode.equals("regular")) {
+        if (gameMode.equals("regular") && !silentMode) {
             for (Player p : team1.players) stat.updatePlayerStats(p);
             for (Player p : team2.players) stat.updatePlayerStats(p);
             stat.updateTeamStats(team1);
@@ -502,7 +515,7 @@ public class Game {
         }
         
         // for play-in games, collect recap data
-        if (gameMode.equals("playin")) {
+        if (gameMode.equals("playin") && !silentMode) {
             collectPlayInGameData(team1, team2, info, gameFlow, currentQuarter);
         }
         
@@ -1004,7 +1017,7 @@ public class Game {
     /**
      * Simulate a season (regular season + playoffs).
      */
-    public void hostSeason() {
+    public String hostSeason() {
         SeasonStats stat = new SeasonStats();
 
         // Always use English team names for internal keys (schedule uses English names)
@@ -1098,59 +1111,63 @@ public class Game {
         }
 
         // generate stats leaderboard
-        try {
-            ps = new PrintStream(statFilePath);
-            System.setOut(ps);
+        if (!silentMode) {
+            try {
+                ps = new PrintStream(statFilePath);
+                System.setOut(ps);
 
-            System.out.println(LocalizedStrings.get("leaderboard.player_ppg"));
-            stat.printPlayerRank(stat.playerPerScores);
+                System.out.println(LocalizedStrings.get("leaderboard.player_ppg"));
+                stat.printPlayerRank(stat.playerPerScores);
 
-            System.out.println("\n" + LocalizedStrings.get("leaderboard.player_rpg"));
-            stat.printPlayerRank(stat.playerPerRebs);
+                System.out.println("\n" + LocalizedStrings.get("leaderboard.player_rpg"));
+                stat.printPlayerRank(stat.playerPerRebs);
 
-            System.out.println("\n" + LocalizedStrings.get("leaderboard.player_apg"));
-            stat.printPlayerRank(stat.playerPerAsts);
+                System.out.println("\n" + LocalizedStrings.get("leaderboard.player_apg"));
+                stat.printPlayerRank(stat.playerPerAsts);
 
-            System.out.println("\n" + LocalizedStrings.get("leaderboard.player_spg"));
-            stat.printPlayerRank(stat.playerPerStls);
+                System.out.println("\n" + LocalizedStrings.get("leaderboard.player_spg"));
+                stat.printPlayerRank(stat.playerPerStls);
 
-            System.out.println("\n" + LocalizedStrings.get("leaderboard.player_bpg"));
-            stat.printPlayerRank(stat.playerPerBlks);
+                System.out.println("\n" + LocalizedStrings.get("leaderboard.player_bpg"));
+                stat.printPlayerRank(stat.playerPerBlks);
 
-            System.out.println("\n" + LocalizedStrings.get("leaderboard.player_ftmpg"));
-            stat.printPlayerRank(stat.playerPerFts);
+                System.out.println("\n" + LocalizedStrings.get("leaderboard.player_ftmpg"));
+                stat.printPlayerRank(stat.playerPerFts);
 
-            System.out.println("\n" + LocalizedStrings.get("leaderboard.player_3pmpg"));
-            stat.printPlayerRank(stat.playerPerThrees);
+                System.out.println("\n" + LocalizedStrings.get("leaderboard.player_3pmpg"));
+                stat.printPlayerRank(stat.playerPerThrees);
 
-            System.out.println("\n" + LocalizedStrings.get("leaderboard.team_ppg"));
-            stat.printTeamRank(stat.teamPerScores);
+                System.out.println("\n" + LocalizedStrings.get("leaderboard.team_ppg"));
+                stat.printTeamRank(stat.teamPerScores);
 
-            System.out.println("\n" + LocalizedStrings.get("leaderboard.team_papg"));
-            stat.printTeamRank(stat.teamPerScoresAllowed);
+                System.out.println("\n" + LocalizedStrings.get("leaderboard.team_papg"));
+                stat.printTeamRank(stat.teamPerScoresAllowed);
 
-            System.out.println("\n" + LocalizedStrings.get("leaderboard.team_fgmpg"));
-            stat.printTeamRank(stat.teamPerShotsMade);
+                System.out.println("\n" + LocalizedStrings.get("leaderboard.team_fgmpg"));
+                stat.printTeamRank(stat.teamPerShotsMade);
 
-            System.out.println("\n" + LocalizedStrings.get("leaderboard.team_3pmpg"));
-            stat.printTeamRank(stat.teamPerThreeMade);
+                System.out.println("\n" + LocalizedStrings.get("leaderboard.team_3pmpg"));
+                stat.printTeamRank(stat.teamPerThreeMade);
 
-            System.out.println("\n" + LocalizedStrings.get("leaderboard.team_ftmpg"));
-            stat.printTeamRank(stat.teamPerFreeMade);
+                System.out.println("\n" + LocalizedStrings.get("leaderboard.team_ftmpg"));
+                stat.printTeamRank(stat.teamPerFreeMade);
 
-            System.out.println("\n" + LocalizedStrings.get("leaderboard.team_fgpct"));
-            stat.printTeamRank(stat.teamPerShotsPercent);
+                System.out.println("\n" + LocalizedStrings.get("leaderboard.team_fgpct"));
+                stat.printTeamRank(stat.teamPerShotsPercent);
 
-            System.out.println("\n" + LocalizedStrings.get("leaderboard.team_3ppct"));
-            stat.printTeamRank(stat.teamPerThreePercent);
-        } catch (Exception e) {
-            System.out.println(e);
+                System.out.println("\n" + LocalizedStrings.get("leaderboard.team_3ppct"));
+                stat.printTeamRank(stat.teamPerThreePercent);
+            } catch (Exception e) {
+                System.out.println(e);
+            }
         }
 
         // generate west & east divisions top 8 seeds
         try {
-            ps = new PrintStream(standingFilePath);
-            System.setOut(ps);
+            if (!silentMode) {
+                ps = new PrintStream(standingFilePath);
+                System.setOut(ps);
+            }
 
             // top 8 seeds in both divisions
             String[] westTemp = new String[8];
@@ -1183,33 +1200,35 @@ public class Game {
                 }
             };
             
-            System.out.println(LocalizedStrings.get("conference.west_standings"));
             List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>(westStanding.entrySet());
             Collections.sort(list, vComparator);
-            SeasonStats.printStanding(standing, list);
+            if (!silentMode) {
+                System.out.println(LocalizedStrings.get("conference.west_standings"));
+                SeasonStats.printStanding(standing, list);
+            }
             
             // Copy top 10 teams for play-in tournament
             String[] westTop10 = new String[10];
             for (int i = 0; i < 10; i++) westTop10[i] = list.get(i).getKey();
 
-            System.out.println("\n" + LocalizedStrings.get("conference.east_standings"));
+            if (!silentMode) System.out.println("\n" + LocalizedStrings.get("conference.east_standings"));
             list = new ArrayList<Map.Entry<String, Integer>>(eastStanding.entrySet());
             Collections.sort(list, vComparator);
-            SeasonStats.printStanding(standing, list);
+            if (!silentMode) SeasonStats.printStanding(standing, list);
             
             // Copy top 10 teams for play-in tournament
             String[] eastTop10 = new String[10];
             for (int i = 0; i < 10; i++) eastTop10[i] = list.get(i).getKey();
 
             // Write season recap before play-in
-            writeSeasonRecap();
+            if (!silentMode) writeSeasonRecap();
 
             // Host play-in tournament to determine final 7th and 8th seeds
             String[] finalWestSeeds = hostPlayInTournament(westTop10, true);
             String[] finalEastSeeds = hostPlayInTournament(eastTop10, false);
 
             // Write play-in recap
-            writePlayInRecap();
+            if (!silentMode) writePlayInRecap();
 
             // Combine top 6 + play-in winners (reuse westTemp and eastTemp arrays)
             System.arraycopy(westTop10, 0, westTemp, 0, 6);
@@ -1222,8 +1241,9 @@ public class Game {
             List<String> westSeeds = reorderSeeds(westTemp);
             List<String> eastSeeds = reorderSeeds(eastTemp);
 
-            hostPlayoffs(westSeeds, eastSeeds);
+            return hostPlayoffs(westSeeds, eastSeeds);
         } catch (Exception e) {}
+        return "";
     }
 
     // List to store play-in recap data
@@ -1658,9 +1678,11 @@ public class Game {
                 
                 // Collect game recap data using the stored teams from hostGame
                 // Pass team1 and team2 names to maintain series order consistency
-                collectPlayoffGameData(lastPlayoffTeam1, lastPlayoffTeam2, seriesRecap, gameCount, 
-                                      team1Win, team2Win, playerSeriesStats, playerEnglishNames, playerTeamMap,
-                                      team1, team2, lastPlayoffFinalQuarter);
+                if (!silentMode) {
+                    collectPlayoffGameData(lastPlayoffTeam1, lastPlayoffTeam2, seriesRecap, gameCount, 
+                                          team1Win, team2Win, playerSeriesStats, playerEnglishNames, playerTeamMap,
+                                          team1, team2, lastPlayoffFinalQuarter);
+                }
                 
                 gameCount++;
 
@@ -1672,10 +1694,10 @@ public class Game {
             seriesRecap.team2Wins = team2Win;
             
             // Calculate series MVP
-            calculateSeriesMVP(seriesRecap, playerSeriesStats, playerEnglishNames, playerTeamMap);
+            if (!silentMode) calculateSeriesMVP(seriesRecap, playerSeriesStats, playerEnglishNames, playerTeamMap);
             
             // Store the series recap
-            addToPlayoffRecaps(seriesRecap);
+            if (!silentMode) addToPlayoffRecaps(seriesRecap);
 
             return team1Win == 4 ? team1 : team2;
         } catch (Exception e) {
@@ -1885,7 +1907,7 @@ public class Game {
      * @param westSeeds All 8 seeds of West division
      * @param eastSeeds All 8 seeds of East division
      */
-    public void hostPlayoffs(List<String> westSeeds, List<String> eastSeeds) {
+    public String hostPlayoffs(List<String> westSeeds, List<String> eastSeeds) {
         String FINAL_PREFIX = LocalizedStrings.get("playoff.round.championship");
         String westChamp = getConferenceChamp(westSeeds, true);
         String eastChamp = getConferenceChamp(eastSeeds, false);
@@ -1926,9 +1948,11 @@ public class Game {
             }
         }
         
-        hostSeries(westChamp, eastChamp, FINAL_PREFIX);
+        String champion = hostSeries(westChamp, eastChamp, FINAL_PREFIX);
         
         // Write playoff recap after all playoff games complete
-        writePlayoffRecap();
+        if (!silentMode) writePlayoffRecap();
+
+        return champion;
     }
 }
