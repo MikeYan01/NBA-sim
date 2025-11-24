@@ -276,7 +276,7 @@ public class Constants {
 
     /** Initial shot percent */
     public final static double INIT_CLOSE_SHOT_COFF = -0.2;
-    public final static double INIT_CLOSE_SHOT_INTCP = 38;
+    public final static double INIT_CLOSE_SHOT_INTCP = 37;
     public final static double INIT_MID_SHOT_INTCP = 8;
     public final static double INIT_THREE_SHOT_COFF = -31/81;
     public final static double INIT_THREE_SHOT_INTCP = 42;
@@ -324,7 +324,7 @@ public class Constants {
     public final static int HIGH_BOTH_RATING = 25;
     public final static int HIGH_BOTH_RATING_THLD = 88;
     public final static int HIGHEST_RATING_PERCENT = 10;
-    public final static int STAR_PLAYER_AST = 70;
+    public final static int STAR_PLAYER_AST = 75;
     public final static int NON_STAR_PLAYER_AST = 95;
 
     /** Foul percent */
@@ -338,10 +338,10 @@ public class Constants {
     /** Foul ratings and scales */
     public final static int FOUL_RATING_THLD1 = 94;
     public final static int FOUL_RATING_THLD2 = 85;
-    public final static double FOUL_COFF1 = 4;
-    public final static double FOUL_COFF2 = 3.4;
+    public final static double FOUL_COFF1 = 3.8;
+    public final static double FOUL_COFF2 = 3.3;
     public final static double FOUL_COFF3 = 2.8;
-    public final static double STAR_FOUL_SCALE = 1.3;
+    public final static double STAR_FOUL_SCALE = 1.15;
 
     /** Flagrant foul */
     public final static int FLAG_FOUL = 5;
