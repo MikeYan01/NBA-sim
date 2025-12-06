@@ -363,6 +363,15 @@ public class Game {
                 Comments.gameEnd(team1, team2, team1Scores, team2Scores);
                 team1.totalScoreAllowed = team2.totalScore;
                 team2.totalScoreAllowed = team1.totalScore;
+                // Set opponent shooting stats
+                team1.opponentShotMade = team2.totalShotMade;
+                team1.opponentShotAttempted = team2.totalShotAttempted;
+                team1.opponent3Made = team2.total3Made;
+                team1.opponent3Attempted = team2.total3Attempted;
+                team2.opponentShotMade = team1.totalShotMade;
+                team2.opponentShotAttempted = team1.totalShotAttempted;
+                team2.opponent3Made = team1.total3Made;
+                team2.opponent3Attempted = team1.total3Attempted;
                 
                 // Add final score differential at 0:00 with the actual final score
                 int finalDifferential = team1.totalScore - team2.totalScore;
@@ -1157,6 +1166,12 @@ public class Game {
 
                 System.out.println("\n" + LocalizedStrings.get("leaderboard.team_3ppct"));
                 stat.printTeamRank(stat.teamPerThreePercent);
+
+                System.out.println("\n" + LocalizedStrings.get("leaderboard.team_opp_fgpct"));
+                stat.printTeamRank(stat.teamPerOpponentShotsPercent);
+
+                System.out.println("\n" + LocalizedStrings.get("leaderboard.team_opp_3ppct"));
+                stat.printTeamRank(stat.teamPerOpponent3Percent);
             } catch (Exception e) {
                 System.out.println(e);
             }

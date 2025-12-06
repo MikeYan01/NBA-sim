@@ -213,7 +213,9 @@
         "team_3pmpg": "球队场均三分命中个数榜",
         "team_ftmpg": "球队场均罚球命中个数榜",
         "team_fgpct": "球队场均投篮命中率榜",
-        "team_3ppct": "球队场均三分命中率榜"
+        "team_3ppct": "球队场均三分命中率榜",
+        "team_opp_fgpct": "对手场均投篮命中率榜",
+        "team_opp_3ppct": "对手场均三分命中率榜"
     },
     "prediction": {
         "title": "冠军预测结果 (%d 次模拟)",

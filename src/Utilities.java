@@ -888,11 +888,17 @@ public class Utilities {
         if (temp <= Constants.DEFENSE_EASY) percentage += Constants.DEFENSE_BUFF;
         else if (temp <= Constants.DEFENSE_EASY + Constants.DEFENSE_HARD) percentage -= Constants.DEFENSE_BUFF;
 
-        // offensive consistency & defense player's defensive consistency
-        double consistencyDiff = Constants.CONSISTENCY_COFF * (offensePlayer.offConst - defensePlayer.defConst);
-        if (consistencyDiff > Constants.CONSISTENCY_MAX_BONUS) percentage += Constants.CONSISTENCY_MAX_BONUS;
-        else if (consistencyDiff < -Constants.CONSISTENCY_MAX_BONUS) percentage -= Constants.CONSISTENCY_MAX_BONUS;
-        else percentage += consistencyDiff;
+        // offensive consistency bonus (higher offConst = better)
+        double offConsistencyBonus = Constants.OFF_CONSISTENCY_COFF * (offensePlayer.offConst - Constants.CONSISTENCY_BASE);
+        if (offConsistencyBonus > Constants.OFF_CONSISTENCY_MAX_BONUS) offConsistencyBonus = Constants.OFF_CONSISTENCY_MAX_BONUS;
+        else if (offConsistencyBonus < -Constants.OFF_CONSISTENCY_MAX_BONUS) offConsistencyBonus = -Constants.OFF_CONSISTENCY_MAX_BONUS;
+        percentage += offConsistencyBonus;
+
+        // defensive consistency penalty (higher defConst = harder to score against)
+        double defConsistencyPenalty = Constants.DEF_CONSISTENCY_COFF * (defensePlayer.defConst - Constants.CONSISTENCY_BASE);
+        if (defConsistencyPenalty > Constants.DEF_CONSISTENCY_MAX_BONUS) defConsistencyPenalty = Constants.DEF_CONSISTENCY_MAX_BONUS;
+        else if (defConsistencyPenalty < -Constants.DEF_CONSISTENCY_MAX_BONUS) defConsistencyPenalty = -Constants.DEF_CONSISTENCY_MAX_BONUS;
+        percentage -= defConsistencyPenalty;
 
         // athleticism - uses sigmoid function with distance-dependent weighting
         // Close shots (drives, dunks): athleticism matters more (higher weight)
@@ -911,6 +917,19 @@ public class Utilities {
             double clutchPenalty = Constants.CLUTCH_SHOT_COFF + 
                                   (1.0 - Constants.CLUTCH_SHOT_COFF) * (offensePlayer.offConst - 25) / 74.0;
             percentage *= clutchPenalty;
+        }
+
+        // Elite playmaker bonus - count 90+ astRating players on court
+        int elitePlaymakerCount = 0;
+        for (Player p : offenseTeamOnCourt.values()) {
+            if (p.astRating >= Constants.ELITE_PLAYMAKER_THRESHOLD) {
+                elitePlaymakerCount++;
+            }
+        }
+        if (elitePlaymakerCount >= 2) {
+            percentage += Constants.ELITE_PLAYMAKER_DUAL_BONUS;
+        } else if (elitePlaymakerCount == 1) {
+            percentage += Constants.ELITE_PLAYMAKER_SINGLE_BONUS;
         }
         
         return percentage;
