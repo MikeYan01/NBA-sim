@@ -279,24 +279,21 @@ public class Constants {
     public final static double INIT_CLOSE_SHOT_INTCP = 37;
     public final static double INIT_MID_SHOT_INTCP = 8;
     public final static double INIT_THREE_SHOT_COFF = -31/81;
-    public final static double INIT_THREE_SHOT_INTCP = 42;
+    public final static double INIT_THREE_SHOT_INTCP = 40;
 
     /** Shot percent adjust based on shot type and distance */
     public final static double DUNK_SCALE = 2.5;
     public final static double SHOT_COFF = 0.2;
-    public final static int OFFENSE_BASE = 70;
+    public final static int OFFENSE_BASE = 65;
 
-    /** High astRating players increase shot percent */
-    public final static int AST_RATING_THLD1 = 83;
-    public final static int AST_RATING_THLD2 = 87;
-    public final static int AST_RATING_THLD3 = 93;
-    public final static double AST_RATING_BONUS1 = 0.5;
-    public final static double AST_RATING_BONUS2 = 0.75;
-    public final static double AST_RATING_BONUS3 = 1;
+    /** Elite playmaker bonus - based on high astRating players on court */
+    public final static int ELITE_PLAYMAKER_THRESHOLD = 90;
+    public final static double ELITE_PLAYMAKER_SINGLE_BONUS = 1.0;
+    public final static double ELITE_PLAYMAKER_DUAL_BONUS = 2.5;
 
     /** Defense players affect percent */
-    public final static double DEFENSE_COFF = 0.1;
-    public final static int DEFENSE_BASE = 41;
+    public final static double DEFENSE_COFF = 0.07;
+    public final static int DEFENSE_BASE = 35;
 
     /** Defense density percent */
     public final static int DEFENSE_EASY = 10;
@@ -304,8 +301,11 @@ public class Constants {
     public final static int DEFENSE_BUFF = 12;
 
     /** Offense and defense consistency */
-    public final static double CONSISTENCY_COFF = 0.4;
-    public final static double CONSISTENCY_MAX_BONUS = 2;
+    public final static double OFF_CONSISTENCY_COFF = 0.5;
+    public final static double OFF_CONSISTENCY_MAX_BONUS = 2.5;
+    public final static double DEF_CONSISTENCY_COFF = 0.4;
+    public final static double DEF_CONSISTENCY_MAX_BONUS = 2;
+    public final static int CONSISTENCY_BASE = 50;
 
     /** Athleticism */
     public final static double ATHLETIC_COFF = 0.06;

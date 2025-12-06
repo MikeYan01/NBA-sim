@@ -213,7 +213,9 @@
         "team_3pmpg": "Team Three-Pointers Made Per Game Leaders",
         "team_ftmpg": "Team Free Throws Made Per Game Leaders",
         "team_fgpct": "Team Field Goal Percentage Leaders",
-        "team_3ppct": "Team Three-Point Percentage Leaders"
+        "team_3ppct": "Team Three-Point Percentage Leaders",
+        "team_opp_fgpct": "Opponent Field Goal Percentage Leaders",
+        "team_opp_3ppct": "Opponent Three-Point Percentage Leaders"
     },
     "prediction": {
         "title": "Championship Prediction Results (%d simulations)",

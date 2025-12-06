@@ -59,6 +59,14 @@ public class SeasonStats {
     public final Map<String, Double> teamPerShotsPercent;
     public final Map<String, Double> teamPerThreePercent;
 
+    // team opponent stats
+    public final Map<String, Integer> teamTotalOpponentShotMade;
+    public final Map<String, Integer> teamTotalOpponentShotAttempted;
+    public final Map<String, Integer> teamTotalOpponent3Made;
+    public final Map<String, Integer> teamTotalOpponent3Attempted;
+    public final Map<String, Double> teamPerOpponentShotsPercent;
+    public final Map<String, Double> teamPerOpponent3Percent;
+
     /**
      * Construct a SeasonStats object to store all player stats.
      */
@@ -113,6 +121,13 @@ public class SeasonStats {
         teamPerFreeMade = new HashMap<>();
         teamPerShotsPercent = new HashMap<>();
         teamPerThreePercent = new HashMap<>();
+
+        teamTotalOpponentShotMade = new HashMap<>();
+        teamTotalOpponentShotAttempted = new HashMap<>();
+        teamTotalOpponent3Made = new HashMap<>();
+        teamTotalOpponent3Attempted = new HashMap<>();
+        teamPerOpponentShotsPercent = new HashMap<>();
+        teamPerOpponent3Percent = new HashMap<>();
     }
 
     /**
@@ -194,6 +209,10 @@ public class SeasonStats {
         int freeMade = t.totalFreeMade;
         int shotsAttempted = t.totalShotAttempted;
         int threeAttempted = t.total3Attempted;
+        int opponentShotMade = t.opponentShotMade;
+        int opponentShotAttempted = t.opponentShotAttempted;
+        int opponent3Made = t.opponent3Made;
+        int opponent3Attempted = t.opponent3Attempted;
 
         // update total stats
         teamTotalGames.put(name, teamTotalGames.getOrDefault(name, 0) + 1);
@@ -213,6 +232,14 @@ public class SeasonStats {
         teamPerFreeMade.put(name, Utilities.roundDouble(teamTotalFreeMade.get(name) * 1.0 / teamTotalGames.get(name)));
         teamPerShotsPercent.put(name, Utilities.roundDouble(teamTotalShotsMade.get(name) * 1.0 / teamTotalShotsAttempted.get(name), 3));
         teamPerThreePercent.put(name, Utilities.roundDouble(teamTotalThreeMade.get(name) * 1.0 / teamTotalThreeAttempted.get(name), 3));
+
+        // update opponent stats
+        teamTotalOpponentShotMade.put(name, teamTotalOpponentShotMade.getOrDefault(name, 0) + opponentShotMade);
+        teamTotalOpponentShotAttempted.put(name, teamTotalOpponentShotAttempted.getOrDefault(name, 0) + opponentShotAttempted);
+        teamTotalOpponent3Made.put(name, teamTotalOpponent3Made.getOrDefault(name, 0) + opponent3Made);
+        teamTotalOpponent3Attempted.put(name, teamTotalOpponent3Attempted.getOrDefault(name, 0) + opponent3Attempted);
+        teamPerOpponentShotsPercent.put(name, Utilities.roundDouble(teamTotalOpponentShotMade.get(name) * 1.0 / teamTotalOpponentShotAttempted.get(name), 3));
+        teamPerOpponent3Percent.put(name, Utilities.roundDouble(teamTotalOpponent3Made.get(name) * 1.0 / teamTotalOpponent3Attempted.get(name), 3));
     }
 
     /**
@@ -223,7 +250,9 @@ public class SeasonStats {
      */
     public List<Map.Entry<String, Double>> sortStats(Map<String, Double> table) {
         Comparator<Map.Entry<String, Double>> vComparator = (o1, o2) -> {
-            if (table.equals(teamPerScoresAllowed)) return o1.getValue().compareTo(o2.getValue());
+            if (table.equals(teamPerScoresAllowed) || table.equals(teamPerOpponentShotsPercent) || table.equals(teamPerOpponent3Percent)) {
+                return o1.getValue().compareTo(o2.getValue());
+            }
             return o2.getValue().compareTo(o1.getValue());
         };
 

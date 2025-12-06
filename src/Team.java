@@ -22,6 +22,10 @@ public class Team {
     public int totalFreeMade;
     public int totalFreeAttempted;
     public int totalScoreAllowed;
+    public int opponentShotMade;
+    public int opponentShotAttempted;
+    public int opponent3Made;
+    public int opponent3Attempted;
 
     // Total num of fouls in current quarter
     public int quarterFoul = 0;
@@ -61,6 +65,10 @@ public class Team {
         this.totalFreeMade = 0;
         this.totalFreeAttempted = 0;
         this.totalScoreAllowed = 0;
+        this.opponentShotMade = 0;
+        this.opponentShotAttempted = 0;
+        this.opponent3Made = 0;
+        this.opponent3Attempted = 0;
 
         this.quarterFoul = 0;
 
