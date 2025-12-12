@@ -279,7 +279,7 @@ public class Constants {
     public final static double INIT_CLOSE_SHOT_INTCP = 37;
     public final static double INIT_MID_SHOT_INTCP = 8;
     public final static double INIT_THREE_SHOT_COFF = -31/81;
-    public final static double INIT_THREE_SHOT_INTCP = 40;
+    public final static double INIT_THREE_SHOT_INTCP = 41;
 
     /** Shot percent adjust based on shot type and distance */
     public final static double DUNK_SCALE = 2.5;
@@ -292,7 +292,7 @@ public class Constants {
     public final static double ELITE_PLAYMAKER_DUAL_BONUS = 2.5;
 
     /** Defense players affect percent */
-    public final static double DEFENSE_COFF = 0.07;
+    public final static double DEFENSE_COFF = 0.1;
     public final static int DEFENSE_BASE = 35;
 
     /** Defense density percent */
